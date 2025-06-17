@@ -30,8 +30,11 @@
         {
             this.btnApprove = new System.Windows.Forms.Button();
             this.panelSidebar = new System.Windows.Forms.Panel();
+            this.btnRooms = new System.Windows.Forms.Button();
+            this.btnLecturerSubject = new System.Windows.Forms.Button();
+            this.btnSubjects = new System.Windows.Forms.Button();
             this.btnDepartments = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnTimetable = new System.Windows.Forms.Button();
             this.btnStaff = new System.Windows.Forms.Button();
             this.btnStudents = new System.Windows.Forms.Button();
             this.btnLecturers = new System.Windows.Forms.Button();
@@ -62,8 +65,11 @@
             // 
             // panelSidebar
             // 
+            this.panelSidebar.Controls.Add(this.btnRooms);
+            this.panelSidebar.Controls.Add(this.btnLecturerSubject);
+            this.panelSidebar.Controls.Add(this.btnSubjects);
             this.panelSidebar.Controls.Add(this.btnDepartments);
-            this.panelSidebar.Controls.Add(this.button2);
+            this.panelSidebar.Controls.Add(this.btnTimetable);
             this.panelSidebar.Controls.Add(this.btnStaff);
             this.panelSidebar.Controls.Add(this.btnStudents);
             this.panelSidebar.Controls.Add(this.btnLecturers);
@@ -75,36 +81,70 @@
             this.panelSidebar.Location = new System.Drawing.Point(0, 0);
             this.panelSidebar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelSidebar.Name = "panelSidebar";
-            this.panelSidebar.Size = new System.Drawing.Size(200, 718);
+            this.panelSidebar.Size = new System.Drawing.Size(200, 721);
             this.panelSidebar.TabIndex = 2;
+            // 
+            // btnRooms
+            // 
+            this.btnRooms.Location = new System.Drawing.Point(9, 284);
+            this.btnRooms.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnRooms.Name = "btnRooms";
+            this.btnRooms.Size = new System.Drawing.Size(181, 27);
+            this.btnRooms.TabIndex = 11;
+            this.btnRooms.Text = "Room";
+            this.btnRooms.UseVisualStyleBackColor = true;
+            this.btnRooms.Click += new System.EventHandler(this.btnRooms_Click);
+            // 
+            // btnLecturerSubject
+            // 
+            this.btnLecturerSubject.Location = new System.Drawing.Point(12, 253);
+            this.btnLecturerSubject.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnLecturerSubject.Name = "btnLecturerSubject";
+            this.btnLecturerSubject.Size = new System.Drawing.Size(181, 27);
+            this.btnLecturerSubject.TabIndex = 10;
+            this.btnLecturerSubject.Text = "Assign Subject";
+            this.btnLecturerSubject.UseVisualStyleBackColor = true;
+            this.btnLecturerSubject.Click += new System.EventHandler(this.btnLecturerSubject_Click);
+            // 
+            // btnSubjects
+            // 
+            this.btnSubjects.Location = new System.Drawing.Point(9, 222);
+            this.btnSubjects.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnSubjects.Name = "btnSubjects";
+            this.btnSubjects.Size = new System.Drawing.Size(181, 27);
+            this.btnSubjects.TabIndex = 9;
+            this.btnSubjects.Text = "Subject";
+            this.btnSubjects.UseVisualStyleBackColor = true;
+            this.btnSubjects.Click += new System.EventHandler(this.btnSubjects_Click);
             // 
             // btnDepartments
             // 
-            this.btnDepartments.Location = new System.Drawing.Point(9, 289);
+            this.btnDepartments.Location = new System.Drawing.Point(9, 191);
             this.btnDepartments.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDepartments.Name = "btnDepartments";
-            this.btnDepartments.Size = new System.Drawing.Size(181, 39);
+            this.btnDepartments.Size = new System.Drawing.Size(181, 27);
             this.btnDepartments.TabIndex = 8;
             this.btnDepartments.Text = "Department";
             this.btnDepartments.UseVisualStyleBackColor = true;
             this.btnDepartments.Click += new System.EventHandler(this.btnDepartments_Click);
             // 
-            // button2
+            // btnTimetable
             // 
-            this.button2.Location = new System.Drawing.Point(9, 463);
-            this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(181, 39);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "Timetables";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnTimetable.Location = new System.Drawing.Point(9, 315);
+            this.btnTimetable.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnTimetable.Name = "btnTimetable";
+            this.btnTimetable.Size = new System.Drawing.Size(181, 30);
+            this.btnTimetable.TabIndex = 7;
+            this.btnTimetable.Text = "Timetables";
+            this.btnTimetable.UseVisualStyleBackColor = true;
+            this.btnTimetable.Click += new System.EventHandler(this.btnTimetable_Click);
             // 
             // btnStaff
             // 
-            this.btnStaff.Location = new System.Drawing.Point(9, 230);
+            this.btnStaff.Location = new System.Drawing.Point(9, 159);
             this.btnStaff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStaff.Name = "btnStaff";
-            this.btnStaff.Size = new System.Drawing.Size(181, 39);
+            this.btnStaff.Size = new System.Drawing.Size(181, 28);
             this.btnStaff.TabIndex = 6;
             this.btnStaff.Text = "Staff";
             this.btnStaff.UseVisualStyleBackColor = true;
@@ -112,10 +152,10 @@
             // 
             // btnStudents
             // 
-            this.btnStudents.Location = new System.Drawing.Point(9, 114);
+            this.btnStudents.Location = new System.Drawing.Point(9, 93);
             this.btnStudents.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStudents.Name = "btnStudents";
-            this.btnStudents.Size = new System.Drawing.Size(181, 39);
+            this.btnStudents.Size = new System.Drawing.Size(181, 31);
             this.btnStudents.TabIndex = 5;
             this.btnStudents.Text = "Students";
             this.btnStudents.UseVisualStyleBackColor = true;
@@ -123,10 +163,10 @@
             // 
             // btnLecturers
             // 
-            this.btnLecturers.Location = new System.Drawing.Point(9, 172);
+            this.btnLecturers.Location = new System.Drawing.Point(9, 128);
             this.btnLecturers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLecturers.Name = "btnLecturers";
-            this.btnLecturers.Size = new System.Drawing.Size(181, 39);
+            this.btnLecturers.Size = new System.Drawing.Size(181, 27);
             this.btnLecturers.TabIndex = 4;
             this.btnLecturers.Text = "Lecturers";
             this.btnLecturers.UseVisualStyleBackColor = true;
@@ -134,13 +174,14 @@
             // 
             // btnAttendance
             // 
-            this.btnAttendance.Location = new System.Drawing.Point(9, 348);
+            this.btnAttendance.Location = new System.Drawing.Point(9, 349);
             this.btnAttendance.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAttendance.Name = "btnAttendance";
-            this.btnAttendance.Size = new System.Drawing.Size(181, 39);
+            this.btnAttendance.Size = new System.Drawing.Size(181, 26);
             this.btnAttendance.TabIndex = 3;
             this.btnAttendance.Text = "Attendance";
             this.btnAttendance.UseVisualStyleBackColor = true;
+            this.btnAttendance.Click += new System.EventHandler(this.btnAttendance_Click);
             // 
             // btnLogout
             // 
@@ -155,10 +196,10 @@
             // 
             // btnMarks
             // 
-            this.btnMarks.Location = new System.Drawing.Point(9, 407);
+            this.btnMarks.Location = new System.Drawing.Point(9, 379);
             this.btnMarks.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnMarks.Name = "btnMarks";
-            this.btnMarks.Size = new System.Drawing.Size(181, 39);
+            this.btnMarks.Size = new System.Drawing.Size(181, 25);
             this.btnMarks.TabIndex = 1;
             this.btnMarks.Text = "Marks";
             this.btnMarks.UseVisualStyleBackColor = true;
@@ -168,7 +209,7 @@
             this.btnCourses.Location = new System.Drawing.Point(9, 58);
             this.btnCourses.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCourses.Name = "btnCourses";
-            this.btnCourses.Size = new System.Drawing.Size(181, 39);
+            this.btnCourses.Size = new System.Drawing.Size(181, 31);
             this.btnCourses.TabIndex = 0;
             this.btnCourses.Text = "Courses";
             this.btnCourses.UseVisualStyleBackColor = true;
@@ -181,7 +222,7 @@
             this.panelTop.Location = new System.Drawing.Point(200, 0);
             this.panelTop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(1029, 48);
+            this.panelTop.Size = new System.Drawing.Size(1084, 48);
             this.panelTop.TabIndex = 3;
             // 
             // lblWelcome
@@ -202,7 +243,7 @@
             this.panelContent.Location = new System.Drawing.Point(200, 48);
             this.panelContent.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelContent.Name = "panelContent";
-            this.panelContent.Size = new System.Drawing.Size(1029, 670);
+            this.panelContent.Size = new System.Drawing.Size(1084, 673);
             this.panelContent.TabIndex = 4;
             // 
             // dgvPendingUsers
@@ -221,7 +262,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1229, 718);
+            this.ClientSize = new System.Drawing.Size(1284, 721);
             this.Controls.Add(this.panelContent);
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.panelSidebar);
@@ -251,7 +292,10 @@
         private System.Windows.Forms.Button btnCourses;
         private System.Windows.Forms.Label lblWelcome;
         private System.Windows.Forms.Button btnStaff;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnTimetable;
         private System.Windows.Forms.Button btnDepartments;
+        private System.Windows.Forms.Button btnSubjects;
+        private System.Windows.Forms.Button btnLecturerSubject;
+        private System.Windows.Forms.Button btnRooms;
     }
 }

@@ -19,6 +19,7 @@ namespace UnicomTICManagementSystem.Views
     {
         private readonly StaffController _staffController;
         private readonly DepartmentController _departmentController;
+        private readonly PositionController _positionController;
 
         private int selectedStaffID = -1;
         private bool isUpdateMode = false;
@@ -26,8 +27,8 @@ namespace UnicomTICManagementSystem.Views
         // UI Controls
         private Panel panelGrid, panelForm;
         private DataGridView dgvStaff;
-        private TextBox txtSearch, txtName, txtPosition;
-        private ComboBox cmbDepartment;
+        private TextBox txtSearch, txtName;
+        private ComboBox cmbDepartment, cmbPosition;
         private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnSave, btnCancel;
 
         public StaffControl()
@@ -35,12 +36,15 @@ namespace UnicomTICManagementSystem.Views
             // Dependency Injection
             IStaffRepository staffRepo = new StaffRepository();
             IDepartmentRepository deptRepo = new DepartmentRepository();
+            IPositionRepository positionRepo = new PositionRepository();
 
             IStaffService staffService = new StaffService(staffRepo);
             IDepartmentService deptService = new DepartmentService(deptRepo);
+            IPositionService positionService = new PositionService(positionRepo);
 
             _staffController = new StaffController(staffService);
             _departmentController = new DepartmentController(deptService);
+            _positionController = new PositionController(positionService);
 
             InitializeUI();
             LoadDepartments();
@@ -51,27 +55,25 @@ namespace UnicomTICManagementSystem.Views
         {
             this.Dock = DockStyle.Fill;
 
-            // PANEL: Grid Panel
             panelGrid = new Panel { Dock = DockStyle.Fill };
 
-            txtSearch = new TextBox { Name = "txtSearch", Location = new Point(20, 20), Width = 200 };
-            btnSearch = new Button { Name = "btnSearch", Text = "Search", Location = new Point(230, 18) };
+            txtSearch = new TextBox { Location = new Point(20, 20), Width = 200 };
+            btnSearch = new Button { Text = "Search", Location = new Point(230, 18) };
             btnSearch.Click += btnSearch_Click;
 
             dgvStaff = new DataGridView
             {
-                Name = "dgvStaff",
                 Location = new Point(20, 60),
-                Width = 700,
+                Width = 800,
                 Height = 300,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 
-            btnAdd = new Button { Name = "btnAdd", Text = "Add", Location = new Point(20, 380) };
-            btnUpdate = new Button { Name = "btnUpdate", Text = "Update", Location = new Point(120, 380) };
-            btnDelete = new Button { Name = "btnDelete", Text = "Delete", Location = new Point(220, 380) };
+            btnAdd = new Button { Text = "Add", Location = new Point(20, 380) };
+            btnUpdate = new Button { Text = "Update", Location = new Point(120, 380) };
+            btnDelete = new Button { Text = "Delete", Location = new Point(220, 380) };
 
             btnAdd.Click += btnAdd_Click;
             btnUpdate.Click += btnUpdate_Click;
@@ -80,31 +82,36 @@ namespace UnicomTICManagementSystem.Views
             panelGrid.Controls.AddRange(new Control[] { txtSearch, btnSearch, dgvStaff, btnAdd, btnUpdate, btnDelete });
             this.Controls.Add(panelGrid);
 
-            // PANEL: Form Panel
+            // FORM PANEL
             panelForm = new Panel { Dock = DockStyle.Fill, Visible = false };
 
             Label lblName = new Label { Text = "Name:", Location = new Point(20, 30) };
-            txtName = new TextBox { Name = "txtName", Location = new Point(150, 30), Width = 300 };
+            txtName = new TextBox { Location = new Point(150, 30), Width = 300 };
 
-            Label lblPosition = new Label { Text = "Position:", Location = new Point(20, 80) };
-            txtPosition = new TextBox { Name = "txtPosition", Location = new Point(150, 80), Width = 300 };
-
-            Label lblDepartment = new Label { Text = "Department:", Location = new Point(20, 130) };
+            Label lblDepartment = new Label { Text = "Department:", Location = new Point(20, 80) };
             cmbDepartment = new ComboBox
             {
-                Name = "cmbDepartment",
+                Location = new Point(150, 80),
+                Width = 300,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
+
+            Label lblPosition = new Label { Text = "Position:", Location = new Point(20, 130) };
+            cmbPosition = new ComboBox
+            {
                 Location = new Point(150, 130),
                 Width = 300,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
 
-            btnSave = new Button { Name = "btnSave", Text = "Save", Location = new Point(150, 200) };
-            btnCancel = new Button { Name = "btnCancel", Text = "Cancel", Location = new Point(250, 200) };
+            btnSave = new Button { Text = "Save", Location = new Point(150, 200) };
+            btnCancel = new Button { Text = "Cancel", Location = new Point(250, 200) };
 
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
-            panelForm.Controls.AddRange(new Control[] { lblName, txtName, lblPosition, txtPosition, lblDepartment, cmbDepartment, btnSave, btnCancel });
+            panelForm.Controls.AddRange(new Control[] { lblName, txtName, lblDepartment, cmbDepartment, lblPosition, cmbPosition, btnSave, btnCancel });
             this.Controls.Add(panelForm);
         }
 
@@ -115,12 +122,30 @@ namespace UnicomTICManagementSystem.Views
             cmbDepartment.ValueMember = "DepartmentID";
         }
 
+        private void LoadPositions(int departmentID)
+        {
+            cmbPosition.DataSource = _positionController.GetPositionsByDepartment(departmentID);
+            cmbPosition.DisplayMember = "PositionName";
+            cmbPosition.ValueMember = "PositionID";
+        }
+
         private void LoadStaff()
         {
             dgvStaff.DataSource = _staffController.GetAllStaff();
             dgvStaff.ClearSelection();
             selectedStaffID = -1;
         }
+
+        private void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedDept = cmbDepartment.SelectedItem as Department;
+            if (selectedDept != null)
+            {
+                LoadPositions(selectedDept.DepartmentID);
+            }
+        }
+
+
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -145,14 +170,14 @@ namespace UnicomTICManagementSystem.Views
 
             string name = txtName.Text.Trim();
             int departmentID = (int)cmbDepartment.SelectedValue;
-            string position = txtPosition.Text.Trim();
+            int positionID = (int)cmbPosition.SelectedValue;
 
             try
             {
                 if (!isUpdateMode)
                 {
-                    int userID = 0; // Default for manual add, since admin will usually create account first
-                    _staffController.AddStaff(userID, name, departmentID, position);
+                    int userID = 0;
+                    _staffController.AddStaff(userID, name, departmentID, positionID);
                     MessageBox.Show("Staff successfully added.");
                 }
                 else
@@ -162,7 +187,7 @@ namespace UnicomTICManagementSystem.Views
                         StaffID = selectedStaffID,
                         Name = name,
                         DepartmentID = departmentID,
-                        Position = position
+                        PositionID = positionID
                     };
                     _staffController.UpdateStaff(staff);
                     MessageBox.Show("Staff successfully updated.");
@@ -187,8 +212,9 @@ namespace UnicomTICManagementSystem.Views
 
             selectedStaffID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["StaffID"].Value);
             txtName.Text = dgvStaff.CurrentRow.Cells["Name"].Value.ToString();
-            txtPosition.Text = dgvStaff.CurrentRow.Cells["Position"].Value.ToString();
             cmbDepartment.SelectedValue = Convert.ToInt32(dgvStaff.CurrentRow.Cells["DepartmentID"].Value);
+            LoadPositions(Convert.ToInt32(cmbDepartment.SelectedValue));
+            cmbPosition.SelectedValue = Convert.ToInt32(dgvStaff.CurrentRow.Cells["PositionID"].Value);
 
             isUpdateMode = true;
             SwitchToForm();
@@ -232,9 +258,9 @@ namespace UnicomTICManagementSystem.Views
         private void ClearForm()
         {
             txtName.Clear();
-            txtPosition.Clear();
             cmbDepartment.SelectedIndex = 0;
             selectedStaffID = -1;
+            cmbPosition.DataSource = null;
         }
     }
 }

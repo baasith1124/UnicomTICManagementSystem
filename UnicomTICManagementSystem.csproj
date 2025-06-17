@@ -68,45 +68,76 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ApprovalController.cs" />
+    <Compile Include="Controllers\AttendanceController.cs" />
     <Compile Include="Controllers\CourseController.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
     <Compile Include="Controllers\LecturerController.cs" />
+    <Compile Include="Controllers\LecturerSubjectController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\PositionController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
+    <Compile Include="Controllers\RoomController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
     <Compile Include="Controllers\StudentController.cs" />
+    <Compile Include="Controllers\SubjectController.cs" />
+    <Compile Include="Controllers\TimetableController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\DatabaseManager.cs" />
     <Compile Include="Data\Migration.cs" />
     <Compile Include="Helpers\PasswordHasher.cs" />
+    <Compile Include="Interfaces\IAttendanceRepository.cs" />
+    <Compile Include="Interfaces\IAttendanceService.cs" />
     <Compile Include="Interfaces\ICourseRepository.cs" />
     <Compile Include="Interfaces\ICourseService.cs" />
     <Compile Include="Interfaces\IDepartmentRepository.cs" />
     <Compile Include="Interfaces\IDepartmentService.cs" />
     <Compile Include="Interfaces\ILecturerRepository.cs" />
     <Compile Include="Interfaces\ILecturerService.cs" />
+    <Compile Include="Interfaces\ILecturerSubjectRepository.cs" />
+    <Compile Include="Interfaces\ILecturerSubjectService.cs" />
     <Compile Include="Interfaces\IPositionRepository.cs" />
     <Compile Include="Interfaces\IPositionService.cs" />
+    <Compile Include="Interfaces\IRoomRepository.cs" />
     <Compile Include="Interfaces\IStaffRepository.cs" />
     <Compile Include="Interfaces\IStaffService.cs" />
     <Compile Include="Interfaces\IStudentRepository.cs" />
     <Compile Include="Interfaces\IStudentService.cs" />
+    <Compile Include="Interfaces\ISubjectRepository.cs" />
+    <Compile Include="Interfaces\ISubjectService.cs" />
+    <Compile Include="Interfaces\ITimetableRepository.cs" />
+    <Compile Include="Interfaces\ITimetableService.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\StudentDetails.cs" />
+    <Compile Include="Repositories\AttendanceRepository.cs" />
     <Compile Include="Repositories\CourseRepository.cs" />
     <Compile Include="Repositories\DepartmentRepository.cs" />
     <Compile Include="Repositories\LecturerRepository.cs" />
+    <Compile Include="Repositories\LecturerSubjectRepository.cs" />
     <Compile Include="Repositories\PositionRepository.cs" />
+    <Compile Include="Repositories\RoomRepository.cs" />
     <Compile Include="Repositories\StaffRepository.cs" />
     <Compile Include="Repositories\StudentRepository.cs" />
+    <Compile Include="Repositories\SubjectRepository.cs" />
+    <Compile Include="Repositories\TimetableRepository.cs" />
+    <Compile Include="Services\AttendanceService.cs" />
     <Compile Include="Services\CourseService.cs" />
     <Compile Include="Services\DepartmentService.cs" />
+    <Compile Include="Interfaces\IRoomService.cs" />
     <Compile Include="Services\LecturerService.cs" />
+    <Compile Include="Services\LecturerSubjectService.cs" />
     <Compile Include="Services\PositionService.cs" />
+    <Compile Include="Services\RoomService.cs" />
     <Compile Include="Services\StaffService.cs" />
     <Compile Include="Services\StudentService.cs" />
+    <Compile Include="Services\SubjectService.cs" />
+    <Compile Include="Services\TimetableService.cs" />
+    <Compile Include="Views\AdminAttendanceControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\AdminAttendanceControl.Designer.cs">
+      <DependentUpon>AdminAttendanceControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\CourseControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -125,11 +156,23 @@
     <Compile Include="Views\DepartmentControl.Designer.cs">
       <DependentUpon>DepartmentControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\LecturerAttendanceControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LecturerAttendanceControl.Designer.cs">
+      <DependentUpon>LecturerAttendanceControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\LecturerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\LecturerControl.Designer.cs">
       <DependentUpon>LecturerControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LecturerSubjectControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LecturerSubjectControl.Designer.cs">
+      <DependentUpon>LecturerSubjectControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginForm.cs">
       <SubType>Form</SubType>
@@ -161,6 +204,12 @@
     <Compile Include="Views\RegistrationForm.Designer.cs">
       <DependentUpon>RegistrationForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\RoomControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\RoomControl.Designer.cs">
+      <DependentUpon>RoomControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\StaffControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -172,6 +221,18 @@
     </Compile>
     <Compile Include="Views\StudentControl.Designer.cs">
       <DependentUpon>StudentControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SubjectControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\SubjectControl.Designer.cs">
+      <DependentUpon>SubjectControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TimetableControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\TimetableControl.Designer.cs">
+      <DependentUpon>TimetableControl.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

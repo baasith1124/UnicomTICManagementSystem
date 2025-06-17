@@ -77,6 +77,7 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            LoadCourses();
             ClearForm();
             isUpdateMode = false;
             SwitchToForm();
@@ -206,7 +207,12 @@ namespace UnicomTICManagementSystem.Views
             txtName.Clear();
             txtEmail.Clear();
             txtPhone.Clear();
-            cmbCourse.SelectedIndex = 0;
+
+            if (cmbCourse.Items.Count > 0)
+                cmbCourse.SelectedIndex = 0;
+            else
+                cmbCourse.SelectedIndex = -1;
+
             dtpEnrollmentDate.Value = DateTime.Now;
         }
     }

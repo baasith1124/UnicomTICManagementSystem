@@ -64,7 +64,7 @@ namespace UnicomTICManagementSystem.Services
             return PasswordHasher.VerifyPassword(password, user.Password);
         }
 
-        public void RegisterUser(User user, int? courseID, int? departmentID, string position = null)
+        public void RegisterUser(User user, int? courseID, int? departmentID, int position)
         {
             ValidateUser(user);
 

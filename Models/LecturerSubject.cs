@@ -10,7 +10,9 @@ namespace UnicomTICManagementSystem.Models
     {
         public int LecturerSubjectID { get; set; }
         public int LecturerID { get; set; }
+        public string LecturerName { get; set; }
         public int SubjectID { get; set; }
+        public string SubjectName { get; set; }
         public DateTime AssignedDate { get; set; }
     }
 }

@@ -52,5 +52,16 @@ namespace UnicomTICManagementSystem.Services
             return _studentRepository.GetStudentFullDetailsByID(studentID);
         }
 
+        public List<Student> GetStudentsByCourse(int courseID)
+        {
+            return _studentRepository.GetStudentsByCourse(courseID);
+        }
+
+        public List<Student> GetStudentsBySubject(int subjectID)
+        {
+            return _studentRepository.GetStudentsBySubject(subjectID);
+        }
+
+
     }
 }

@@ -9,7 +9,7 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IStaffService
     {
-        void AddStaff(int userID, string name, int departmentID, string position);
+        void AddStaff(int userID, string name, int departmentID, int position);
         void UpdateStaff(Staff staff);
         void DeleteStaff(int staffID);
         List<Staff> GetAllStaff();

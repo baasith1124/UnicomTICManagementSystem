@@ -12,5 +12,6 @@ namespace UnicomTICManagementSystem.Models
         public string SubjectName { get; set; }
         public string SubjectCode { get; set; }
         public int CourseID { get; set; }
+        public string CourseName { get; set; }
     }
 }

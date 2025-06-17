@@ -17,7 +17,7 @@ namespace UnicomTICManagementSystem.Controllers
             _staffService = staffService;
         }
 
-        public void AddStaff(int userID, string name, int departmentID, string position)
+        public void AddStaff(int userID, string name, int departmentID, int position)
         {
             _staffService.AddStaff(userID, name, departmentID, position);
         }

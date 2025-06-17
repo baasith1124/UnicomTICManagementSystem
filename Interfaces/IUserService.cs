@@ -10,7 +10,7 @@ namespace UnicomTICManagementSystem.Interfaces
     public interface IUserService
     {
         bool Login(string username, string password, out User user);
-        void RegisterUser(User user, int? courseID, int? departmentID, string position);
+        void RegisterUser(User user, int? courseID, int? departmentID, int position);
         void ApproveUser(int userID);
         List<User> GetPendingApprovals();
         User GetUserByUsername(string username);

@@ -50,5 +50,16 @@ namespace UnicomTICManagementSystem.Controllers
         {
             return _studentService.GetStudentFullDetailsByID(studentID);
         }
+
+        public List<Student> GetStudentsByCourse(int courseID)
+        {
+            return _studentService.GetStudentsByCourse(courseID);
+        }
+
+        public List<Student> GetStudentsBySubject(int subjectID)
+        {
+            return _studentService.GetStudentsBySubject(subjectID);
+        }
+
     }
 }

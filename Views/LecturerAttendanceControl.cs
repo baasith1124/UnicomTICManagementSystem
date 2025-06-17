@@ -1,0 +1,181 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using UnicomTICManagementSystem.Controllers;
+using UnicomTICManagementSystem.Interfaces;
+using UnicomTICManagementSystem.Models;
+using UnicomTICManagementSystem.Repositories;
+using UnicomTICManagementSystem.Services;
+
+namespace UnicomTICManagementSystem.Views
+{
+    public partial class LecturerAttendanceControl: UserControl
+    {
+        private readonly AttendanceController _attendanceController;
+        private readonly TimetableController _timetableController;
+        private readonly StudentController _studentController;
+
+        private readonly int lecturerID;
+
+        public LecturerAttendanceControl(int lecturerID)
+        {
+            InitializeComponent();
+            this.lecturerID = lecturerID;
+
+            // Dependency Injection
+            IAttendanceRepository attendanceRepo = new AttendanceRepository();
+            ITimetableRepository timetableRepo = new TimetableRepository();
+            IStudentRepository studentRepo = new StudentRepository();
+
+            IAttendanceService attendanceService = new AttendanceService(attendanceRepo);
+            ITimetableService timetableService = new TimetableService(timetableRepo);
+            IStudentService studentService = new StudentService(studentRepo);
+
+            _attendanceController = new AttendanceController(attendanceService);
+            _timetableController = new TimetableController(timetableService);
+            _studentController = new StudentController(studentService);
+
+            InitializeUI();
+            LoadLecturerTimetables();
+        }
+
+        #region UI Controls
+
+        private ComboBox cmbTimetable;
+        private DataGridView dgvStudents;
+        private Button btnLoadStudents, btnSave;
+
+        private void InitializeUI()
+        {
+            this.Dock = DockStyle.Fill;
+
+            // Create a parent panel for top filters
+            Panel panelTop = new Panel
+            {
+                Location = new Point(20, 20),
+                Size = new Size(880, 60)
+            };
+
+            Label lblTimetable = new Label
+            {
+                Text = "Timetable:",
+                Location = new Point(0, 20),
+                AutoSize = true
+            };
+
+            cmbTimetable = new ComboBox
+            {
+                Location = new Point(80, 15),
+                Width = 500,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+
+            btnLoadStudents = new Button
+            {
+                Text = "Load Students",
+                Location = new Point(600, 15),
+                Size = new Size(120, 30)
+            };
+            btnLoadStudents.Click += btnLoadStudents_Click;
+
+            panelTop.Controls.AddRange(new Control[] { lblTimetable, cmbTimetable, btnLoadStudents });
+
+            dgvStudents = new DataGridView
+            {
+                Location = new Point(20, 100),
+                Width = 880,
+                Height = 400,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            };
+
+            btnSave = new Button
+            {
+                Text = "Save Attendance",
+                Height = 40,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.Teal,
+                ForeColor = Color.White
+            };
+            btnSave.Click += btnSave_Click;
+
+            this.Controls.Add(panelTop);
+            this.Controls.Add(dgvStudents);
+            this.Controls.Add(btnSave);
+        }
+
+
+        #endregion
+
+        private void LoadLecturerTimetables()
+        {
+            var timetables = _timetableController.GetTimetablesByLecturer(lecturerID);
+            cmbTimetable.DataSource = timetables;
+            cmbTimetable.DisplayMember = "TimetableDisplay";  // Custom display property
+            cmbTimetable.ValueMember = "TimetableID";
+        }
+
+        private void btnLoadStudents_Click(object sender, EventArgs e)
+        {
+            if (cmbTimetable.SelectedValue == null)
+            {
+                MessageBox.Show("Please select timetable.");
+                return;
+            }
+
+            int timetableID = (int)cmbTimetable.SelectedValue;
+            Timetable timetable = _timetableController.GetTimetableByID(timetableID);
+
+            var students = _studentController.GetStudentsByCourse(timetable.CourseID);
+
+            dgvStudents.DataSource = students;
+            dgvStudents.Columns.Add(new DataGridViewComboBoxColumn
+            {
+                HeaderText = "Status",
+                Name = "Status",
+                DataSource = new string[] { "Present", "Absent", "Late", "Excused" }
+            });
+
+            foreach (DataGridViewRow row in dgvStudents.Rows)
+            {
+                row.Cells["Status"].Value = "Present"; // Default selection
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (cmbTimetable.SelectedValue == null)
+            {
+                MessageBox.Show("Please select timetable.");
+                return;
+            }
+
+            int timetableID = (int)cmbTimetable.SelectedValue;
+
+            foreach (DataGridViewRow row in dgvStudents.Rows)
+            {
+                int studentID = Convert.ToInt32(row.Cells["StudentID"].Value);
+                string status = row.Cells["Status"].Value.ToString();
+
+                Attendance attendance = new Attendance
+                {
+                    TimetableID = timetableID,
+                    StudentID = studentID,
+                    Status = status,
+                    MarkedBy = lecturerID,
+                    MarkedDate = DateTime.Now
+                };
+
+                _attendanceController.AddAttendance(attendance);
+            }
+
+            MessageBox.Show("Attendance successfully saved.");
+        }
+    }
+}

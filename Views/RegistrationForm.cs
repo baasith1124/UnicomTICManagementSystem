@@ -109,7 +109,7 @@ namespace UnicomTICManagementSystem.Views
 
             int? selectedCourseID = null;
             int? selectedDepartmentID = null;
-            string position = null;
+            int positionID = 0;
 
             if (cmbRole.SelectedItem.ToString() == "Student")
             {
@@ -136,7 +136,7 @@ namespace UnicomTICManagementSystem.Views
                         MessageBox.Show("Please select a position.");
                         return;
                     }
-                    position = cmbPosition.SelectedItem.ToString();
+                    positionID = Convert.ToInt32(cmbPosition.SelectedValue);
                 }
             }
 
@@ -159,7 +159,7 @@ namespace UnicomTICManagementSystem.Views
             try
             {
                 
-                _registrationController.Register(user, selectedCourseID, selectedDepartmentID, position);
+                _registrationController.Register(user, selectedCourseID, selectedDepartmentID, positionID);
 
                 MessageBox.Show("Registration successful. Waiting for Admin approval.");
                 this.Close();

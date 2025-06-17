@@ -11,7 +11,9 @@ namespace UnicomTICManagementSystem.Models
         public int StaffID { get; set; }
         public int UserID { get; set; }
         public string Name { get; set; }
-        public string Position { get; set; }
+        public int PositionID { get; set; }
+        public string PositionName { get; set; }
+
         public int DepartmentID { get; set; }
         public string DepartmentName { get; set; }
     }

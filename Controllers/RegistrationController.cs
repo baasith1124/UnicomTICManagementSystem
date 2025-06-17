@@ -17,7 +17,7 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public void Register(User user, int? courseID, int? departmentID, string position = null)
+        public void Register(User user, int? courseID, int? departmentID, int position )
         {
             _userService.RegisterUser(user, courseID, departmentID, position);
         }

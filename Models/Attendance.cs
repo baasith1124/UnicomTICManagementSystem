@@ -9,9 +9,10 @@ namespace UnicomTICManagementSystem.Models
     public class Attendance
     {
         public int AttendanceID { get; set; }
+        public int TimetableID { get; set; }
         public int StudentID { get; set; }
-        public int SubjectID { get; set; }
-        public DateTime Date { get; set; }
+        public string StudentName { get; set; }  
+        public string SubjectName { get; set; }  
         public string Status { get; set; }
         public int MarkedBy { get; set; }
         public DateTime MarkedDate { get; set; }

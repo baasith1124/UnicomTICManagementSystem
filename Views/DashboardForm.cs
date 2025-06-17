@@ -59,6 +59,7 @@ namespace UnicomTICManagementSystem.Views
                 btnLecturers.Visible = true;
                 btnStaff.Visible = true;
                 dgvPendingUsers.Visible = true;
+                btnAttendance.Visible = true;
                 btnApprove.Visible = true;
 
                 LoadPendingUsers();
@@ -71,6 +72,9 @@ namespace UnicomTICManagementSystem.Views
             else if (currentUser.Role == "Staff")
             {
                 btnMarks.Visible = true;
+                btnCourses.Visible = true;
+                btnStudents.Visible = true;
+                btnLecturers.Visible = true;
             }
             else if (currentUser.Role == "Student")
             {
@@ -106,7 +110,14 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnAttendance_Click(object sender, EventArgs e)
         {
-            //LoadControl(new AttendanceControl());
+            if (currentUser.Role == "Admin")
+            {
+                LoadControl(new AdminAttendanceControl());
+            }
+            else if (currentUser.Role == "Lecturer")
+            {
+                LoadControl(new LecturerAttendanceControl(currentUser.UserID)); // Pass lecturer ID
+            }
         }
 
         private void btnMarks_Click(object sender, EventArgs e)
@@ -138,14 +149,28 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnDepartments_Click(object sender, EventArgs e)
         {
-            DepartmentControl departmentControl = new DepartmentControl();
-            departmentControl.Dock = DockStyle.Fill;
-
-            this.Controls.Clear();
-            this.Controls.Add(departmentControl);
+            LoadControl(new DepartmentControl());
 
         }
 
-       
+        private void btnSubjects_Click(object sender, EventArgs e)
+        {
+            LoadControl(new SubjectControl());
+        }
+
+        private void btnLecturerSubject_Click(object sender, EventArgs e)
+        {
+            LoadControl(new LecturerSubjectControl());
+        }
+
+        private void btnRooms_Click(object sender, EventArgs e)
+        {
+            LoadControl(new RoomControl());
+        }
+
+        private void btnTimetable_Click(object sender, EventArgs e)
+        {
+            LoadControl(new TimetableControl());
+        }
     }
 }

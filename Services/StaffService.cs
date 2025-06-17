@@ -17,7 +17,7 @@ namespace UnicomTICManagementSystem.Services
             _staffRepository = staffRepository;
         }
 
-        public void AddStaff(int userID, string name, int departmentID, string position)
+        public void AddStaff(int userID, string name, int departmentID, int position)
         {
             _staffRepository.AddStaff(userID, name, departmentID, position);
         }

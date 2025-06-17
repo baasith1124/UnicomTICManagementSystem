@@ -17,5 +17,8 @@ namespace UnicomTICManagementSystem.Interfaces
         Student GetStudentByID(int studentID);
 
         StudentDetails GetStudentFullDetailsByID(int studentID);
+
+        List<Student> GetStudentsByCourse(int courseID);
+        List<Student> GetStudentsBySubject(int subjectID);
     }
 }

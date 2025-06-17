@@ -192,5 +192,70 @@ namespace UnicomTICManagementSystem.Repositories
             return null;
         }
 
+        public List<Student> GetStudentsByCourse(int courseID)
+        {
+            var students = new List<Student>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+                         FROM Students s
+                         INNER JOIN Courses c ON s.CourseID = c.CourseID
+                         WHERE s.CourseID = @CourseID";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CourseID", courseID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            students.Add(new Student
+                            {
+                                StudentID = Convert.ToInt32(reader["StudentID"]),
+                                Name = reader["Name"].ToString(),
+                                CourseID = Convert.ToInt32(reader["CourseID"]),
+                                EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                                CourseName = reader["CourseName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return students;
+        }
+
+        public List<Student> GetStudentsBySubject(int subjectID)
+        {
+            var students = new List<Student>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+                         FROM Students s
+                         INNER JOIN Courses c ON s.CourseID = c.CourseID
+                         INNER JOIN Subjects subj ON s.CourseID = subj.CourseID
+                         WHERE subj.SubjectID = @SubjectID";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@SubjectID", subjectID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            students.Add(new Student
+                            {
+                                StudentID = Convert.ToInt32(reader["StudentID"]),
+                                Name = reader["Name"].ToString(),
+                                CourseID = Convert.ToInt32(reader["CourseID"]),
+                                EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                                CourseName = reader["CourseName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return students;
+        }
+
     }
 }

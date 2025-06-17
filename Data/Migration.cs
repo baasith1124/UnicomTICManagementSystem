@@ -331,31 +331,33 @@ namespace UnicomTICManagementSystem.Data
                 CREATE TABLE IF NOT EXISTS Timetables (
                     TimetableID INTEGER PRIMARY KEY AUTOINCREMENT,
                     SubjectID INTEGER NOT NULL,
-                    TimeSlot TEXT NOT NULL,
                     RoomID INTEGER NOT NULL,
+                    LecturerID INTEGER NOT NULL,
                     ScheduledDate TEXT NOT NULL,
+                    TimeSlot TEXT NOT NULL,
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
                     FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
-                    UNIQUE (SubjectID, TimeSlot, RoomID, ScheduledDate)
-                );";
+                    FOREIGN KEY (LecturerID) REFERENCES Lecturers(LecturerID),
+                    UNIQUE (SubjectID, ScheduledDate, TimeSlot)
+        );";
             ExecuteQuery(conn, query);
         }
+
 
         private static void CreateAttendanceTable(SQLiteConnection conn)
         {
             string query = @"
                 CREATE TABLE IF NOT EXISTS Attendance (
                     AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    TimetableID INTEGER NOT NULL,
                     StudentID INTEGER NOT NULL,
-                    SubjectID INTEGER NOT NULL,
-                    Date TEXT NOT NULL,
-                    Status TEXT NOT NULL CHECK (Status IN ('Present', 'Absent', 'Late', 'Excused')),
-                    MarkedBy INTEGER,
-                    MarkedDate TEXT,
+                    Status TEXT NOT NULL CHECK (Status IN ('Present','Absent','Late','Excused')),
+                    MarkedBy INTEGER NOT NULL,
+                    MarkedDate TEXT NOT NULL,
+                    FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
-                    FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
                     FOREIGN KEY (MarkedBy) REFERENCES Lecturers(LecturerID),
-                    UNIQUE (StudentID, SubjectID, Date)
+                    UNIQUE (TimetableID, StudentID)
                 );";
             ExecuteQuery(conn, query);
         }

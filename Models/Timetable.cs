@@ -10,8 +10,21 @@ namespace UnicomTICManagementSystem.Models
     {
         public int TimetableID { get; set; }
         public int SubjectID { get; set; }
-        public string TimeSlot { get; set; }
+        public string SubjectName { get; set; }
         public int RoomID { get; set; }
+        public string RoomName { get; set; }
+        public int LecturerID { get; set; }
+        public string LecturerName { get; set; }
         public DateTime ScheduledDate { get; set; }
+        public string TimeSlot { get; set; }
+
+        public int CourseID { get; set; }
+        public string TimetableDisplay
+        {
+            get
+            {
+                return $"{ScheduledDate.ToShortDateString()} - {SubjectName} - {TimeSlot}";
+            }
+        }
     }
 }
