@@ -302,13 +302,18 @@ namespace UnicomTICManagementSystem.Data
             string query = @"
                 CREATE TABLE IF NOT EXISTS Marks (
                     MarkID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    TimetableID INTEGER NOT NULL,
                     StudentID INTEGER NOT NULL,
-                    ExamID INTEGER NOT NULL,
-                    Score INTEGER NOT NULL CHECK (Score BETWEEN 0 AND 100),
-                    MarkedDate TEXT,
+                    AssignmentMark REAL,
+                    MidExamMark REAL,
+                    FinalExamMark REAL,
+                    TotalMark REAL,
+                    GradedBy INTEGER, 
+                    GradedDate TEXT,
+                    FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
-                    FOREIGN KEY (ExamID) REFERENCES Exams(ExamID),
-                    UNIQUE (StudentID, ExamID)
+                    FOREIGN KEY (GradedBy) REFERENCES Lecturers(LecturerID),
+                    UNIQUE (TimetableID, StudentID)
                 );";
             ExecuteQuery(conn, query);
         }

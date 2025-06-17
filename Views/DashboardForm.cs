@@ -50,6 +50,8 @@ namespace UnicomTICManagementSystem.Views
             btnMarks.Visible = false;
             dgvPendingUsers.Visible = false;
             btnApprove.Visible = false;
+            btnMarks.Visible = false;
+
 
             if (currentUser.Role == "Admin")
             {
@@ -60,6 +62,7 @@ namespace UnicomTICManagementSystem.Views
                 btnStaff.Visible = true;
                 dgvPendingUsers.Visible = true;
                 btnAttendance.Visible = true;
+                btnMarks.Visible = true;
                 btnApprove.Visible = true;
 
                 LoadPendingUsers();
@@ -68,6 +71,8 @@ namespace UnicomTICManagementSystem.Views
             {
                 btnAttendance.Visible = true;
                 btnMarks.Visible = true;
+                btnMarks.Visible = true;
+
             }
             else if (currentUser.Role == "Staff")
             {
@@ -75,6 +80,8 @@ namespace UnicomTICManagementSystem.Views
                 btnCourses.Visible = true;
                 btnStudents.Visible = true;
                 btnLecturers.Visible = true;
+                btnMarks.Visible = true;
+
             }
             else if (currentUser.Role == "Student")
             {
@@ -110,7 +117,7 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnAttendance_Click(object sender, EventArgs e)
         {
-            if (currentUser.Role == "Admin")
+            if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
             {
                 LoadControl(new AdminAttendanceControl());
             }
@@ -122,7 +129,18 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnMarks_Click(object sender, EventArgs e)
         {
-            //LoadControl(new MarksControl());
+            if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
+            {
+                LoadControl(new AdminMarksControl());
+            }
+            else if (currentUser.Role == "Lecturer")
+            {
+                LoadControl(new LecturerMarksControl(currentUser.UserID)); 
+            }
+            else if (currentUser.Role == "Student")
+            {
+                LoadControl(new StudentMarksControl(currentUser.UserID)); 
+            }
         }
 
         private void btnLogout_Click(object sender, EventArgs e)

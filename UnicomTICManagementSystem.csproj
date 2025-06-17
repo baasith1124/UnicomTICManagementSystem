@@ -74,6 +74,7 @@
     <Compile Include="Controllers\LecturerController.cs" />
     <Compile Include="Controllers\LecturerSubjectController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\MarksController.cs" />
     <Compile Include="Controllers\PositionController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
     <Compile Include="Controllers\RoomController.cs" />
@@ -95,6 +96,8 @@
     <Compile Include="Interfaces\ILecturerService.cs" />
     <Compile Include="Interfaces\ILecturerSubjectRepository.cs" />
     <Compile Include="Interfaces\ILecturerSubjectService.cs" />
+    <Compile Include="Interfaces\IMarkRepository.cs" />
+    <Compile Include="Interfaces\IMarksService.cs" />
     <Compile Include="Interfaces\IPositionRepository.cs" />
     <Compile Include="Interfaces\IPositionService.cs" />
     <Compile Include="Interfaces\IRoomRepository.cs" />
@@ -114,6 +117,7 @@
     <Compile Include="Repositories\DepartmentRepository.cs" />
     <Compile Include="Repositories\LecturerRepository.cs" />
     <Compile Include="Repositories\LecturerSubjectRepository.cs" />
+    <Compile Include="Repositories\MarkRepository.cs" />
     <Compile Include="Repositories\PositionRepository.cs" />
     <Compile Include="Repositories\RoomRepository.cs" />
     <Compile Include="Repositories\StaffRepository.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="Interfaces\IRoomService.cs" />
     <Compile Include="Services\LecturerService.cs" />
     <Compile Include="Services\LecturerSubjectService.cs" />
+    <Compile Include="Services\MarksService.cs" />
     <Compile Include="Services\PositionService.cs" />
     <Compile Include="Services\RoomService.cs" />
     <Compile Include="Services\StaffService.cs" />
@@ -137,6 +142,12 @@
     </Compile>
     <Compile Include="Views\AdminAttendanceControl.Designer.cs">
       <DependentUpon>AdminAttendanceControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AdminMarksControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\AdminMarksControl.Designer.cs">
+      <DependentUpon>AdminMarksControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\CourseControl.cs">
       <SubType>UserControl</SubType>
@@ -167,6 +178,12 @@
     </Compile>
     <Compile Include="Views\LecturerControl.Designer.cs">
       <DependentUpon>LecturerControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LecturerMarksControl .cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LecturerMarksControl .Designer.cs">
+      <DependentUpon>LecturerMarksControl .cs</DependentUpon>
     </Compile>
     <Compile Include="Views\LecturerSubjectControl.cs">
       <SubType>UserControl</SubType>
@@ -221,6 +238,12 @@
     </Compile>
     <Compile Include="Views\StudentControl.Designer.cs">
       <DependentUpon>StudentControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StudentMarksControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\StudentMarksControl.Designer.cs">
+      <DependentUpon>StudentMarksControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\SubjectControl.cs">
       <SubType>UserControl</SubType>

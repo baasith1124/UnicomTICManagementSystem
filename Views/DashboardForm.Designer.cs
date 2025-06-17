@@ -203,6 +203,7 @@
             this.btnMarks.TabIndex = 1;
             this.btnMarks.Text = "Marks";
             this.btnMarks.UseVisualStyleBackColor = true;
+            this.btnMarks.Click += new System.EventHandler(this.btnMarks_Click);
             // 
             // btnCourses
             // 
