@@ -67,15 +67,19 @@ namespace UnicomTICManagementSystem.Repositories
         public List<Staff> GetAllStaff()
         {
             var staffList = new List<Staff>();
+
             using (var conn = DatabaseManager.GetConnection())
-            {
+            {                
                 string query = @"
-                    SELECT s.StaffID, s.UserID, s.Name, 
-                           s.DepartmentID, d.DepartmentName, 
-                           s.PositionID, p.PositionName
+                    SELECT s.StaffID, s.UserID, s.Name,
+                           s.DepartmentID, d.DepartmentName,
+                           s.PositionID, p.PositionName,
+                           u.Email, u.Phone
                     FROM Staff s
                     INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
-                    INNER JOIN Positions p ON s.PositionID = p.PositionID";
+                    INNER JOIN Positions p ON s.PositionID = p.PositionID
+                    INNER JOIN Users u ON s.UserID = u.UserID";
+
                 using (var cmd = new SQLiteCommand(query, conn))
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -89,11 +93,14 @@ namespace UnicomTICManagementSystem.Repositories
                             DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
                             DepartmentName = reader["DepartmentName"].ToString(),
                             PositionID = Convert.ToInt32(reader["PositionID"]),
-                            PositionName = reader["PositionName"].ToString()
+                            PositionName = reader["PositionName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString()
                         });
                     }
                 }
             }
+
             return staffList;
         }
 
@@ -208,6 +215,40 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return null;
         }
+        public bool StaffExistsByUserId(int userId)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT COUNT(1) FROM Staff WHERE UserID = @UserID";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+        }
+        public int GetUserIDByStaffID(int staffID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                
+                using (var cmd = new SQLiteCommand("SELECT UserID FROM Staff WHERE StaffID = @staffID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@staffID", staffID);
+
+                    var result = cmd.ExecuteScalar();
+
+                    if (result != null && int.TryParse(result.ToString(), out int userID))
+                    {
+                        return userID;
+                    }
+
+                    return -1; 
+                }
+            }
+        }
+
+
 
     }
 }

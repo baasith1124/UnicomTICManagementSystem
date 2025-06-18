@@ -202,6 +202,39 @@ namespace UnicomTICManagementSystem.Services
                 _lecturerRepository.AddLecturer(createdUser.UserID, user.FullName, departmentID);
             }
         }
+        public User GetUserById(int userID)
+        {
+            return _userRepository.GetUserByID(userID);
+        }
+        public void AdminRegisterStaff(User user, int departmentID, int positionID)
+        {
+            var existingUser = _userRepository.GetUserByUsername(user.Username);
+
+            int userId;
+            if (existingUser != null)
+            {
+                userId = existingUser.UserID;
+
+                // Check if staff already exists
+                if (_staffRepository.StaffExistsByUserId(userId))
+                    throw new Exception("❌ Staff already exists for this user.");
+            }
+            else
+            {
+                // Create new user
+                user.Password = PasswordHasher.HashPassword(user.Password);
+                user.Role = "Staff";
+                user.RegisteredDate = DateTime.Now;
+                user.IsApproved = true;
+
+                _userRepository.RegisterUser(user);
+                userId = _userRepository.GetUserByUsername(user.Username).UserID;
+            }
+
+            _staffRepository.AddStaff(userId, user.FullName, departmentID, positionID);
+        }
+
+
 
 
 

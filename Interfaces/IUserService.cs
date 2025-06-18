@@ -19,6 +19,9 @@ namespace UnicomTICManagementSystem.Interfaces
         bool IsEmailTaken(string email);
         void AdminRegisterStudent(User user, int courseID, DateTime enrollmentDate);
         void AdminRegisterLecturer(User user, int departmentID);
+        User GetUserById(int userID);
+        void AdminRegisterStaff(User user, int departmentID, int positionID);
+
 
 
     }

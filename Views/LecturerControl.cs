@@ -20,6 +20,8 @@ namespace UnicomTICManagementSystem.Views
     {
         private readonly LecturerController _lecturerController;
         private readonly DepartmentController _departmentController;
+        private readonly UserController _userController;
+
 
         private int selectedLecturerID = -1;
         private bool isUpdateMode = false;
@@ -41,6 +43,16 @@ namespace UnicomTICManagementSystem.Views
             IDepartmentRepository deptRepo = new DepartmentRepository();
             IDepartmentService deptService = new DepartmentService(deptRepo);
             _departmentController = new DepartmentController(deptService);
+
+            var userRepo = new UserRepository();
+            var userService = new UserService(
+                userRepo,
+                new StudentRepository(),
+                new StaffRepository(),
+                new LecturerRepository()
+            );
+            _userController = new UserController(userService);
+
 
             InitializeUI();
             LoadDepartments();
@@ -138,6 +150,27 @@ namespace UnicomTICManagementSystem.Views
             dgvLecturers.DataSource = _lecturerController.GetAllLecturers();
             dgvLecturers.ClearSelection();
             selectedLecturerID = -1;
+
+            if (dgvLecturers.Columns["LecturerID"] != null)
+                dgvLecturers.Columns["LecturerID"].Visible = false;
+
+            if (dgvLecturers.Columns["UserID"] != null)
+                dgvLecturers.Columns["UserID"].Visible = false;
+
+            if (dgvLecturers.Columns["Name"] != null)
+                dgvLecturers.Columns["Name"].HeaderText = "Lecturer Name";
+
+            if (dgvLecturers.Columns["DepartmentName"] != null)
+                dgvLecturers.Columns["DepartmentName"].HeaderText = "Department";
+
+            if (dgvLecturers.Columns["DepartmentID"] != null)
+                dgvLecturers.Columns["DepartmentID"].Visible = false;
+
+            if (dgvLecturers.Columns["Email"] != null)
+                dgvLecturers.Columns["Email"].HeaderText = "Email";
+
+            if (dgvLecturers.Columns["Phone"] != null)
+                dgvLecturers.Columns["Phone"].HeaderText = "Phone";
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -148,6 +181,11 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            txtUsername.Enabled = true;
+            txtPassword.Visible = true;
+            txtConfirmPassword.Visible = true;
+            txtPassword.Enabled = true;
+            txtConfirmPassword.Enabled = true;
             ClearForm();
             isUpdateMode = false;
             SwitchToForm();
@@ -268,8 +306,26 @@ namespace UnicomTICManagementSystem.Views
             }
 
             selectedLecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
-            txtName.Text = dgvLecturers.CurrentRow.Cells["Name"].Value.ToString();
-            cmbDepartment.SelectedValue = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["DepartmentID"].Value);
+            int userID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["UserID"].Value);
+
+            // Get lecturer data
+            Lecturer lecturer = _lecturerController.GetLecturerByID(selectedLecturerID);
+            txtName.Text = lecturer.Name;
+            cmbDepartment.SelectedValue = lecturer.DepartmentID;
+
+            // Get user via controller
+            var user = _userController.GetUserById(userID);
+
+            if (user != null)
+            {
+                txtUsername.Text = user.Username;
+                txtEmail.Text = user.Email;
+                txtPhone.Text = user.Phone;
+            }
+
+            //txtUsername.Enabled = false;
+            //txtPassword.Enabled = false;
+            //txtConfirmPassword.Enabled = false;
 
             isUpdateMode = true;
             SwitchToForm();

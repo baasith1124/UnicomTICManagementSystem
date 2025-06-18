@@ -83,10 +83,13 @@ namespace UnicomTICManagementSystem.Repositories
             var lecturers = new List<Lecturer>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
-                                 l.DepartmentID, d.DepartmentName 
-                                 FROM Lecturers l
-                                 INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID";
+                string query = @"
+                    SELECT l.LecturerID, l.UserID, l.Name, 
+                           l.DepartmentID, d.DepartmentName,
+                           u.Email, u.Phone
+                    FROM Lecturers l
+                    INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                    INNER JOIN Users u ON l.UserID = u.UserID";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -99,7 +102,9 @@ namespace UnicomTICManagementSystem.Repositories
                             UserID = Convert.ToInt32(reader["UserID"]),
                             Name = reader["Name"].ToString(),
                             DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                            DepartmentName = reader["DepartmentName"].ToString()
+                            DepartmentName = reader["DepartmentName"].ToString(),
+                            Email = reader["Email"].ToString(),   
+                            Phone = reader["Phone"].ToString()
                         });
                     }
                 }

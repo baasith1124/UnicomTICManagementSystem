@@ -46,5 +46,10 @@ namespace UnicomTICManagementSystem.Controllers
         {
             return _staffService.SearchStaff(keyword);
         }
+        public int GetUserIDByStaffID(int staffID)
+        {
+            return _staffService.GetUserIDByStaffID(staffID);
+        }
+
     }
 }

@@ -46,7 +46,7 @@ namespace UnicomTICManagementSystem.Views
             btnStudents.Visible = false;
             btnLecturers.Visible = false;
             btnStaff.Visible = false;
-            btnAttendance.Visible = false;
+            btnAttendances.Visible = false;
             btnMarks.Visible = false;
             dgvPendingUsers.Visible = false;
             btnApprove.Visible = false;
@@ -62,7 +62,7 @@ namespace UnicomTICManagementSystem.Views
                 btnLecturers.Visible = true;
                 btnStaff.Visible = true;
                 dgvPendingUsers.Visible = true;
-                btnAttendance.Visible = true;
+                btnAttendances.Visible = true;
                 btnMarks.Visible = true;
                 btnApprove.Visible = true;
                 btnExams.Visible = true;
@@ -71,7 +71,7 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                btnAttendance.Visible = true;
+                btnAttendances.Visible = true;
                 btnMarks.Visible = true;
                 btnMarks.Visible = true;
                 btnExams.Visible = true;
@@ -119,7 +119,7 @@ namespace UnicomTICManagementSystem.Views
             LoadControl(new StaffControl());
         }
 
-        private void btnAttendance_Click(object sender, EventArgs e)
+        private void btnAttendances_Click(object sender, EventArgs e)
         {
             if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
             {

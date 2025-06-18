@@ -14,5 +14,9 @@ namespace UnicomTICManagementSystem.Models
         public string DepartmentName { get; set; }
         public int DepartmentID { get; set; }
 
+        public string Email { get; set; }
+        public string Phone { get; set; }
+
+
     }
 }

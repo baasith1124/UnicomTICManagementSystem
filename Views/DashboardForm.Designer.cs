@@ -30,6 +30,8 @@
         {
             this.btnApprove = new System.Windows.Forms.Button();
             this.panelSidebar = new System.Windows.Forms.Panel();
+            this.btnAttendances = new System.Windows.Forms.Button();
+            this.btnExams = new System.Windows.Forms.Button();
             this.btnRooms = new System.Windows.Forms.Button();
             this.btnLecturerSubject = new System.Windows.Forms.Button();
             this.btnSubjects = new System.Windows.Forms.Button();
@@ -38,7 +40,6 @@
             this.btnStaff = new System.Windows.Forms.Button();
             this.btnStudents = new System.Windows.Forms.Button();
             this.btnLecturers = new System.Windows.Forms.Button();
-            this.btnAttendance = new System.Windows.Forms.Button();
             this.btnLogout = new System.Windows.Forms.Button();
             this.btnMarks = new System.Windows.Forms.Button();
             this.btnCourses = new System.Windows.Forms.Button();
@@ -46,7 +47,6 @@
             this.lblWelcome = new System.Windows.Forms.Label();
             this.panelContent = new System.Windows.Forms.Panel();
             this.dgvPendingUsers = new System.Windows.Forms.DataGridView();
-            this.btnExams = new System.Windows.Forms.Button();
             this.panelSidebar.SuspendLayout();
             this.panelTop.SuspendLayout();
             this.panelContent.SuspendLayout();
@@ -66,6 +66,7 @@
             // 
             // panelSidebar
             // 
+            this.panelSidebar.Controls.Add(this.btnAttendances);
             this.panelSidebar.Controls.Add(this.btnExams);
             this.panelSidebar.Controls.Add(this.btnRooms);
             this.panelSidebar.Controls.Add(this.btnLecturerSubject);
@@ -75,7 +76,6 @@
             this.panelSidebar.Controls.Add(this.btnStaff);
             this.panelSidebar.Controls.Add(this.btnStudents);
             this.panelSidebar.Controls.Add(this.btnLecturers);
-            this.panelSidebar.Controls.Add(this.btnAttendance);
             this.panelSidebar.Controls.Add(this.btnLogout);
             this.panelSidebar.Controls.Add(this.btnMarks);
             this.panelSidebar.Controls.Add(this.btnCourses);
@@ -83,8 +83,30 @@
             this.panelSidebar.Location = new System.Drawing.Point(0, 0);
             this.panelSidebar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelSidebar.Name = "panelSidebar";
-            this.panelSidebar.Size = new System.Drawing.Size(200, 721);
+            this.panelSidebar.Size = new System.Drawing.Size(212, 818);
             this.panelSidebar.TabIndex = 2;
+            // 
+            // btnAttendances
+            // 
+            this.btnAttendances.Location = new System.Drawing.Point(10, 408);
+            this.btnAttendances.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnAttendances.Name = "btnAttendances";
+            this.btnAttendances.Size = new System.Drawing.Size(181, 25);
+            this.btnAttendances.TabIndex = 13;
+            this.btnAttendances.Text = "Attendance";
+            this.btnAttendances.UseVisualStyleBackColor = true;
+            this.btnAttendances.Click += new System.EventHandler(this.btnAttendances_Click);
+            // 
+            // btnExams
+            // 
+            this.btnExams.Location = new System.Drawing.Point(10, 348);
+            this.btnExams.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnExams.Name = "btnExams";
+            this.btnExams.Size = new System.Drawing.Size(181, 25);
+            this.btnExams.TabIndex = 12;
+            this.btnExams.Text = "Exams";
+            this.btnExams.UseVisualStyleBackColor = true;
+            this.btnExams.Click += new System.EventHandler(this.btnExams_Click);
             // 
             // btnRooms
             // 
@@ -174,17 +196,6 @@
             this.btnLecturers.UseVisualStyleBackColor = true;
             this.btnLecturers.Click += new System.EventHandler(this.btnLecturers_Click);
             // 
-            // btnAttendance
-            // 
-            this.btnAttendance.Location = new System.Drawing.Point(9, 349);
-            this.btnAttendance.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnAttendance.Name = "btnAttendance";
-            this.btnAttendance.Size = new System.Drawing.Size(181, 26);
-            this.btnAttendance.TabIndex = 3;
-            this.btnAttendance.Text = "Attendance";
-            this.btnAttendance.UseVisualStyleBackColor = true;
-            this.btnAttendance.Click += new System.EventHandler(this.btnAttendance_Click);
-            // 
             // btnLogout
             // 
             this.btnLogout.Location = new System.Drawing.Point(9, 519);
@@ -222,10 +233,10 @@
             // 
             this.panelTop.Controls.Add(this.lblWelcome);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelTop.Location = new System.Drawing.Point(200, 0);
+            this.panelTop.Location = new System.Drawing.Point(212, 0);
             this.panelTop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(1084, 48);
+            this.panelTop.Size = new System.Drawing.Size(1396, 89);
             this.panelTop.TabIndex = 3;
             // 
             // lblWelcome
@@ -243,40 +254,29 @@
             this.panelContent.Controls.Add(this.btnApprove);
             this.panelContent.Controls.Add(this.dgvPendingUsers);
             this.panelContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelContent.Location = new System.Drawing.Point(200, 48);
+            this.panelContent.Location = new System.Drawing.Point(212, 89);
             this.panelContent.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelContent.Name = "panelContent";
-            this.panelContent.Size = new System.Drawing.Size(1084, 673);
+            this.panelContent.Size = new System.Drawing.Size(1396, 729);
             this.panelContent.TabIndex = 4;
             // 
             // dgvPendingUsers
             // 
             this.dgvPendingUsers.AllowUserToOrderColumns = true;
             this.dgvPendingUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvPendingUsers.Location = new System.Drawing.Point(0, 0);
+            this.dgvPendingUsers.Location = new System.Drawing.Point(0, 4);
             this.dgvPendingUsers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dgvPendingUsers.Name = "dgvPendingUsers";
             this.dgvPendingUsers.RowHeadersWidth = 51;
             this.dgvPendingUsers.RowTemplate.Height = 24;
-            this.dgvPendingUsers.Size = new System.Drawing.Size(1027, 591);
+            this.dgvPendingUsers.Size = new System.Drawing.Size(1270, 587);
             this.dgvPendingUsers.TabIndex = 1;
-            // 
-            // btnExams
-            // 
-            this.btnExams.Location = new System.Drawing.Point(10, 348);
-            this.btnExams.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnExams.Name = "btnExams";
-            this.btnExams.Size = new System.Drawing.Size(181, 25);
-            this.btnExams.TabIndex = 12;
-            this.btnExams.Text = "Exams";
-            this.btnExams.UseVisualStyleBackColor = true;
-            this.btnExams.Click += new System.EventHandler(this.btnExams_Click);
             // 
             // DashboardForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1284, 721);
+            this.ClientSize = new System.Drawing.Size(1608, 818);
             this.Controls.Add(this.panelContent);
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.panelSidebar);
@@ -300,7 +300,6 @@
         private System.Windows.Forms.DataGridView dgvPendingUsers;
         private System.Windows.Forms.Button btnStudents;
         private System.Windows.Forms.Button btnLecturers;
-        private System.Windows.Forms.Button btnAttendance;
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Button btnMarks;
         private System.Windows.Forms.Button btnCourses;
@@ -312,5 +311,6 @@
         private System.Windows.Forms.Button btnLecturerSubject;
         private System.Windows.Forms.Button btnRooms;
         private System.Windows.Forms.Button btnExams;
+        private System.Windows.Forms.Button btnAttendances;
     }
 }

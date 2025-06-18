@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -20,6 +21,8 @@ namespace UnicomTICManagementSystem.Views
         private readonly StaffController _staffController;
         private readonly DepartmentController _departmentController;
         private readonly PositionController _positionController;
+        private readonly UserController _userController;
+
 
         private int selectedStaffID = -1;
         private bool isUpdateMode = false;
@@ -27,7 +30,7 @@ namespace UnicomTICManagementSystem.Views
         // UI Controls
         private Panel panelGrid, panelForm;
         private DataGridView dgvStaff;
-        private TextBox txtSearch, txtName;
+        private TextBox txtSearch, txtName,txtUsername, txtPassword, txtConfirmPassword, txtEmail, txtPhone;
         private ComboBox cmbDepartment, cmbPosition;
         private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnSave, btnCancel;
 
@@ -45,6 +48,11 @@ namespace UnicomTICManagementSystem.Views
             _staffController = new StaffController(staffService);
             _departmentController = new DepartmentController(deptService);
             _positionController = new PositionController(positionService);
+
+            IUserRepository userRepo = new UserRepository();
+            IUserService userService = new UserService(userRepo, new StudentRepository(), new StaffRepository(), new LecturerRepository());
+            _userController = new UserController(userService);
+
 
             InitializeUI();
             LoadDepartments();
@@ -104,14 +112,40 @@ namespace UnicomTICManagementSystem.Views
                 Width = 300,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            Label lblUsername = new Label { Text = "Username:", Location = new Point(20, 180) };
+            txtUsername = new TextBox { Location = new Point(150, 180), Width = 300 };
 
-            btnSave = new Button { Text = "Save", Location = new Point(150, 200) };
-            btnCancel = new Button { Text = "Cancel", Location = new Point(250, 200) };
+            Label lblPassword = new Label { Text = "Password:", Location = new Point(20, 220) };
+            txtPassword = new TextBox { Location = new Point(150, 220), Width = 300, PasswordChar = '*' };
+
+            Label lblConfirmPassword = new Label { Text = "Confirm Password:", Location = new Point(20, 260) };
+            txtConfirmPassword = new TextBox { Location = new Point(150, 260), Width = 300, PasswordChar = '*' };
+
+            Label lblEmail = new Label { Text = "Email:", Location = new Point(20, 300) };
+            txtEmail = new TextBox { Location = new Point(150, 300), Width = 300 };
+
+            Label lblPhone = new Label { Text = "Phone:", Location = new Point(20, 340) };
+            txtPhone = new TextBox { Location = new Point(150, 340), Width = 300 };
+
+            btnSave = new Button { Text = "Save", Location = new Point(150, 390) };
+            btnCancel = new Button { Text = "Cancel", Location = new Point(250, 390) };
 
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
-            panelForm.Controls.AddRange(new Control[] { lblName, txtName, lblDepartment, cmbDepartment, lblPosition, cmbPosition, btnSave, btnCancel });
+            panelForm.Controls.AddRange(new Control[]
+            {
+                lblName, txtName,
+                lblDepartment, cmbDepartment,
+                lblPosition, cmbPosition,
+                lblUsername, txtUsername,
+                lblPassword, txtPassword,
+                lblConfirmPassword, txtConfirmPassword,
+                lblEmail, txtEmail,
+                lblPhone, txtPhone,
+                btnSave, btnCancel
+            });
+
             this.Controls.Add(panelForm);
         }
 
@@ -134,6 +168,29 @@ namespace UnicomTICManagementSystem.Views
             dgvStaff.DataSource = _staffController.GetAllStaff();
             dgvStaff.ClearSelection();
             selectedStaffID = -1;
+
+            // Hide internal ID columns (if included)
+            if (dgvStaff.Columns.Contains("StaffID"))
+                dgvStaff.Columns["StaffID"].Visible = false;
+            if (dgvStaff.Columns.Contains("DepartmentID"))
+                dgvStaff.Columns["DepartmentID"].Visible = false;
+            if (dgvStaff.Columns.Contains("PositionID"))
+                dgvStaff.Columns["PositionID"].Visible = false;
+            if (dgvStaff.Columns.Contains("UserID"))
+                dgvStaff.Columns["UserID"].Visible = false;
+
+            // Rename visible headers
+            if (dgvStaff.Columns.Contains("Name"))
+                dgvStaff.Columns["Name"].HeaderText = "Full Name";
+            if (dgvStaff.Columns.Contains("DepartmentName"))
+                dgvStaff.Columns["DepartmentName"].HeaderText = "Department";
+            if (dgvStaff.Columns.Contains("PositionName"))
+                dgvStaff.Columns["PositionName"].HeaderText = "Position";
+            if (dgvStaff.Columns.Contains("Email"))
+                dgvStaff.Columns["Email"].HeaderText = "Email";
+            if (dgvStaff.Columns.Contains("Phone"))
+                dgvStaff.Columns["Phone"].HeaderText = "Phone";
+
         }
 
         private void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
@@ -162,26 +219,86 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtName.Text))
+            // Basic validations
+            if (string.IsNullOrWhiteSpace(txtName.Text) ||
+                string.IsNullOrWhiteSpace(txtUsername.Text) ||
+                string.IsNullOrWhiteSpace(txtPassword.Text) ||
+                string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
+                string.IsNullOrWhiteSpace(txtEmail.Text) ||
+                string.IsNullOrWhiteSpace(txtPhone.Text))
             {
-                MessageBox.Show("Name is required.");
+                MessageBox.Show("Please fill in all fields.");
+                return;
+            }
+
+            if (txtPassword.Text != txtConfirmPassword.Text)
+            {
+                MessageBox.Show("Passwords do not match.");
+                return;
+            }
+
+            if (txtPassword.Text.Length < 8)
+            {
+                MessageBox.Show("Password must be at least 8 characters.");
                 return;
             }
 
             string name = txtName.Text.Trim();
+            string username = txtUsername.Text.Trim();
+            string password = txtPassword.Text.Trim();
+            string email = txtEmail.Text.Trim();
+            string phone = txtPhone.Text.Trim();
             int departmentID = (int)cmbDepartment.SelectedValue;
             int positionID = (int)cmbPosition.SelectedValue;
 
             try
             {
+                var userRepo = new UserRepository();
+                var staffRepo = new StaffRepository();
+
                 if (!isUpdateMode)
                 {
-                    int userID = 0;
-                    _staffController.AddStaff(userID, name, departmentID, positionID);
-                    MessageBox.Show("Staff successfully added.");
+                    var existingUser = userRepo.GetUserByUsername(username);
+                    int userID;
+
+                    if (existingUser != null)
+                    {
+                        userID = existingUser.UserID;
+
+                        if (staffRepo.StaffExistsByUserId(userID))
+                        {
+                            MessageBox.Show("Staff member already exists for this user.");
+                            return;
+                        }
+                    }
+
+                    var newUser = new User
+                    {
+                        Username = username,
+                        Password = PasswordHasher.HashPassword(password),
+                        FullName = name,
+                        Email = email,
+                        Phone = phone,
+                        Role = "Staff",
+                        RegisteredDate = DateTime.Now,
+                        IsApproved = true
+                    };
+
+                    var userService = new UserService(
+                        userRepo,
+                        new StudentRepository(),
+                        staffRepo,
+                        new LecturerRepository()
+                    );
+
+                    var userController = new UserController(userService);
+                    userController.AdminRegisterStaff(newUser, departmentID, positionID);
+
+                    MessageBox.Show("✅ Staff successfully added.");
                 }
                 else
                 {
+                    // Only update Staff details - username/password not changeable in update mode
                     Staff staff = new Staff
                     {
                         StaffID = selectedStaffID,
@@ -189,16 +306,18 @@ namespace UnicomTICManagementSystem.Views
                         DepartmentID = departmentID,
                         PositionID = positionID
                     };
+
                     _staffController.UpdateStaff(staff);
-                    MessageBox.Show("Staff successfully updated.");
+                    MessageBox.Show("✅ Staff successfully updated.");
                 }
 
                 LoadStaff();
                 SwitchToGrid();
+                ClearForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Save Failed");
+                MessageBox.Show($"❌ {ex.Message}", "Save Failed");
             }
         }
 
@@ -210,11 +329,53 @@ namespace UnicomTICManagementSystem.Views
                 return;
             }
 
-            selectedStaffID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["StaffID"].Value);
-            txtName.Text = dgvStaff.CurrentRow.Cells["Name"].Value.ToString();
-            cmbDepartment.SelectedValue = Convert.ToInt32(dgvStaff.CurrentRow.Cells["DepartmentID"].Value);
-            LoadPositions(Convert.ToInt32(cmbDepartment.SelectedValue));
-            cmbPosition.SelectedValue = Convert.ToInt32(dgvStaff.CurrentRow.Cells["PositionID"].Value);
+            try
+            {
+                selectedStaffID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["StaffID"].Value);
+                txtName.Text = dgvStaff.CurrentRow.Cells["Name"].Value.ToString();
+
+                int departmentID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["DepartmentID"].Value);
+                int positionID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["PositionID"].Value);
+
+                // Ensure departments are loaded
+                if (cmbDepartment.DataSource == null)
+                    LoadDepartments();
+
+                // Temporarily remove event to avoid recursion
+                cmbDepartment.SelectedIndexChanged -= cmbDepartment_SelectedIndexChanged;
+                cmbDepartment.SelectedValue = departmentID;
+                cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
+
+                // Manually load positions for selected department
+                LoadPositions(departmentID);
+
+                // Safely set position value
+                var posList = cmbPosition.DataSource as List<Position>;
+                if (posList != null && posList.Any(p => p.PositionID == positionID))
+                {
+                    cmbPosition.SelectedValue = positionID;
+                }
+
+                // Load user details safely
+                int userID = _staffController.GetUserIDByStaffID(selectedStaffID);
+                if (userID <= 0)
+                    throw new Exception("User ID not found for the selected staff.");
+
+                var user = _userController.GetUserById(userID);
+                if (user == null)
+                    throw new Exception("User details not found.");
+
+                txtUsername.Text = user.Username;
+                txtEmail.Text = user.Email;
+                txtPhone.Text = user.Phone;
+                txtPassword.Text = "";
+                txtConfirmPassword.Text = "";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load user details: {ex.Message}");
+                return;
+            }
 
             isUpdateMode = true;
             SwitchToForm();
@@ -258,6 +419,11 @@ namespace UnicomTICManagementSystem.Views
         private void ClearForm()
         {
             txtName.Clear();
+            txtUsername.Clear();
+            txtPassword.Clear();
+            txtConfirmPassword.Clear();
+            txtEmail.Clear();
+            txtPhone.Clear();
             cmbDepartment.SelectedIndex = 0;
             selectedStaffID = -1;
             cmbPosition.DataSource = null;

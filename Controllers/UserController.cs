@@ -33,6 +33,16 @@ namespace UnicomTICManagementSystem.Controllers
         {
             _userService.AdminRegisterLecturer(user, departmentID);
         }
+        public User GetUserById(int userID)
+        {
+            return _userService.GetUserById(userID);
+        }
+        public void AdminRegisterStaff(User user, int departmentID, int positionID)
+        {
+            _userService.AdminRegisterStaff(user, departmentID, positionID);
+        }
+
+
 
     }
 }
