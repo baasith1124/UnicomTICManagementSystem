@@ -46,6 +46,7 @@
             this.lblWelcome = new System.Windows.Forms.Label();
             this.panelContent = new System.Windows.Forms.Panel();
             this.dgvPendingUsers = new System.Windows.Forms.DataGridView();
+            this.btnExams = new System.Windows.Forms.Button();
             this.panelSidebar.SuspendLayout();
             this.panelTop.SuspendLayout();
             this.panelContent.SuspendLayout();
@@ -65,6 +66,7 @@
             // 
             // panelSidebar
             // 
+            this.panelSidebar.Controls.Add(this.btnExams);
             this.panelSidebar.Controls.Add(this.btnRooms);
             this.panelSidebar.Controls.Add(this.btnLecturerSubject);
             this.panelSidebar.Controls.Add(this.btnSubjects);
@@ -259,6 +261,17 @@
             this.dgvPendingUsers.Size = new System.Drawing.Size(1027, 591);
             this.dgvPendingUsers.TabIndex = 1;
             // 
+            // btnExams
+            // 
+            this.btnExams.Location = new System.Drawing.Point(10, 348);
+            this.btnExams.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnExams.Name = "btnExams";
+            this.btnExams.Size = new System.Drawing.Size(181, 25);
+            this.btnExams.TabIndex = 12;
+            this.btnExams.Text = "Exams";
+            this.btnExams.UseVisualStyleBackColor = true;
+            this.btnExams.Click += new System.EventHandler(this.btnExams_Click);
+            // 
             // DashboardForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -298,5 +311,6 @@
         private System.Windows.Forms.Button btnSubjects;
         private System.Windows.Forms.Button btnLecturerSubject;
         private System.Windows.Forms.Button btnRooms;
+        private System.Windows.Forms.Button btnExams;
     }
 }

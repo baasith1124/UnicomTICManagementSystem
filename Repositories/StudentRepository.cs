@@ -70,9 +70,12 @@ namespace UnicomTICManagementSystem.Repositories
             var students = new List<Student>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName 
-                                 FROM Students s
-                                 INNER JOIN Courses c ON s.CourseID = c.CourseID";
+                string query = @"
+                    SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
+                           c.CourseName, u.Email, u.Phone
+                    FROM Students s
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    INNER JOIN Users u ON s.UserID = u.UserID";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -82,10 +85,13 @@ namespace UnicomTICManagementSystem.Repositories
                         students.Add(new Student
                         {
                             StudentID = Convert.ToInt32(reader["StudentID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
                             Name = reader["Name"].ToString(),
                             CourseID = Convert.ToInt32(reader["CourseID"]),
                             EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                            CourseName = reader["CourseName"].ToString() // For DataGridView display
+                            CourseName = reader["CourseName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString()
                         });
                     }
                 }
@@ -93,19 +99,24 @@ namespace UnicomTICManagementSystem.Repositories
             return students;
         }
 
+
         public List<Student> SearchStudents(string keyword)
         {
             var students = new List<Student>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName 
-                                 FROM Students s
-                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                 WHERE s.Name LIKE @keyword";
+                string query = @"
+                    SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
+                           c.CourseName, u.Email, u.Phone
+                    FROM Students s
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    INNER JOIN Users u ON s.UserID = u.UserID
+                    WHERE s.Name LIKE @keyword";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -113,10 +124,13 @@ namespace UnicomTICManagementSystem.Repositories
                             students.Add(new Student
                             {
                                 StudentID = Convert.ToInt32(reader["StudentID"]),
+                                UserID = Convert.ToInt32(reader["UserID"]),
                                 Name = reader["Name"].ToString(),
                                 CourseID = Convert.ToInt32(reader["CourseID"]),
                                 EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                CourseName = reader["CourseName"].ToString()
+                                CourseName = reader["CourseName"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                Phone = reader["Phone"].ToString()
                             });
                         }
                     }
@@ -124,6 +138,7 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return students;
         }
+
 
         public Student GetStudentByID(int studentID)
         {
@@ -256,6 +271,39 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return students;
         }
+        public Student GetStudentByUserId(int userID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+                         FROM Students s
+                         INNER JOIN Courses c ON s.CourseID = c.CourseID
+                         WHERE s.UserID = @UserID";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Student
+                            {
+                                StudentID = Convert.ToInt32(reader["StudentID"]),
+                                UserID = userID,
+                                Name = reader["Name"].ToString(),
+                                CourseID = Convert.ToInt32(reader["CourseID"]),
+                                EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                                CourseName = reader["CourseName"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+
 
     }
 }

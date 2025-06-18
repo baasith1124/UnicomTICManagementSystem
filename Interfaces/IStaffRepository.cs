@@ -15,5 +15,8 @@ namespace UnicomTICManagementSystem.Interfaces
         List<Staff> GetAllStaff();
         Staff GetStaffByID(int staffID);
         List<Staff> SearchStaff(string keyword);
+
+        Staff GetStaffByUserId(int userID);
+
     }
 }

@@ -41,6 +41,7 @@ namespace UnicomTICManagementSystem.Controllers
         {
             return _courseService.SearchCoursesByName(courseName);
         }
+        public List<Course> GetCoursesByDepartment(int departmentId) => _courseService.GetCoursesByDepartment(departmentId);
 
 
     }

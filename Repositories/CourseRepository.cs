@@ -16,11 +16,13 @@ namespace UnicomTICManagementSystem.Repositories
         {
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = "INSERT INTO Courses (CourseName, Description) VALUES (@CourseName, @Description)";
+                string query = "INSERT INTO Courses (CourseName, Description, DepartmentID) VALUES (@CourseName, @Description, @DepartmentID)";
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@CourseName", course.CourseName);
                     cmd.Parameters.AddWithValue("@Description", course.Description);
+                    cmd.Parameters.AddWithValue("@DepartmentID", course.DepartmentID);
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -30,12 +32,13 @@ namespace UnicomTICManagementSystem.Repositories
         {
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = "UPDATE Courses SET CourseName = @CourseName, Description = @Description WHERE CourseID = @CourseID";
+                string query = "UPDATE Courses SET CourseName = @CourseName, Description = @Description, DepartmentID = @DepartmentID WHERE CourseID = @CourseID";
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@CourseID", course.CourseID);
                     cmd.Parameters.AddWithValue("@CourseName", course.CourseName);
                     cmd.Parameters.AddWithValue("@Description", course.Description);
+                    cmd.Parameters.AddWithValue("@DepartmentID", course.DepartmentID);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -79,7 +82,10 @@ namespace UnicomTICManagementSystem.Repositories
             var courses = new List<Course>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = "SELECT * FROM Courses";
+                string query = @"SELECT c.*, d.DepartmentName 
+                                FROM Courses c 
+                                LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
+                                ";
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     using (var reader = cmd.ExecuteReader())
@@ -100,7 +106,10 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 CourseID = Convert.ToInt32(reader["CourseID"]),
                 CourseName = reader["CourseName"].ToString(),
-                Description = reader["Description"].ToString()
+                Description = reader["Description"].ToString(),
+                DepartmentName = reader["DepartmentName"] != DBNull.Value ? reader["DepartmentName"].ToString() : string.Empty,
+                DepartmentID = reader["DepartmentID"] != DBNull.Value ? Convert.ToInt32(reader["DepartmentID"]) : 0
+
             };
         }
 
@@ -109,7 +118,11 @@ namespace UnicomTICManagementSystem.Repositories
             var courses = new List<Course>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = "SELECT * FROM Courses WHERE CourseName LIKE @CourseName";
+                string query = @"SELECT c.*, d.DepartmentName 
+                                FROM Courses c 
+                                LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
+                                WHERE c.CourseName LIKE @CourseName
+                                ";
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@CourseName", "%" + courseName + "%");
@@ -124,6 +137,27 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return courses;
         }
+        public List<Course> GetCoursesByDepartment(int departmentId)
+        {
+            var courses = new List<Course>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT * FROM Courses WHERE DepartmentID = @DepartmentID";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DepartmentID", departmentId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            courses.Add(MapReaderToCourse(reader));
+                        }
+                    }
+                }
+            }
+            return courses;
+        }
+
 
     }
 }

@@ -17,7 +17,7 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public List<User> GetPendingApprovals()
+        public List<PendingUserViewModel> GetPendingApprovals()
         {
             return _userService.GetPendingApprovals();
         }

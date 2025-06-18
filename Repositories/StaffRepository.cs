@@ -172,6 +172,42 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return staffList;
         }
+        public Staff GetStaffByUserId(int userID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"
+                    SELECT s.StaffID, s.UserID, s.Name, 
+                           s.DepartmentID, d.DepartmentName, 
+                           s.PositionID, p.PositionName
+                    FROM Staff s
+                    INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
+                    INNER JOIN Positions p ON s.PositionID = p.PositionID
+                    WHERE s.UserID = @UserID";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Staff
+                            {
+                                StaffID = Convert.ToInt32(reader["StaffID"]),
+                                UserID = Convert.ToInt32(reader["UserID"]),
+                                Name = reader["Name"].ToString(),
+                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                                DepartmentName = reader["DepartmentName"].ToString(),
+                                PositionID = Convert.ToInt32(reader["PositionID"]),
+                                PositionName = reader["PositionName"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
 
     }
 }

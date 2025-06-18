@@ -15,5 +15,8 @@ namespace UnicomTICManagementSystem.Interfaces
         List<Lecturer> GetAllLecturers();
         List<Lecturer> SearchLecturers(string keyword);
         Lecturer GetLecturerByID(int lecturerID);
+        Lecturer GetLecturerByUserId(int userID);
+        bool LecturerExistsByUserId(int userId);
+
     }
 }

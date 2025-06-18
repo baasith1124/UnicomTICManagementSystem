@@ -108,9 +108,58 @@ namespace UnicomTICManagementSystem.Services
             _userRepository.ApproveUser(userID);
         }
 
-        public List<User> GetPendingApprovals()
+        public List<PendingUserViewModel> GetPendingApprovals()
         {
-            return _userRepository.GetPendingApprovals();
+            var pendingUsers = _userRepository.GetUsers().Where(u => !u.IsApproved).ToList();
+
+            var result = new List<PendingUserViewModel>();
+
+            foreach (var user in pendingUsers)
+            {
+                var viewModel = new PendingUserViewModel
+                {
+                    UserID = user.UserID,
+                    Username = user.Username,
+                    FullName = user.FullName,
+                    Role = user.Role,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    RegisteredDate = user.RegisteredDate
+                };
+
+                if (user.Role == "Student")
+                {
+                    var student = _studentRepository.GetStudentByUserId(user.UserID);
+                    if (student != null)
+                    {
+                        viewModel.CourseName = student.CourseName; 
+
+                    }
+                }
+                else if (user.Role == "Lecturer")
+                {
+                    var lecturer = _lecturerRepository.GetLecturerByUserId(user.UserID);
+                    if (lecturer != null)
+                    {
+                        viewModel.DepartmentName = lecturer.DepartmentName;
+
+                    }
+                }
+                else if (user.Role == "Staff")
+                {
+                    var staff = _staffRepository.GetStaffByUserId(user.UserID);
+                    if (staff != null)
+                    {
+                        viewModel.DepartmentName = staff.DepartmentName;
+                        viewModel.PositionName = staff.PositionName;
+
+                    }
+                }
+
+                result.Add(viewModel);
+            }
+
+            return result;
         }
 
         public User GetUserByUsername(string username)
@@ -144,6 +193,16 @@ namespace UnicomTICManagementSystem.Services
         {
             return _userRepository.GetUserByEmail(email) != null;
         }
+        public void AdminRegisterLecturer(User user, int departmentID)
+        {
+            _userRepository.RegisterUser(user);
+            var createdUser = _userRepository.GetUserByUsername(user.Username);
+            if (createdUser != null)
+            {
+                _lecturerRepository.AddLecturer(createdUser.UserID, user.FullName, departmentID);
+            }
+        }
+
 
 
     }

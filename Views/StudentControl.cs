@@ -67,6 +67,15 @@ namespace UnicomTICManagementSystem.Views
             dgvStudents.DataSource = _studentController.GetAllStudents();
             dgvStudents.ClearSelection();
             selectedStudentID = -1;
+
+            if (dgvStudents.Columns["StudentID"] != null)
+                dgvStudents.Columns["StudentID"].Visible = false;
+
+            if (dgvStudents.Columns["UserID"] != null)
+                dgvStudents.Columns["UserID"].Visible = false;
+
+            if (dgvStudents.Columns["CourseID"] != null)
+                dgvStudents.Columns["CourseID"].Visible = false;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

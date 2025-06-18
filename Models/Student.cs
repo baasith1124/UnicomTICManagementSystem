@@ -14,5 +14,9 @@ namespace UnicomTICManagementSystem.Models
         public int CourseID { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public string CourseName { get; internal set; }
+
+        public string Email { get; set; }
+        public string Phone { get; set; }
+
     }
 }

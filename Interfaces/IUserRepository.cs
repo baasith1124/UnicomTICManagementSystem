@@ -16,5 +16,6 @@ namespace UnicomTICManagementSystem.Interfaces
         void RegisterUser(User user);
         void ApproveUser(int userID);
         List<User> GetPendingApprovals();
+        List<User> GetUsers();
     }
 }

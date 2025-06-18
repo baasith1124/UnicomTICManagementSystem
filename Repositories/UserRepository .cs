@@ -131,7 +131,7 @@ namespace UnicomTICManagementSystem.Repositories
             return users;
         }
 
-        // 🔧 Private helper to map reader to model object
+        
         private User MapReaderToUser(SQLiteDataReader reader)
         {
             return new User
@@ -139,6 +139,7 @@ namespace UnicomTICManagementSystem.Repositories
                 UserID = Convert.ToInt32(reader["UserID"]),
                 Username = reader["Username"].ToString(),
                 Password = reader["Password"].ToString(),
+                FullName = reader["FullName"].ToString(),
                 Role = reader["Role"].ToString(),
                 Email = reader["Email"].ToString(),
                 Phone = reader["Phone"].ToString(),
@@ -146,5 +147,25 @@ namespace UnicomTICManagementSystem.Repositories
                 IsApproved = Convert.ToInt32(reader["IsApproved"]) == 1
             };
         }
+        public List<User> GetUsers()
+        {
+            var users = new List<User>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT * FROM Users";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(MapReaderToUser(reader));
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
     }
 }

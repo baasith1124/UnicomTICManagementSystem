@@ -13,5 +13,7 @@ namespace UnicomTICManagementSystem.Models
         public int SubjectID { get; set; }
         public DateTime ExamDate { get; set; }
         public int Duration { get; set; }
+
+        public string SubjectName { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace UnicomTICManagementSystem.Views
 {
-    partial class CourseControl
+    partial class AdminExamControl
     {
         /// <summary> 
         /// Required designer variable.

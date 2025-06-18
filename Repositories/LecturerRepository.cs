@@ -14,11 +14,14 @@ namespace UnicomTICManagementSystem.Repositories
     {
         public void AddLecturer(int userID, string name, int departmentID)
         {
+            if (LecturerExistsByUserId(userID))
+                throw new Exception("❌ Lecturer already exists for this user.");
+
             using (var conn = DatabaseManager.GetConnection())
             {
                 string query = @"INSERT INTO Lecturers 
-                            (UserID, Name, DepartmentID)
-                            VALUES (@UserID, @Name, @DepartmentID)";
+                                (UserID, Name, DepartmentID)
+                                VALUES (@UserID, @Name, @DepartmentID)";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
@@ -26,6 +29,19 @@ namespace UnicomTICManagementSystem.Repositories
                     cmd.Parameters.AddWithValue("@Name", name);
                     cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
                     cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public bool LecturerExistsByUserId(int userId)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT COUNT(1) FROM Lecturers WHERE UserID = @UserID";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
                 }
             }
         }
@@ -67,9 +83,10 @@ namespace UnicomTICManagementSystem.Repositories
             var lecturers = new List<Lecturer>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT l.LecturerID, l.Name, l.DepartmentID, d.DepartmentName
-                             FROM Lecturers l
-                             INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID";
+                string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
+                                 l.DepartmentID, d.DepartmentName 
+                                 FROM Lecturers l
+                                 INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -79,6 +96,7 @@ namespace UnicomTICManagementSystem.Repositories
                         lecturers.Add(new Lecturer
                         {
                             LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
                             Name = reader["Name"].ToString(),
                             DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
                             DepartmentName = reader["DepartmentName"].ToString()
@@ -94,10 +112,11 @@ namespace UnicomTICManagementSystem.Repositories
             var lecturers = new List<Lecturer>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT l.LecturerID, l.Name, l.DepartmentID, d.DepartmentName 
-                             FROM Lecturers l
-                             INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                             WHERE l.Name LIKE @keyword";
+                string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
+                                 l.DepartmentID, d.DepartmentName
+                                 FROM Lecturers l
+                                 INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                                 WHERE l.Name LIKE @keyword";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
@@ -109,6 +128,7 @@ namespace UnicomTICManagementSystem.Repositories
                             lecturers.Add(new Lecturer
                             {
                                 LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                                UserID = Convert.ToInt32(reader["UserID"]),
                                 Name = reader["Name"].ToString(),
                                 DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
                                 DepartmentName = reader["DepartmentName"].ToString()
@@ -124,10 +144,11 @@ namespace UnicomTICManagementSystem.Repositories
         {
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT l.LecturerID, l.Name, l.DepartmentID, d.DepartmentName
-                             FROM Lecturers l
-                             INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                             WHERE l.LecturerID = @LecturerID";
+                string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
+                                 l.DepartmentID, d.DepartmentName
+                                 FROM Lecturers l
+                                 INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                                 WHERE l.LecturerID = @LecturerID";
 
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
@@ -139,6 +160,7 @@ namespace UnicomTICManagementSystem.Repositories
                             return new Lecturer
                             {
                                 LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                                UserID = Convert.ToInt32(reader["UserID"]),
                                 Name = reader["Name"].ToString(),
                                 DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
                                 DepartmentName = reader["DepartmentName"].ToString()
@@ -149,5 +171,39 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return null;
         }
+
+        public Lecturer GetLecturerByUserId(int userID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
+                                 l.DepartmentID, d.DepartmentName
+                                 FROM Lecturers l
+                                 INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                                 WHERE l.UserID = @UserID";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Lecturer
+                            {
+                                LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                                UserID = Convert.ToInt32(reader["UserID"]),
+                                Name = reader["Name"].ToString(),
+                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                                DepartmentName = reader["DepartmentName"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+
     }
 }

@@ -51,6 +51,7 @@ namespace UnicomTICManagementSystem.Views
             dgvPendingUsers.Visible = false;
             btnApprove.Visible = false;
             btnMarks.Visible = false;
+            btnExams.Visible = false;
 
 
             if (currentUser.Role == "Admin")
@@ -64,6 +65,7 @@ namespace UnicomTICManagementSystem.Views
                 btnAttendance.Visible = true;
                 btnMarks.Visible = true;
                 btnApprove.Visible = true;
+                btnExams.Visible = true;
 
                 LoadPendingUsers();
             }
@@ -72,6 +74,7 @@ namespace UnicomTICManagementSystem.Views
                 btnAttendance.Visible = true;
                 btnMarks.Visible = true;
                 btnMarks.Visible = true;
+                btnExams.Visible = true;
 
             }
             else if (currentUser.Role == "Staff")
@@ -86,6 +89,7 @@ namespace UnicomTICManagementSystem.Views
             else if (currentUser.Role == "Student")
             {
                 btnMarks.Visible = true;
+                btnExams.Visible = true;
             }
         }
 
@@ -150,8 +154,9 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadPendingUsers()
         {
-            List<User> pendingUsers = _approvalController.GetPendingApprovals();
+            List<PendingUserViewModel> pendingUsers = _approvalController.GetPendingApprovals();
             dgvPendingUsers.DataSource = pendingUsers;
+            dgvPendingUsers.Columns["UserID"].Visible = false;
         }
 
         private void btnApprove_Click(object sender, EventArgs e)
@@ -189,6 +194,23 @@ namespace UnicomTICManagementSystem.Views
         private void btnTimetable_Click(object sender, EventArgs e)
         {
             LoadControl(new TimetableControl());
+        }
+
+        private void btnExams_Click(object sender, EventArgs e)
+        {
+            if (currentUser.Role == "Admin")
+            {
+                LoadControl(new AdminExamControl());
+            }
+            else if (currentUser.Role == "Lecturer")
+            {
+                LoadControl(new LecturerExamControl(currentUser.UserID));
+            }
+            else if (currentUser.Role == "Student")
+            {
+                LoadControl(new StudentExamControl(currentUser.UserID));
+            }
+
         }
     }
 }

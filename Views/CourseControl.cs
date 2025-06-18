@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,32 +15,42 @@ using UnicomTICManagementSystem.Services;
 
 namespace UnicomTICManagementSystem.Views
 {
-    public partial class CourseControl : UserControl
+    public partial class CourseControl: UserControl
     {
         private readonly CourseController _courseController;
+        private DepartmentController _departmentController;
+
         private int selectedCourseID = -1;
         private bool isUpdateMode = false;
-        private Label lblCourseName, lblDescription;
+
+        private Label lblCourseName, lblDescription, lblDepartment;
+        private TextBox txtCourseName, txtDescription, txtSearch;
+        private ComboBox cmbDepartment, cmbFilterDepartment;
+        private Button btnSave, btnCancel, btnSearch, btnAdd, btnUpdate, btnDelete;
+        private Panel panelForm, panelGrid;
+        private DataGridView dgvCourses;
 
         public CourseControl()
         {
             InitializeComponent();
 
-            ICourseRepository courseRepository = new CourseRepository();
-            ICourseService courseService = new CourseService(courseRepository);
+            ICourseRepository courseRepo = new CourseRepository();
+            ICourseService courseService = new CourseService(courseRepo);
             _courseController = new CourseController(courseService);
-            
+
+            IDepartmentRepository deptRepo = new DepartmentRepository();
+            IDepartmentService deptService = new DepartmentService(deptRepo);
+            _departmentController = new DepartmentController(deptService);
+
             InitializeUI();
+            LoadDepartments();
             LoadCourses();
         }
-
-       
 
         private void InitializeUI()
         {
             this.Dock = DockStyle.Fill;
 
-            // Initialize Panels
             panelGrid = new Panel { Dock = DockStyle.Fill };
             panelForm = new Panel { Dock = DockStyle.Fill, Visible = false };
 
@@ -53,23 +63,27 @@ namespace UnicomTICManagementSystem.Views
 
         private void InitializeGridPanel()
         {
-            // Search Controls
             txtSearch = new TextBox { Location = new Point(20, 20), Width = 200 };
             btnSearch = new Button { Text = "Search", Location = new Point(230, 18) };
             btnSearch.Click += btnSearch_Click;
 
-            // DataGridView
+            cmbFilterDepartment = new ComboBox
+            {
+                Location = new Point(350, 18),
+                Width = 200,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbFilterDepartment.SelectedIndexChanged += cmbFilterDepartment_SelectedIndexChanged;
+
             dgvCourses = new DataGridView
             {
                 Location = new Point(20, 60),
-                Width = 600,
+                Width = 900,
                 Height = 300,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 
-            // Action Buttons
             btnAdd = new Button { Text = "Add", Location = new Point(20, 380) };
             btnUpdate = new Button { Text = "Update", Location = new Point(120, 380) };
             btnDelete = new Button { Text = "Delete", Location = new Point(220, 380) };
@@ -78,12 +92,11 @@ namespace UnicomTICManagementSystem.Views
             btnUpdate.Click += btnUpdate_Click;
             btnDelete.Click += btnDelete_Click;
 
-            panelGrid.Controls.Add(txtSearch);
-            panelGrid.Controls.Add(btnSearch);
-            panelGrid.Controls.Add(dgvCourses);
-            panelGrid.Controls.Add(btnAdd);
-            panelGrid.Controls.Add(btnUpdate);
-            panelGrid.Controls.Add(btnDelete);
+            panelGrid.Controls.AddRange(new Control[]
+            {
+                txtSearch, btnSearch, cmbFilterDepartment,
+                dgvCourses, btnAdd, btnUpdate, btnDelete
+            });
         }
 
         private void InitializeFormPanel()
@@ -92,39 +105,80 @@ namespace UnicomTICManagementSystem.Views
             txtCourseName = new TextBox { Location = new Point(150, 20), Width = 250 };
 
             lblDescription = new Label { Text = "Description:", Location = new Point(20, 60) };
-            txtDescription = new TextBox { Location = new Point(150, 60), Width = 250, Height = 80, Multiline = true };
+            txtDescription = new TextBox { Location = new Point(150, 60), Width = 250, Height = 60, Multiline = true };
 
-            btnSave = new Button { Text = "Save", Location = new Point(150, 160) };
-            btnCancel = new Button { Text = "Cancel", Location = new Point(230, 160) };
+            lblDepartment = new Label { Text = "Department:", Location = new Point(20, 130) };
+            cmbDepartment = new ComboBox { Location = new Point(150, 130), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+
+            btnSave = new Button { Text = "Save", Location = new Point(150, 180) };
+            btnCancel = new Button { Text = "Cancel", Location = new Point(230, 180) };
 
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
-            panelForm.Controls.Add(lblCourseName);
-            panelForm.Controls.Add(txtCourseName);
-            panelForm.Controls.Add(lblDescription);
-            panelForm.Controls.Add(txtDescription);
-            panelForm.Controls.Add(btnSave);
-            panelForm.Controls.Add(btnCancel);
+            panelForm.Controls.AddRange(new Control[]
+            {
+                lblCourseName, txtCourseName,
+                lblDescription, txtDescription,
+                lblDepartment, cmbDepartment,
+                btnSave, btnCancel
+            });
+        }
+
+        private void LoadDepartments()
+        {
+            var departments = _departmentController.GetAllDepartments();
+            cmbDepartment.DataSource = departments;
+            cmbDepartment.DisplayMember = "DepartmentName";
+            cmbDepartment.ValueMember = "DepartmentID";
+
+            var deptList = new List<Department>
+            {
+                new Department { DepartmentID = 0, DepartmentName = "-- All Departments --" }
+            };
+            deptList.AddRange(departments);
+
+            cmbFilterDepartment.DataSource = deptList;
+            cmbFilterDepartment.DisplayMember = "DepartmentName";
+            cmbFilterDepartment.ValueMember = "DepartmentID";
+            cmbFilterDepartment.SelectedIndex = 0;
+
         }
 
         private void LoadCourses()
         {
-            dgvCourses.DataSource = _courseController.GetAllCourses();
+            int deptId = (cmbFilterDepartment.SelectedItem as Department)?.DepartmentID ?? 0;
+
+            var data = deptId == 0
+                ? _courseController.GetAllCourses()
+                : _courseController.GetCoursesByDepartment(deptId);
+
+            dgvCourses.DataSource = data;
             dgvCourses.ClearSelection();
+
+            if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
+            if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
+
             selectedCourseID = -1;
         }
 
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string searchTerm = txtSearch.Text.Trim();
-            dgvCourses.DataSource = _courseController.SearchCoursesByName(searchTerm);
+            string term = txtSearch.Text.Trim();
+            dgvCourses.DataSource = _courseController.SearchCoursesByName(term);
+        }
+
+        private void cmbFilterDepartment_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadCourses();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             ClearForm();
             isUpdateMode = false;
+            LoadDepartments();
             SwitchToForm();
         }
 
@@ -140,6 +194,9 @@ namespace UnicomTICManagementSystem.Views
             txtCourseName.Text = dgvCourses.CurrentRow.Cells["CourseName"].Value.ToString();
             txtDescription.Text = dgvCourses.CurrentRow.Cells["Description"].Value.ToString();
 
+            if (dgvCourses.CurrentRow.Cells["DepartmentID"].Value != DBNull.Value)
+                cmbDepartment.SelectedValue = Convert.ToInt32(dgvCourses.CurrentRow.Cells["DepartmentID"].Value);
+
             isUpdateMode = true;
             SwitchToForm();
         }
@@ -152,28 +209,29 @@ namespace UnicomTICManagementSystem.Views
                 return;
             }
 
-            int courseId = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
-            var confirm = MessageBox.Show("Are you sure you want to delete this course?", "Confirm", MessageBoxButtons.YesNo);
+            int id = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
+            var confirm = MessageBox.Show("Confirm delete?", "Warning", MessageBoxButtons.YesNo);
             if (confirm == DialogResult.Yes)
             {
-                _courseController.DeleteCourse(courseId);
-                MessageBox.Show("Course Deleted Successfully");
+                _courseController.DeleteCourse(id);
                 LoadCourses();
+                MessageBox.Show("Course Deleted");
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtCourseName.Text))
+            if (string.IsNullOrWhiteSpace(txtCourseName.Text) || cmbDepartment.SelectedValue == null)
             {
-                MessageBox.Show("Course Name is required.");
+                MessageBox.Show("Course Name and Department are required.");
                 return;
             }
 
             Course course = new Course
             {
                 CourseName = txtCourseName.Text.Trim(),
-                Description = txtDescription.Text.Trim()
+                Description = txtDescription.Text.Trim(),
+                DepartmentID = Convert.ToInt32(cmbDepartment.SelectedValue)
             };
 
             if (isUpdateMode)
@@ -213,6 +271,7 @@ namespace UnicomTICManagementSystem.Views
         {
             txtCourseName.Clear();
             txtDescription.Clear();
+            cmbDepartment.SelectedIndex = -1;
             selectedCourseID = -1;
         }
     }

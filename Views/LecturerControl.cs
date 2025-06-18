@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -26,7 +27,7 @@ namespace UnicomTICManagementSystem.Views
         // UI Controls
         private Panel panelGrid, panelForm;
         private DataGridView dgvLecturers;
-        private TextBox txtSearch, txtName;
+        private TextBox txtSearch, txtName, txtUsername, txtPassword, txtEmail, txtPhone, txtConfirmPassword;
         private ComboBox cmbDepartment;
         private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnSave, btnCancel;
 
@@ -86,13 +87,42 @@ namespace UnicomTICManagementSystem.Views
             Label lblDepartment = new Label { Text = "Department:", Location = new Point(20, 80) };
             cmbDepartment = new ComboBox { Location = new Point(150, 80), Width = 250 };
 
-            btnSave = new Button { Text = "Save", Location = new Point(150, 150) };
-            btnCancel = new Button { Text = "Cancel", Location = new Point(230, 150) };
+            Label lblUsername = new Label { Text = "Username:", Location = new Point(20, 130) };
+            txtUsername = new TextBox { Location = new Point(150, 130), Width = 250 };
+
+            Label lblPassword = new Label { Text = "Password:", Location = new Point(20, 170) };
+            txtPassword = new TextBox { Location = new Point(150, 170), Width = 250 };
+
+            Label lblConfirmPassword = new Label { Text = "Confirm Password:", Location = new Point(20, 290) };
+            TextBox txtConfirmPassword = new TextBox { Location = new Point(150, 290), Width = 250 };
+            this.txtConfirmPassword = txtConfirmPassword; // store it in the class field
+
+
+            Label lblEmail = new Label { Text = "Email:", Location = new Point(20, 210) };
+            txtEmail = new TextBox { Location = new Point(150, 210), Width = 250 };
+
+            Label lblPhone = new Label { Text = "Phone:", Location = new Point(20, 250) };
+            txtPhone = new TextBox { Location = new Point(150, 250), Width = 250 };
+
+
+            btnSave = new Button { Text = "Save", Location = new Point(150, 340) };
+            btnCancel = new Button { Text = "Cancel", Location = new Point(230, 340) };
 
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
-            panelForm.Controls.AddRange(new Control[] { lblName, txtName, lblDepartment, cmbDepartment, btnSave, btnCancel });
+            panelForm.Controls.AddRange(new Control[]
+            {
+                lblUsername, txtUsername,
+                lblPassword, txtPassword,
+                lblConfirmPassword, txtConfirmPassword,
+                lblEmail, txtEmail,
+                lblPhone, txtPhone,
+                lblName, txtName,
+                lblDepartment, cmbDepartment,
+                btnSave, btnCancel
+            });
+
             this.Controls.Add(panelForm);
         }
 
@@ -125,35 +155,101 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtName.Text))
+            // Input validation
+            if (string.IsNullOrWhiteSpace(txtName.Text) ||
+                string.IsNullOrWhiteSpace(txtUsername.Text) ||
+                string.IsNullOrWhiteSpace(txtPassword.Text) ||
+                string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
+                string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Name is required.");
+                MessageBox.Show("Please fill in all required fields.");
+                return;
+            }
+
+            if (txtPassword.Text.Length < 8)
+            {
+                MessageBox.Show("Password must be at least 8 characters.");
+                return;
+            }
+
+            if (txtPassword.Text != txtConfirmPassword.Text)
+            {
+                MessageBox.Show("Password and Confirm Password do not match.");
                 return;
             }
 
             string name = txtName.Text.Trim();
+            string username = txtUsername.Text.Trim();
             int departmentID = Convert.ToInt32(cmbDepartment.SelectedValue);
 
             try
             {
+                var userRepo = new UserRepository();
+                var lecturerRepo = new LecturerRepository();
+                int userID;
+
                 if (!isUpdateMode)
                 {
-                    int userID = 0; // Bind properly when integrated with user
-                    _lecturerController.AddLecturer(userID, name, departmentID);
+                    var existingUser = userRepo.GetUserByUsername(username);
+
+                    if (existingUser != null)
+                    {
+                        userID = existingUser.UserID;
+
+                        // Check if lecturer already exists by UserID
+                        if (lecturerRepo.LecturerExistsByUserId(userID))
+                        {
+                            MessageBox.Show("Lecturer already exists for this user.");
+                            return;
+                        }
+
+                        // Add lecturer only (user already exists)
+                        _lecturerController.AddLecturer(userID, name, departmentID);
+                    }
+                    else
+                    {
+                        // Create new user and lecturer together
+                        User newUser = new User
+                        {
+                            Username = username,
+                            Password = PasswordHasher.HashPassword(txtPassword.Text.Trim()),
+                            Role = "Lecturer",
+                            FullName = name,
+                            Email = txtEmail.Text.Trim(),
+                            Phone = txtPhone.Text.Trim(),
+                            RegisteredDate = DateTime.Now,
+                            IsApproved = true
+                        };
+
+                        var userService = new UserService(
+                            userRepo,
+                            new StudentRepository(),
+                            new StaffRepository(),
+                            lecturerRepo);
+
+                        var userController = new UserController(userService);
+
+                        // This method must handle both inserting User and Lecturer
+                        userController.AdminRegisterLecturer(newUser, departmentID);
+                    }
+
                     MessageBox.Show("Lecturer successfully added.");
                 }
                 else
                 {
+                    // Update logic
                     Lecturer lecturer = new Lecturer
                     {
                         LecturerID = selectedLecturerID,
                         Name = name,
                         DepartmentID = departmentID
                     };
+
                     _lecturerController.UpdateLecturer(lecturer);
                     MessageBox.Show("Lecturer successfully updated.");
                 }
 
+                ClearForm();
                 LoadLecturers();
                 SwitchToGrid();
             }
@@ -217,6 +313,11 @@ namespace UnicomTICManagementSystem.Views
         private void ClearForm()
         {
             txtName.Clear();
+            txtUsername.Clear();
+            txtPassword.Clear();
+            txtEmail.Clear();
+            txtPhone.Clear();
+            txtConfirmPassword.Clear();
             cmbDepartment.SelectedIndex = 0;
             selectedLecturerID = -1;
         }

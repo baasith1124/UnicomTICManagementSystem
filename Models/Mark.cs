@@ -19,5 +19,9 @@ namespace UnicomTICManagementSystem.Models
         public DateTime GradedDate { get; set; }
         public string StudentName { get; set; }
         public string SubjectName { get; set; }
+
+        public int? ExamID { get; set; } 
+        public string ExamName { get; set; } 
+
     }
 }

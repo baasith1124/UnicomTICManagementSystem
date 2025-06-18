@@ -16,8 +16,11 @@ namespace UnicomTICManagementSystem.Repositories
         {
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"INSERT INTO Marks (TimetableID, StudentID, AssignmentMark, MidExamMark, FinalExamMark, TotalMark, GradedBy, GradedDate)
-                                VALUES (@TimetableID, @StudentID, @AssignmentMark, @MidExamMark, @FinalExamMark, @TotalMark, @GradedBy, @GradedDate)";
+                string query = @"INSERT INTO Marks 
+                (TimetableID, StudentID, AssignmentMark, MidExamMark, FinalExamMark, TotalMark, GradedBy, GradedDate, ExamID)
+                VALUES 
+                (@TimetableID, @StudentID, @AssignmentMark, @MidExamMark, @FinalExamMark, @TotalMark, @GradedBy, @GradedDate, @ExamID)";
+
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@TimetableID", mark.TimetableID);
@@ -28,6 +31,7 @@ namespace UnicomTICManagementSystem.Repositories
                     cmd.Parameters.AddWithValue("@TotalMark", mark.TotalMark);
                     cmd.Parameters.AddWithValue("@GradedBy", mark.GradedBy);
                     cmd.Parameters.AddWithValue("@GradedDate", mark.GradedDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@ExamID", mark.ExamID ?? (object)DBNull.Value);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -43,8 +47,10 @@ namespace UnicomTICManagementSystem.Repositories
                                 FinalExamMark = @FinalExamMark,
                                 TotalMark = @TotalMark,
                                 GradedBy = @GradedBy,
-                                GradedDate = @GradedDate
+                                GradedDate = @GradedDate,
+                                ExamID = @ExamID
                                 WHERE MarkID = @MarkID";
+
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@AssignmentMark", mark.AssignmentMark);
@@ -54,6 +60,7 @@ namespace UnicomTICManagementSystem.Repositories
                     cmd.Parameters.AddWithValue("@GradedBy", mark.GradedBy);
                     cmd.Parameters.AddWithValue("@GradedDate", mark.GradedDate.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@MarkID", mark.MarkID);
+                    cmd.Parameters.AddWithValue("@ExamID", mark.ExamID ?? (object)DBNull.Value);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -94,7 +101,9 @@ namespace UnicomTICManagementSystem.Repositories
                                 FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
                                 TotalMark = Convert.ToDouble(reader["TotalMark"]),
                                 GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString())
+                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+
                             };
                         }
                     }
@@ -126,7 +135,9 @@ namespace UnicomTICManagementSystem.Repositories
                                 FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
                                 TotalMark = Convert.ToDouble(reader["TotalMark"]),
                                 GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString())
+                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+
                             });
                         }
                     }
@@ -158,7 +169,9 @@ namespace UnicomTICManagementSystem.Repositories
                                 FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
                                 TotalMark = Convert.ToDouble(reader["TotalMark"]),
                                 GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString())
+                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+
                             });
                         }
                     }
@@ -188,7 +201,9 @@ namespace UnicomTICManagementSystem.Repositories
                             FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
                             TotalMark = Convert.ToDouble(reader["TotalMark"]),
                             GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString())
+                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                            ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+
                         });
                     }
                 }

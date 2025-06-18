@@ -15,6 +15,8 @@ namespace UnicomTICManagementSystem.Interfaces
         Course GetCourseById(int courseId);
         List<Course> GetAllCourses();
         List<Course> SearchCoursesByName(string courseName);
+        List<Course> GetCoursesByDepartment(int departmentId);
+
 
     }
 }

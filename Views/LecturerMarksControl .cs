@@ -22,7 +22,7 @@ namespace UnicomTICManagementSystem.Views
         private readonly StudentController _studentController;
 
         private Panel panelFilters, panelForm;
-        private ComboBox cmbTimetable, cmbStudent;
+        private ComboBox cmbTimetable, cmbStudent, cmbExam;
         private TextBox txtAssignment, txtMidExam, txtFinalExam, txtTotal;
         private Button btnLoadStudents, btnSave, btnCancel;
         private DataGridView dgvMarks;
@@ -83,6 +83,9 @@ namespace UnicomTICManagementSystem.Views
             Label lblStudent = new Label { Text = "Student:", Location = new Point(0, 20) };
             cmbStudent = new ComboBox { Location = new Point(100, 15), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
 
+            Label lblExam = new Label { Text = "Exam:", Location = new Point(0, 100) };
+            cmbExam = new ComboBox { Location = new Point(100, 95), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+
             Label lblAssignment = new Label { Text = "Assignment:", Location = new Point(0, 60) };
             txtAssignment = new TextBox { Location = new Point(100, 55), Width = 100 };
 
@@ -108,6 +111,7 @@ namespace UnicomTICManagementSystem.Views
                 lblMid, txtMidExam,
                 lblFinal, txtFinalExam,
                 lblTotal, txtTotal,
+                lblExam, cmbExam,
                 btnSave, btnCancel
             });
 
@@ -120,6 +124,14 @@ namespace UnicomTICManagementSystem.Views
             cmbTimetable.DataSource = timetables;
             cmbTimetable.DisplayMember = "TimetableDisplay";
             cmbTimetable.ValueMember = "TimetableID";
+        }
+        private void LoadExamsBySubject(int subjectID)
+        {
+            var exams = new ExamController(new ExamService(new ExamRepository())).GetExamsBySubject(subjectID);
+            cmbExam.DataSource = exams;
+            cmbExam.DisplayMember = "ExamName";
+            cmbExam.ValueMember = "ExamID";
+            cmbExam.SelectedIndex = -1;
         }
 
         private void btnLoadStudents_Click(object sender, EventArgs e)
@@ -138,6 +150,8 @@ namespace UnicomTICManagementSystem.Views
             cmbStudent.DataSource = students;
             cmbStudent.DisplayMember = "Name";
             cmbStudent.ValueMember = "StudentID";
+
+            LoadExamsBySubject(timetable.SubjectID);
         }
 
         private void LoadMarks()
@@ -179,7 +193,8 @@ namespace UnicomTICManagementSystem.Views
                 FinalExamMark = Convert.ToDouble(txtFinalExam.Text),
                 TotalMark = Convert.ToDouble(txtTotal.Text),
                 GradedBy = lecturerID,
-                GradedDate = DateTime.Now
+                GradedDate = DateTime.Now,
+                ExamID = cmbExam.SelectedValue != null ? (int?)cmbExam.SelectedValue : null
             };
 
             if (selectedMarkID == -1)

@@ -204,7 +204,7 @@ namespace UnicomTICManagementSystem.Data
                     CourseID INTEGER PRIMARY KEY AUTOINCREMENT,
                     CourseName TEXT UNIQUE NOT NULL,
                     Description TEXT,
-                    DepartmentID INTEGER,
+                    DepartmentID INTEGER NOT NULL,
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
                 );";
             ExecuteQuery(conn, query);
@@ -231,9 +231,10 @@ namespace UnicomTICManagementSystem.Data
                     UserID INTEGER UNIQUE NOT NULL,
                     Name TEXT NOT NULL,
                     DepartmentID INTEGER,
-                    FOREIGN KEY (UserID) REFERENCES Users(UserID),
-                    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
-                );";
+                    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+                    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID) ON DELETE SET NULL
+                );
+                ";
             ExecuteQuery(conn, query);
         }
 
@@ -310,9 +311,11 @@ namespace UnicomTICManagementSystem.Data
                     TotalMark REAL,
                     GradedBy INTEGER, 
                     GradedDate TEXT,
+                    ExamID INTEGER,
                     FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
                     FOREIGN KEY (GradedBy) REFERENCES Lecturers(LecturerID),
+                    FOREIGN KEY (ExamID) REFERENCES Exams(ExamID),
                     UNIQUE (TimetableID, StudentID)
                 );";
             ExecuteQuery(conn, query);

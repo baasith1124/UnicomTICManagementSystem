@@ -25,5 +25,14 @@ namespace UnicomTICManagementSystem.Controllers
 
         // public void AdminRegisterStaff(User user, ...)
         // public void AdminRegisterLecturer(User user, ...)
+        //public void RegisterUser(User user, int? courseID, int? departmentID, int position)
+        //{
+        //    _userService.RegisterUser(user, courseID, departmentID, position);
+        //}
+        public void AdminRegisterLecturer(User user, int departmentID)
+        {
+            _userService.AdminRegisterLecturer(user, departmentID);
+        }
+
     }
 }
