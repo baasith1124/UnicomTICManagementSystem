@@ -50,6 +50,11 @@ namespace UnicomTICManagementSystem.Controllers
         {
             return _lecturerService.LecturerExistsByUserId(userId);
         }
+        public int GetLecturerIDByUserID(int userID)
+        {
+            return _lecturerService.GetLecturerIDByUserID(userID);
+        }
+
 
     }
 }

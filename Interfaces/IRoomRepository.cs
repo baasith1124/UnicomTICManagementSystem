@@ -15,5 +15,8 @@ namespace UnicomTICManagementSystem.Interfaces
         List<Room> GetAllRooms();
         List<Room> SearchRooms(string keyword);
         Room GetRoomByID(int roomID);
+        List<Room> GetRoomsByType(string roomType);
+        List<string> GetDistinctRoomTypes();
+
     }
 }

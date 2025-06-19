@@ -126,6 +126,11 @@ namespace UnicomTICManagementSystem.Views
             dgvSubjects.DataSource = _subjectController.GetAllSubjects();
             dgvSubjects.ClearSelection();
             selectedSubjectID = -1;
+
+            if (dgvSubjects.Columns["CourseID"] != null)
+                dgvSubjects.Columns["CourseID"].Visible = false;
+            if (dgvSubjects.Columns["SubjectID"] != null)
+                dgvSubjects.Columns["SubjectID"].Visible = false;
         }
 
         private void btnAdd_Click(object sender, EventArgs e)

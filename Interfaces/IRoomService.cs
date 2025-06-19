@@ -14,6 +14,9 @@ namespace UnicomTICManagementSystem.Services
         void DeleteRoom(int roomID);
         List<Room> GetAllRooms();
         List<Room> SearchRooms(string keyword);
+        List<Room> GetRoomsByType(string roomType);
+        List<string> GetRoomTypes();
+
     }
 
 }

@@ -110,6 +110,13 @@ namespace UnicomTICManagementSystem.Views
         {
             dgvAssignments.DataSource = _lecturerSubjectController.GetAllAssignments();
             dgvAssignments.ClearSelection();
+
+            if (dgvAssignments.Columns["SubjectID"] != null)
+                dgvAssignments.Columns["SubjectID"].Visible = false;
+            if (dgvAssignments.Columns["LecturerID"] != null)
+                dgvAssignments.Columns["LecturerID"].Visible = false;
+            if (dgvAssignments.Columns["LecturerSubjectID"] != null)
+                dgvAssignments.Columns["LecturerSubjectID"].Visible = false;
         }
 
         private void btnAssign_Click(object sender, EventArgs e)

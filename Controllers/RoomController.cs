@@ -22,6 +22,9 @@ namespace UnicomTICManagementSystem.Controllers
         public void DeleteRoom(int roomID) => _roomService.DeleteRoom(roomID);
         public List<Room> GetAllRooms() => _roomService.GetAllRooms();
         public List<Room> SearchRooms(string keyword) => _roomService.SearchRooms(keyword);
+        public List<Room> GetRoomsByType(string roomType) => _roomService.GetRoomsByType(roomType);
+        public List<string> GetRoomTypes() => _roomService.GetRoomTypes();
+
     }
 
 }

@@ -302,6 +302,21 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return null;
         }
+        public int GetStudentIDByUserID(int userID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                
+                string query = "SELECT StudentID FROM Students WHERE UserID = @userID";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userID", userID);
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : -1;
+                }
+            }
+        }
+
 
 
 

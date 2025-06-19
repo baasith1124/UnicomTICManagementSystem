@@ -208,6 +208,21 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return null;
         }
+        public int GetLecturerIDByUserID(int userID)
+        {
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                
+                string query = "SELECT LecturerID FROM Lecturers WHERE UserID = @userID";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userID", userID);
+                    object result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : -1;
+                }
+            }
+        }
+
 
 
     }

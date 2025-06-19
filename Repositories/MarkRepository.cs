@@ -151,7 +151,26 @@ namespace UnicomTICManagementSystem.Repositories
             var marks = new List<Mark>();
             using (var conn = DatabaseManager.GetConnection())
             {
-                string query = @"SELECT * FROM Marks WHERE StudentID = @StudentID";
+                string query = @"
+                    SELECT 
+                        m.MarkID,
+                        m.TimetableID,
+                        m.StudentID,
+                        m.TotalMark,
+                        m.GradedBy,
+                        m.GradedDate,
+                        m.ExamID,
+                        s.SubjectID,
+                        s.SubjectName,
+                        e.ExamName,
+                        u.FullName AS LecturerName
+                    FROM Marks m
+                    JOIN Timetables t ON m.TimetableID = t.TimetableID
+                    JOIN Subjects s ON t.SubjectID = s.SubjectID
+                    JOIN Exams e ON m.ExamID = e.ExamID
+                    JOIN Users u ON m.GradedBy = u.UserID
+                    WHERE m.StudentID = @StudentID";
+
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@StudentID", studentID);
@@ -164,14 +183,14 @@ namespace UnicomTICManagementSystem.Repositories
                                 MarkID = Convert.ToInt32(reader["MarkID"]),
                                 TimetableID = Convert.ToInt32(reader["TimetableID"]),
                                 StudentID = Convert.ToInt32(reader["StudentID"]),
-                                AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
-                                MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
-                                FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
                                 TotalMark = Convert.ToDouble(reader["TotalMark"]),
                                 GradedBy = Convert.ToInt32(reader["GradedBy"]),
                                 GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
-                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
-
+                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null,
+                                SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                                SubjectName = reader["SubjectName"].ToString(),
+                                ExamName = reader["ExamName"].ToString(),
+                                LecturerName = reader["LecturerName"].ToString()
                             });
                         }
                     }
@@ -179,6 +198,7 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return marks;
         }
+
 
         public List<Mark> GetAllMarks()
         {
@@ -210,5 +230,64 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return marks;
         }
+        public List<Mark> GetMarksByExam(int examId)
+        {
+            var marks = new List<Mark>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = @"
+                SELECT 
+                    m.MarkID,
+                    m.TimetableID,
+                    m.StudentID,
+                    m.AssignmentMark,
+                    m.MidExamMark,
+                    m.FinalExamMark,
+                    m.TotalMark,
+                    m.GradedBy,
+                    m.GradedDate,
+                    m.ExamID,
+                    s.Name AS StudentName,
+                    e.ExamName,
+                    u.FullName AS LecturerName
+                FROM Marks m
+                JOIN Students s ON m.StudentID = s.StudentID
+                JOIN Exams e ON m.ExamID = e.ExamID
+                JOIN Users u ON m.GradedBy = u.UserID
+                WHERE m.ExamID = @examId";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@examId", examId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            marks.Add(new Mark
+                            {
+                                MarkID = Convert.ToInt32(reader["MarkID"]),
+                                TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                                StudentID = Convert.ToInt32(reader["StudentID"]),
+                                AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
+                                MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
+                                FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
+                                TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                                GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                                GradedDate = Convert.ToDateTime(reader["GradedDate"]),
+                                ExamID = reader["ExamID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["ExamID"]) : null,
+                                StudentName = reader["StudentName"].ToString(),
+                                ExamName = reader["ExamName"].ToString(),
+                                LecturerName = reader["LecturerName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return marks;
+        }
+        
+
+
+
     }
 }

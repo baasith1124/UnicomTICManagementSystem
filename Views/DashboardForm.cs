@@ -19,6 +19,11 @@ namespace UnicomTICManagementSystem.Views
     {
         private readonly ApprovalController _approvalController;
         private readonly User currentUser;
+        private readonly LecturerController _lecturerController;
+        private readonly StudentController _studentController;
+
+
+
 
         public DashboardForm(User user)
         {
@@ -27,10 +32,17 @@ namespace UnicomTICManagementSystem.Views
 
             // Inject dependencies
             IUserRepository userRepository = new UserRepository();
-            IStudentRepository studentRepository = new StudentRepository();
+            
             IStaffRepository staffRepository = new StaffRepository();
-            ILecturerRepository lecturerRepository = new LecturerRepository();
-            IUserService userService = new UserService(userRepository, studentRepository, staffRepository, lecturerRepository);
+            var lecturerRepo = new LecturerRepository();
+            var lecturerService = new LecturerService(lecturerRepo);
+            _lecturerController = new LecturerController(lecturerService);
+            var studentRepo = new StudentRepository();
+            var studentService = new StudentService(studentRepo);
+            _studentController = new StudentController(studentService);
+
+
+            IUserService userService = new UserService(userRepository, studentRepo, staffRepository, lecturerRepo);
             _approvalController = new ApprovalController(userService);
 
             ConfigureUIByRole();
@@ -99,6 +111,17 @@ namespace UnicomTICManagementSystem.Views
             control.Dock = DockStyle.Fill;
             panelContent.Controls.Add(control);
         }
+        private int GetLecturerIDFromUserID()
+        {
+            return _lecturerController.GetLecturerIDByUserID(currentUser.UserID);
+        }
+        private int GetStudentIDFromUserID()
+        {
+            return _studentController.GetStudentIDByUserID(currentUser.UserID);
+        }
+
+
+
 
         private void btnCourses_Click(object sender, EventArgs e)
         {
@@ -127,7 +150,8 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                LoadControl(new LecturerAttendanceControl(currentUser.UserID)); // Pass lecturer ID
+                int lecturerID = GetLecturerIDFromUserID();
+                LoadControl(new LecturerAttendanceControl(lecturerID)); // Pass lecturer ID
             }
         }
 
@@ -139,11 +163,13 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                LoadControl(new LecturerMarksControl(currentUser.UserID)); 
+                int lecturerID = GetLecturerIDFromUserID();
+                LoadControl(new LecturerMarksControl(lecturerID));
             }
             else if (currentUser.Role == "Student")
             {
-                LoadControl(new StudentMarksControl(currentUser.UserID)); 
+                int studentID = GetStudentIDFromUserID();
+                LoadControl(new StudentMarksControl(studentID));
             }
         }
 
@@ -204,11 +230,13 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                LoadControl(new LecturerExamControl(currentUser.UserID));
+                int lecturerID = GetLecturerIDFromUserID();
+                LoadControl(new LecturerExamControl(lecturerID));
             }
             else if (currentUser.Role == "Student")
             {
-                LoadControl(new StudentExamControl(currentUser.UserID));
+                int studentID = GetStudentIDFromUserID();
+                LoadControl(new StudentExamControl(studentID));
             }
 
         }

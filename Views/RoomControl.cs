@@ -105,6 +105,8 @@ namespace UnicomTICManagementSystem.Views
             dgvRooms.DataSource = _roomController.GetAllRooms();
             dgvRooms.ClearSelection();
             selectedRoomID = -1;
+            if (dgvRooms.Columns["RoomID"] != null)
+                dgvRooms.Columns["RoomID"].Visible = false;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

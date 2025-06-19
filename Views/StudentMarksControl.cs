@@ -11,6 +11,7 @@ using UnicomTICManagementSystem.Controllers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Models;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -18,10 +19,9 @@ namespace UnicomTICManagementSystem.Views
     {
         private readonly MarksController _marksController;
         private readonly StudentController _studentController;
-        private readonly TimetableController _timetableController;
+        private readonly SubjectController _subjectController;
 
         private readonly int studentID;
-
         private ComboBox cmbSubjectFilter;
         private DataGridView dgvMarks;
 
@@ -30,38 +30,49 @@ namespace UnicomTICManagementSystem.Views
             InitializeComponent();
             this.studentID = studentID;
 
-            // Dependency Injection
-            IMarkRepository marksRepo = new MarkRepository();
+            // Dependency Injection setup
+            IMarkRepository markRepo = new MarkRepository();
             IStudentRepository studentRepo = new StudentRepository();
-            ITimetableRepository timetableRepo = new TimetableRepository();
+            ISubjectRepository subjectRepo = new SubjectRepository();
 
-            IMarksService marksService = new MarksService(marksRepo);
+            IMarksService marksService = new MarksService(markRepo);
             IStudentService studentService = new StudentService(studentRepo);
-            ITimetableService timetableService = new TimetableService(timetableRepo);
+            ISubjectService subjectService = new SubjectService(subjectRepo);
 
             _marksController = new MarksController(marksService);
             _studentController = new StudentController(studentService);
-            _timetableController = new TimetableController(timetableService);
+            _subjectController = new SubjectController(subjectService);
 
             InitializeUI();
             LoadSubjects();
-            LoadMarks();
         }
 
         private void InitializeUI()
         {
             this.Dock = DockStyle.Fill;
 
-            Label lblSubject = new Label { Text = "Filter Subject:", Location = new Point(20, 20) };
-            cmbSubjectFilter = new ComboBox { Location = new Point(110, 15), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblSubject = new Label
+            {
+                Text = "Filter by Subject:",
+                Location = new Point(20, 20)
+            };
+
+            cmbSubjectFilter = new ComboBox
+            {
+                Location = new Point(130, 15),
+                Width = 300,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
             cmbSubjectFilter.SelectedIndexChanged += cmbSubjectFilter_SelectedIndexChanged;
 
             dgvMarks = new DataGridView
             {
                 Location = new Point(20, 60),
-                Width = 900,
+                Width = 950,
                 Height = 450,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ReadOnly = true,
+                AllowUserToAddRows = false
             };
 
             this.Controls.AddRange(new Control[] { lblSubject, cmbSubjectFilter, dgvMarks });
@@ -69,37 +80,53 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjects()
         {
-            // Load student subjects based on timetables
-            var allMarks = _marksController.GetMarksByStudent(studentID);
-            var subjects = allMarks
-                .Select(m => new { m.SubjectName, m.TimetableID })
-                .Distinct()
-                .ToList();
+            var student = _studentController.GetStudentByID(studentID);
+            if (student == null) return;
+
+            var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
+            if (subjects == null || subjects.Count == 0)
+            {
+                cmbSubjectFilter.Items.Clear();
+                cmbSubjectFilter.Items.Add("No subjects found");
+                cmbSubjectFilter.SelectedIndex = 0;
+                return;
+            }
 
             cmbSubjectFilter.DataSource = subjects;
             cmbSubjectFilter.DisplayMember = "SubjectName";
-            cmbSubjectFilter.ValueMember = "TimetableID";
-        }
-
-        private void LoadMarks()
-        {
-            var marks = _marksController.GetMarksByStudent(studentID);
-            dgvMarks.DataSource = marks;
+            cmbSubjectFilter.ValueMember = "SubjectID";
         }
 
         private void cmbSubjectFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbSubjectFilter.SelectedValue == null)
+            if (cmbSubjectFilter.SelectedValue == null || !(cmbSubjectFilter.SelectedValue is int))
             {
-                LoadMarks();
+                dgvMarks.DataSource = null;
                 return;
             }
 
-            int timetableID = (int)cmbSubjectFilter.SelectedValue;
-            var filteredMarks = _marksController.GetMarksByStudent(studentID)
-                                .Where(m => m.TimetableID == timetableID)
-                                .ToList();
+            int subjectID = Convert.ToInt32(cmbSubjectFilter.SelectedValue);
+            var allMarks = _marksController.GetMarksByStudent(studentID);
+
+            var filteredMarks = allMarks
+                .Where(m => m.SubjectID == subjectID)
+                .OrderByDescending(m => m.TotalMark)
+                .Select(m => new
+                {
+                    m.SubjectName,
+                    m.ExamName,
+                    m.TotalMark,
+                    m.GradedDate
+                })
+                .ToList();
+
             dgvMarks.DataSource = filteredMarks;
+            dgvMarks.Columns["GradedDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
+            for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+            {
+                dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+                dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+            }
         }
     }
 }

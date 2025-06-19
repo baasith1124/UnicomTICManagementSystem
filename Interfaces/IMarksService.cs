@@ -16,5 +16,9 @@ namespace UnicomTICManagementSystem.Interfaces
         List<Mark> GetMarksByTimetable(int timetableID);
         List<Mark> GetMarksByStudent(int studentID);
         List<Mark> GetAllMarks();
+        List<Mark> GetMarksByExam(int examId);
+        
+
+
     }
 }

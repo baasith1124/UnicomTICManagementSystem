@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -24,7 +25,14 @@ namespace UnicomTICManagementSystem.Controllers
         public List<Subject> SearchSubjects(string keyword) => _subjectService.SearchSubjects(keyword);
         public Subject GetSubjectByID(int subjectID) => _subjectService.GetSubjectByID(subjectID);
 
-        public List<Subject> GetSubjectsByCourse(int courseID) => _subjectService.GetSubjectsByCourse(courseID);
+        public List<Subject> GetSubjectsByCourse(int courseId)
+        {
+            var subjects = _subjectService.GetSubjectsByCourse(courseId);
+            if (subjects == null || subjects.Count == 0)
+                MessageBox.Show("No subjects found for this course.");
+            return subjects;
+        }
+
 
         public List<Subject> GetSubjectsByLecturer(int lecturerID) => _subjectService.GetSubjectsByLecturer(lecturerID);
     }

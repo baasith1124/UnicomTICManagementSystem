@@ -18,13 +18,14 @@ namespace UnicomTICManagementSystem.Views
     public partial class AdminMarksControl: UserControl
     {
         private readonly MarksController _marksController;
-        private readonly TimetableController _timetableController;
         private readonly StudentController _studentController;
+        private readonly CourseController _courseController;
+        private readonly SubjectController _subjectController;
+        private readonly ExamController _examController;
 
-        private Panel panelFilters, panelForm;
-        private ComboBox cmbTimetable, cmbStudent, cmbExam;
-        private TextBox txtAssignment, txtMidExam, txtFinalExam, txtTotal;
-        private Button btnLoadStudents, btnSave, btnCancel;
+        private ComboBox cmbCourse, cmbSubject, cmbExam, cmbStudent;
+        private TextBox  txtTotal;
+        private Button btnLoad, btnSave, btnClear, btnDelete;
         private DataGridView dgvMarks;
 
         private int selectedMarkID = -1;
@@ -33,177 +34,190 @@ namespace UnicomTICManagementSystem.Views
         {
             InitializeComponent();
 
-            // Dependency Injection
-            IMarkRepository marksRepo = new MarkRepository();
-            ITimetableRepository timetableRepo = new TimetableRepository();
-            IStudentRepository studentRepo = new StudentRepository();
-
-            IMarksService marksService = new MarksService(marksRepo);
-            ITimetableService timetableService = new TimetableService(timetableRepo);
-            IStudentService studentService = new StudentService(studentRepo);
-
-            _marksController = new MarksController(marksService);
-            _timetableController = new TimetableController(timetableService);
-            _studentController = new StudentController(studentService);
+            _marksController = new MarksController(new MarksService(new MarkRepository()));
+            _studentController = new StudentController(new StudentService(new StudentRepository()));
+            _courseController = new CourseController(new CourseService(new CourseRepository()));
+            _subjectController = new SubjectController(new SubjectService(new SubjectRepository()));
+            _examController = new ExamController(new ExamService(new ExamRepository()));
 
             InitializeUI();
-            LoadTimetables();
-            LoadMarks();
+            LoadCourses();
         }
 
         private void InitializeUI()
         {
             this.Dock = DockStyle.Fill;
 
-            // === Filters Panel ===
-            panelFilters = new Panel { Location = new Point(20, 20), Size = new Size(900, 60) };
+            // === FILTER CONTROLS ===
+            Label lblCourse = new Label { Text = "Course:", Location = new Point(20, 20) };
+            cmbCourse = new ComboBox { Location = new Point(80, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbCourse.SelectedIndexChanged += CmbCourse_SelectedIndexChanged;
 
-            Label lblTimetable = new Label { Text = "Timetable:", Location = new Point(0, 20) };
-            cmbTimetable = new ComboBox { Location = new Point(80, 15), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblSubject = new Label { Text = "Subject:", Location = new Point(280, 20) };
+            cmbSubject = new ComboBox { Location = new Point(350, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbSubject.SelectedIndexChanged += CmbSubject_SelectedIndexChanged;
 
-            btnLoadStudents = new Button { Text = "Search", Location = new Point(350, 15), Size = new Size(100, 30) };
-            btnLoadStudents.Click += btnLoadStudents_Click;
+            Label lblExam = new Label { Text = "Exam:", Location = new Point(550, 20) };
+            cmbExam = new ComboBox { Location = new Point(600, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            panelFilters.Controls.AddRange(new Control[] { lblTimetable, cmbTimetable, btnLoadStudents });
+            btnLoad = new Button { Text = "Load", Location = new Point(800, 15), Width = 80 };
+            btnLoad.Click += BtnLoad_Click;
 
+            // === DATA GRID ===
             dgvMarks = new DataGridView
             {
-                Location = new Point(20, 100),
+                Location = new Point(20, 60),
                 Width = 900,
-                Height = 400,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                Height = 300,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            dgvMarks.CellClick += dgvMarks_CellClick;
+            
+            dgvMarks.CellClick += DgvMarks_CellClick;
 
-            // === Form Panel ===
-            panelForm = new Panel { Location = new Point(20, 530), Size = new Size(900, 160) };
+            // === INPUT FIELDS ===
+            Label lblStudent = new Label { Text = "Student:", Location = new Point(20, 380) };
+            cmbStudent = new ComboBox { Location = new Point(90, 375), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            Label lblStudent = new Label { Text = "Student:", Location = new Point(0, 20) };
-            cmbStudent = new ComboBox { Location = new Point(100, 15), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblTotal = new Label { Text = "Total Mark:", Location = new Point(290, 380) };
+            txtTotal = new TextBox { Location = new Point(370, 375), Width = 100 };
 
-            Label lblExam = new Label { Text = "Exam:", Location = new Point(450, 15) };
-            ComboBox cmbExam = new ComboBox
+            // === BUTTONS ===
+            btnSave = new Button { Text = "Save", Location = new Point(490, 375), Width = 80 };
+            btnSave.Click += BtnSave_Click;
+
+            btnClear = new Button { Text = "Clear", Location = new Point(580, 375), Width = 80 };
+            btnClear.Click += BtnClear_Click;
+
+            btnDelete = new Button { Text = "Delete", Location = new Point(670, 375), Width = 80 };
+            btnDelete.Click += BtnDelete_Click;
+
+            // === ADD ALL CONTROLS TO FORM ===
+            this.Controls.AddRange(new Control[]
             {
-                Name = "cmbExam",
-                Location = new Point(500, 15),
-                Width = 200,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            panelForm.Controls.Add(lblExam);
-            panelForm.Controls.Add(cmbExam);
+                // Top filters
+                lblCourse, cmbCourse,
+                lblSubject, cmbSubject,
+                lblExam, cmbExam,
+                btnLoad,
+
+                // Grid
+                dgvMarks,
 
 
-            Label lblAssignment = new Label { Text = "Assignment:", Location = new Point(0, 60) };
-            txtAssignment = new TextBox { Location = new Point(100, 55), Width = 100 };
-
-            Label lblMid = new Label { Text = "Mid Exam:", Location = new Point(250, 60) };
-            txtMidExam = new TextBox { Location = new Point(330, 55), Width = 100 };
-
-            Label lblFinal = new Label { Text = "Final Exam:", Location = new Point(480, 60) };
-            txtFinalExam = new TextBox { Location = new Point(560, 55), Width = 100 };
-
-            Label lblTotal = new Label { Text = "Total:", Location = new Point(700, 60) };
-            txtTotal = new TextBox { Location = new Point(750, 55), Width = 100 };
-
-            btnSave = new Button { Text = "Save", Location = new Point(150, 110), Size = new Size(120, 40) };
-            btnSave.Click += btnSave_Click;
-
-            btnCancel = new Button { Text = "Clear", Location = new Point(300, 110), Size = new Size(120, 40) };
-            btnCancel.Click += btnCancel_Click;
-
-            panelForm.Controls.AddRange(new Control[]
-            {
+                // Bottom form
                 lblStudent, cmbStudent,
-                lblAssignment, txtAssignment,
-                lblMid, txtMidExam,
-                lblFinal, txtFinalExam,
                 lblTotal, txtTotal,
-                btnSave, btnCancel
+                btnSave, btnClear, btnDelete
             });
-
-            this.Controls.AddRange(new Control[] { panelFilters, dgvMarks, panelForm });
         }
 
-        private void LoadTimetables()
+
+        private void LoadCourses()
         {
-            var timetables = _timetableController.GetAllTimetables();
-            cmbTimetable.DataSource = timetables;
-            cmbTimetable.DisplayMember = "TimetableDisplay";
-            cmbTimetable.ValueMember = "TimetableID";
+            cmbCourse.DataSource = _courseController.GetAllCourses();
+            cmbCourse.DisplayMember = "CourseName";
+            cmbCourse.ValueMember = "CourseID";
         }
-        private void LoadExamsBySubject(int subjectID)
+
+        private void CmbCourse_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var exams = new ExamController(new ExamService(new ExamRepository())).GetExamsBySubject(subjectID);
+            if (cmbCourse.SelectedValue == null || !(cmbCourse.SelectedValue is int)) return;
+
+            int courseId = (int)cmbCourse.SelectedValue;
+            var subjects = _subjectController.GetSubjectsByCourse(courseId);
+            if (subjects.Count == 0)
+            {
+                MessageBox.Show("No subjects found for the selected course.");
+                cmbSubject.DataSource = null;
+                return;
+            }
+
+            cmbSubject.DataSource = subjects;
+            cmbSubject.DisplayMember = "SubjectName";
+            cmbSubject.ValueMember = "SubjectID";
+        }
+
+        private void CmbSubject_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbSubject.SelectedValue == null || !(cmbSubject.SelectedValue is int)) return;
+
+            int subjectId = (int)cmbSubject.SelectedValue;
+            var exams = _examController.GetExamsBySubject(subjectId);
+            if (exams.Count == 0)
+            {
+                MessageBox.Show("No exams found for the selected subject.");
+                cmbExam.DataSource = null;
+                return;
+            }
+
             cmbExam.DataSource = exams;
             cmbExam.DisplayMember = "ExamName";
             cmbExam.ValueMember = "ExamID";
-            cmbExam.SelectedIndex = -1;
         }
 
-
-        private void btnLoadStudents_Click(object sender, EventArgs e)
+        private void BtnLoad_Click(object sender, EventArgs e)
         {
-            LoadStudents();
-            LoadMarks();
-        }
-
-        private void LoadStudents()
-        {
-            if (cmbTimetable.SelectedValue == null) return;
-
-            int timetableID = (int)cmbTimetable.SelectedValue;
-            var timetable = _timetableController.GetTimetableByID(timetableID);
-            var students = _studentController.GetStudentsByCourse(timetable.CourseID);
-            cmbStudent.DataSource = students;
+            int courseId = (int)cmbCourse.SelectedValue;
+            cmbStudent.DataSource = _studentController.GetStudentsByCourse(courseId);
             cmbStudent.DisplayMember = "Name";
             cmbStudent.ValueMember = "StudentID";
-
-            LoadExamsBySubject(timetable.SubjectID);
+            LoadMarks();
         }
 
         private void LoadMarks()
         {
-            if (cmbTimetable.SelectedValue == null) return;
+            if (cmbExam.SelectedValue == null) return;
 
-            int timetableID = (int)cmbTimetable.SelectedValue;
-            dgvMarks.DataSource = _marksController.GetMarksByTimetable(timetableID);
-        }
+            var allMarks = _marksController.GetMarksByExam((int)cmbExam.SelectedValue);
+            var sortedMarks = allMarks.OrderByDescending(m => m.TotalMark).ToList();
 
-        private void dgvMarks_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
+            var table = new DataTable();
+            table.Columns.Add("MarkID", typeof(int));       // hidden
+            table.Columns.Add("StudentID", typeof(int));    // hidden
+            table.Columns.Add("Student Name");
+            table.Columns.Add("Exam Name");
+            table.Columns.Add("Total Mark");
+            table.Columns.Add("Graded By");
+            table.Columns.Add("Graded Date");
 
-            DataGridViewRow row = dgvMarks.Rows[e.RowIndex];
-            selectedMarkID = Convert.ToInt32(row.Cells["MarkID"].Value);
-            cmbStudent.SelectedValue = Convert.ToInt32(row.Cells["StudentID"].Value);
-            txtAssignment.Text = row.Cells["AssignmentMark"].Value.ToString();
-            txtMidExam.Text = row.Cells["MidExamMark"].Value.ToString();
-            txtFinalExam.Text = row.Cells["FinalExamMark"].Value.ToString();
-            txtTotal.Text = row.Cells["TotalMark"].Value.ToString();
-        }
-
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            
-            if (cmbStudent.SelectedValue == null)
+            foreach (var m in allMarks)
             {
-                MessageBox.Show("Please select student");
-                return;
+                // Later you can replace m.GradedBy with lecturer name if needed
+                table.Rows.Add(m.MarkID, m.StudentID, m.StudentName, m.ExamName, m.TotalMark, m.LecturerName, m.GradedDate.ToString("yyyy-MM-dd"));
             }
 
-            Mark mark = new Mark
+            dgvMarks.DataSource = table;
+
+            if (!dgvMarks.Columns.Contains("MarkID"))
+                dgvMarks.Columns.Add("MarkID", "MarkID");
+            if (!dgvMarks.Columns.Contains("StudentID"))
+                dgvMarks.Columns.Add("StudentID", "StudentID");
+
+            dgvMarks.Columns["MarkID"].Visible = false;
+            dgvMarks.Columns["StudentID"].Visible = false;
+
+            for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+            {
+                dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGreen;
+                dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+            }
+
+        }
+
+
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            if (cmbStudent.SelectedValue == null || cmbExam.SelectedValue == null) return;
+
+            var mark = new Mark
             {
                 MarkID = selectedMarkID,
-                TimetableID = (int)cmbTimetable.SelectedValue,
                 StudentID = (int)cmbStudent.SelectedValue,
-                AssignmentMark = Convert.ToDouble(txtAssignment.Text),
-                MidExamMark = Convert.ToDouble(txtMidExam.Text),
-                FinalExamMark = Convert.ToDouble(txtFinalExam.Text),
                 TotalMark = Convert.ToDouble(txtTotal.Text),
                 GradedBy = 1,
                 GradedDate = DateTime.Now,
-                ExamID = cmbExam.SelectedValue != null ? (int?)cmbExam.SelectedValue : null
+                ExamID = (int)cmbExam.SelectedValue
             };
 
             if (selectedMarkID == -1)
@@ -211,22 +225,33 @@ namespace UnicomTICManagementSystem.Views
             else
                 _marksController.UpdateMark(mark);
 
-            MessageBox.Show("Saved successfully.");
             ClearForm();
             LoadMarks();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void BtnClear_Click(object sender, EventArgs e) => ClearForm();
+
+        private void BtnDelete_Click(object sender, EventArgs e)
         {
+            if (selectedMarkID == -1) return;
+            _marksController.DeleteMark(selectedMarkID);
             ClearForm();
+            LoadMarks();
+        }
+
+        private void DgvMarks_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var row = dgvMarks.Rows[e.RowIndex];
+
+            selectedMarkID = Convert.ToInt32(row.Cells["MarkID"].Value);
+            cmbStudent.SelectedValue = Convert.ToInt32(row.Cells["StudentID"].Value);
+            txtTotal.Text = row.Cells["Total Mark"].Value.ToString();
         }
 
         private void ClearForm()
         {
             selectedMarkID = -1;
-            txtAssignment.Clear();
-            txtMidExam.Clear();
-            txtFinalExam.Clear();
             txtTotal.Clear();
         }
     }

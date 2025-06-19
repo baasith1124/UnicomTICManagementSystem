@@ -134,6 +134,49 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return null;
         }
+        public List<Room> GetRoomsByType(string roomType)
+        {
+            var rooms = new List<Room>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RoomType", roomType);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            rooms.Add(new Room
+                            {
+                                RoomID = Convert.ToInt32(reader["RoomID"]),
+                                RoomName = reader["RoomName"].ToString(),
+                                RoomType = reader["RoomType"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return rooms;
+        }
+
+        public List<string> GetDistinctRoomTypes()
+        {
+            var types = new List<string>();
+            using (var conn = DatabaseManager.GetConnection())
+            {
+                string query = "SELECT DISTINCT RoomType FROM Rooms";
+                using (var cmd = new SQLiteCommand(query, conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        types.Add(reader["RoomType"].ToString());
+                }
+            }
+            return types;
+        }
+
+
     }
 
 }

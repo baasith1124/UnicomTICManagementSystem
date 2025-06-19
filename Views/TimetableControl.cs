@@ -55,7 +55,7 @@ namespace UnicomTICManagementSystem.Views
         private Panel panelGrid, panelForm;
         private DataGridView dgvTimetables;
         private TextBox txtSearch, txtTimeSlot;
-        private ComboBox cmbSubject, cmbRoom, cmbLecturer;
+        private ComboBox cmbSubject, cmbRoom, cmbLecturer, cmbRoomType;
         private DateTimePicker dtpScheduleDate;
         private Button btnAdd, btnUpdate, btnDelete, btnSave, btnCancel, btnSearch;
 
@@ -80,6 +80,14 @@ namespace UnicomTICManagementSystem.Views
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 
+            cmbRoomType = new ComboBox
+            {
+                Location = new Point(340, 18),
+                Width = 150,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbRoomType.SelectedIndexChanged += cmbRoomType_SelectedIndexChanged;
+
             btnAdd = new Button { Text = "Add", Location = new Point(20, 380) };
             btnUpdate = new Button { Text = "Update", Location = new Point(120, 380) };
             btnDelete = new Button { Text = "Delete", Location = new Point(220, 380) };
@@ -88,7 +96,7 @@ namespace UnicomTICManagementSystem.Views
             btnUpdate.Click += btnUpdate_Click;
             btnDelete.Click += btnDelete_Click;
 
-            panelGrid.Controls.AddRange(new Control[] { txtSearch, btnSearch, dgvTimetables, btnAdd, btnUpdate, btnDelete });
+            panelGrid.Controls.AddRange(new Control[] { txtSearch, btnSearch, dgvTimetables, btnAdd, btnUpdate, btnDelete, cmbRoomType });
             this.Controls.Add(panelGrid);
 
             // === FORM PANEL ===
@@ -159,6 +167,9 @@ namespace UnicomTICManagementSystem.Views
             cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
             cmbLecturer.DisplayMember = "Name";
             cmbLecturer.ValueMember = "LecturerID";
+
+            cmbRoomType.DataSource = _roomController.GetRoomTypes(); // List<string>
+
         }
 
         #endregion
@@ -168,6 +179,17 @@ namespace UnicomTICManagementSystem.Views
             dgvTimetables.DataSource = _timetableController.GetAllTimetables();
             dgvTimetables.ClearSelection();
             selectedTimetableID = -1;
+
+            if (dgvTimetables.Columns["SubjectID"] != null)
+                dgvTimetables.Columns["SubjectID"].Visible = false;
+            if (dgvTimetables.Columns["LecturerID"] != null)
+                dgvTimetables.Columns["LecturerID"].Visible = false;
+            if (dgvTimetables.Columns["RoomID"] != null)
+                dgvTimetables.Columns["RoomID"].Visible = false;
+            if (dgvTimetables.Columns["CourseID"] != null)
+                dgvTimetables.Columns["CourseID"].Visible = false;
+            if (dgvTimetables.Columns["TimetableID"] != null)
+                dgvTimetables.Columns["TimetableID"].Visible = false;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -259,6 +281,21 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show(ex.Message, "Save Failed");
             }
         }
+        private void cmbRoomType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedType = cmbRoomType.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedType)) return;
+
+            var rooms = _roomController.GetRoomsByType(selectedType);
+            var roomIDs = rooms.Select(r => r.RoomID).ToList();
+
+            var timetables = _timetableController.GetAllTimetables()
+                .Where(t => roomIDs.Contains(t.RoomID))
+                .ToList();
+
+            dgvTimetables.DataSource = timetables;
+        }
+
 
         private void ClearForm()
         {

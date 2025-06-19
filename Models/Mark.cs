@@ -21,7 +21,9 @@ namespace UnicomTICManagementSystem.Models
         public string SubjectName { get; set; }
 
         public int? ExamID { get; set; } 
-        public string ExamName { get; set; } 
+        public string ExamName { get; set; }
+        public string LecturerName { get; set; }
+        public int SubjectID { get; set; }
 
     }
 }

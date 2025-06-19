@@ -86,6 +86,7 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\DatabaseManager.cs" />
     <Compile Include="Data\Migration.cs" />
+    <Compile Include="Helpers\ErrorLogger.cs" />
     <Compile Include="Helpers\PasswordHasher.cs" />
     <Compile Include="Interfaces\IAttendanceRepository.cs" />
     <Compile Include="Interfaces\IAttendanceService.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Models\PendingUserViewModel.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\StudentDetails.cs" />
+    <Compile Include="Models\SubjectFilterItem.cs" />
     <Compile Include="Repositories\AttendanceRepository.cs" />
     <Compile Include="Repositories\CourseRepository.cs" />
     <Compile Include="Repositories\DepartmentRepository.cs" />
@@ -197,11 +199,11 @@
     <Compile Include="Views\LecturerExamControl.Designer.cs">
       <DependentUpon>LecturerExamControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\LecturerMarksControl .cs">
+    <Compile Include="Views\LecturerMarksControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\LecturerMarksControl .Designer.cs">
-      <DependentUpon>LecturerMarksControl .cs</DependentUpon>
+    <Compile Include="Views\LecturerMarksControl.Designer.cs">
+      <DependentUpon>LecturerMarksControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\LecturerSubjectControl.cs">
       <SubType>UserControl</SubType>

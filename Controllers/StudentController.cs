@@ -60,6 +60,11 @@ namespace UnicomTICManagementSystem.Controllers
         {
             return _studentService.GetStudentsBySubject(subjectID);
         }
+        public int GetStudentIDByUserID(int userID)
+        {
+            return _studentService.GetStudentIDByUserID(userID);
+        }
+
 
     }
 }

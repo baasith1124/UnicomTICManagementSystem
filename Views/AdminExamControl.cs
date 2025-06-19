@@ -115,6 +115,12 @@ namespace UnicomTICManagementSystem.Views
             dgvExams.DataSource = _examController.GetAllExams();
             dgvExams.ClearSelection();
             selectedExamID = -1;
+
+            if (dgvExams.Columns["SubjectID"] != null)
+                dgvExams.Columns["SubjectID"].Visible = false;
+
+            if (dgvExams.Columns["ExamID"] != null)
+                dgvExams.Columns["ExamID"].Visible = false;
         }
 
         private void btnAdd_Click(object sender, EventArgs e)

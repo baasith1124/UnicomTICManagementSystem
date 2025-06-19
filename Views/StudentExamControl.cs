@@ -68,7 +68,8 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjectsForStudent()
         {
-            // Get student course
+            cmbSubject.SelectedIndexChanged -= cmbSubject_SelectedIndexChanged; // prevent firing
+
             Student student = _studentController.GetStudentByID(studentID);
             if (student != null)
             {
@@ -77,13 +78,16 @@ namespace UnicomTICManagementSystem.Views
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
             }
+
+            cmbSubject.SelectedIndexChanged += cmbSubject_SelectedIndexChanged; // reattach after load
         }
 
         private void cmbSubject_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbSubject.SelectedValue == null) return;
+            if (cmbSubject.SelectedValue == null )
+                return;
 
-            int subjectID = (int)cmbSubject.SelectedValue;
+            int subjectID = Convert.ToInt32(cmbSubject.SelectedValue);
             dgvExams.DataSource = _examController.GetExamsBySubject(subjectID);
         }
     }

@@ -91,6 +91,9 @@ namespace UnicomTICManagementSystem.Views
             dgvDepartments.DataSource = _departmentController.GetAllDepartments();
             dgvDepartments.ClearSelection();
             selectedDepartmentID = -1;
+
+            if (dgvDepartments.Columns["DepartmentID"] != null)
+                dgvDepartments.Columns["DepartmentID"].Visible = false;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

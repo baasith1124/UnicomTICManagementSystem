@@ -20,5 +20,6 @@ namespace UnicomTICManagementSystem.Interfaces
         bool StaffExistsByUserId(int userId);
         int GetUserIDByStaffID(int staffID);
 
+
     }
 }

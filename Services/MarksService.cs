@@ -24,5 +24,10 @@ namespace UnicomTICManagementSystem.Services
         public List<Mark> GetMarksByTimetable(int timetableID) => _marksRepository.GetMarksByTimetable(timetableID);
         public List<Mark> GetMarksByStudent(int studentID) => _marksRepository.GetMarksByStudent(studentID);
         public List<Mark> GetAllMarks() => _marksRepository.GetAllMarks();
+        public List<Mark> GetMarksByExam(int examId)
+        {
+            return _marksRepository.GetMarksByExam(examId);
+        }
+
     }
 }
