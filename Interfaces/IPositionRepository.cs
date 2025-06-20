@@ -9,6 +9,6 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IPositionRepository
     {
-        List<Position> GetPositionsByDepartment(int departmentID);
+        Task<List<Position>> GetPositionsByDepartmentAsync(int departmentID);
     }
 }

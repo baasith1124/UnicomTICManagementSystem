@@ -9,15 +9,15 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IMarkRepository
     {
-        void AddMark(Mark mark);
-        void UpdateMark(Mark mark);
-        void DeleteMark(int markID);
-        Mark GetMarkByID(int markID);
-        List<Mark> GetMarksByTimetable(int timetableID);
-        List<Mark> GetMarksByStudent(int studentID);
-        List<Mark> GetAllMarks();
-        List<Mark> GetMarksByExam(int examId);
-        
+        Task AddMarkAsync(Mark mark);
+        Task UpdateMarkAsync(Mark mark);
+        Task DeleteMarkAsync(int markID);
+        Task<Mark> GetMarkByIDAsync(int markID);
+        Task<List<Mark>> GetMarksByTimetableAsync(int timetableID);
+        Task<List<Mark>> GetMarksByStudentAsync(int studentID);
+        Task<List<Mark>> GetAllMarksAsync();
+        Task<List<Mark>> GetMarksByExamAsync(int examId);
+
 
 
 

@@ -9,13 +9,13 @@ namespace UnicomTICManagementSystem.Services
 {
     public interface IRoomService
     {
-        void AddRoom(Room room);
-        void UpdateRoom(Room room);
-        void DeleteRoom(int roomID);
-        List<Room> GetAllRooms();
-        List<Room> SearchRooms(string keyword);
-        List<Room> GetRoomsByType(string roomType);
-        List<string> GetRoomTypes();
+        Task AddRoomAsync(Room room);
+        Task UpdateRoomAsync(Room room);
+        Task DeleteRoomAsync(int roomID);
+        Task<List<Room>> GetAllRoomsAsync();
+        Task<List<Room>> SearchRoomsAsync(string keyword);
+        Task<List<Room>> GetRoomsByTypeAsync(string roomType);
+        Task<List<string>> GetRoomTypesAsync();
 
     }
 

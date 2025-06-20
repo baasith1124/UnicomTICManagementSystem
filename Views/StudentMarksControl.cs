@@ -45,7 +45,7 @@ namespace UnicomTICManagementSystem.Views
             _subjectController = new SubjectController(subjectService);
 
             InitializeUI();
-            LoadSubjects();
+            _ = LoadSubjectsAsync();
             UIThemeHelper.ApplyTheme(this);
         }
 
@@ -80,18 +80,18 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.AddRange(new Control[] { lblSubject, cmbSubjectFilter, dgvMarks });
         }
 
-        private void LoadSubjects()
+        private async Task LoadSubjectsAsync()
         {
             try
             {
-                var student = _studentController.GetStudentByID(studentID);
+                var student = await _studentController.GetStudentByIDAsync(studentID);
                 if (student == null)
                 {
                     MessageBox.Show("Student not found.", "Error");
                     return;
                 }
 
-                var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
+                var subjects = await _subjectController.GetSubjectsByCourseAsync(student.CourseID);
                 if (subjects == null || subjects.Count == 0)
                 {
                     cmbSubjectFilter.Items.Clear();
@@ -111,7 +111,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void cmbSubjectFilter_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbSubjectFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace UnicomTICManagementSystem.Views
                     return;
                 }
 
-                var allMarks = _marksController.GetMarksByStudent(studentID);
+                var allMarks = await _marksController.GetMarksByStudentAsync(studentID);
                 if (allMarks == null)
                 {
                     MessageBox.Show("No marks available for the selected student.", "No Data");

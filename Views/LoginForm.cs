@@ -38,7 +38,7 @@ namespace UnicomTICManagementSystem
             UIThemeHelper.ApplyTheme(this);
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Text.Trim();
@@ -51,7 +51,8 @@ namespace UnicomTICManagementSystem
 
             try
             {
-                if (_loginController.Login(username, password, out User user))
+                var (isSuccess, user) = await _loginController.LoginAsync(username, password);
+                if (isSuccess && user != null)
                 {
                     MessageBox.Show($"Login Success! Welcome {user.Role}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

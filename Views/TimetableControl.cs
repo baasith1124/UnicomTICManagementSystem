@@ -47,8 +47,8 @@ namespace UnicomTICManagementSystem.Views
             _lecturerController = new LecturerController(lecturerService);
 
             InitializeUI();
-            LoadDropdowns();
-            LoadTimetables();
+            _ = LoadDropdownsAsync();
+            _ = LoadTimetablesAsync();
             UIThemeHelper.ApplyTheme(this);
         }
 
@@ -156,23 +156,23 @@ namespace UnicomTICManagementSystem.Views
 
         #region Load Dropdown Data
 
-        private void LoadDropdowns()
+        private async Task LoadDropdownsAsync()
         {
             try
             {
-                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DataSource = await _subjectController.GetAllSubjectsAsync();
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
 
-                cmbRoom.DataSource = _roomController.GetAllRooms();
+                cmbRoom.DataSource = await _roomController.GetAllRoomsAsync();
                 cmbRoom.DisplayMember = "RoomName";
                 cmbRoom.ValueMember = "RoomID";
 
-                cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
+                cmbLecturer.DataSource = await _lecturerController.GetAllLecturersAsync();
                 cmbLecturer.DisplayMember = "Name";
                 cmbLecturer.ValueMember = "LecturerID";
 
-                cmbRoomType.DataSource = _roomController.GetRoomTypes(); // List<string>
+                cmbRoomType.DataSource = await _roomController.GetRoomTypesAsync(); // List<string>
             }
             catch (Exception ex)
             {
@@ -183,11 +183,11 @@ namespace UnicomTICManagementSystem.Views
 
         #endregion
 
-        private void LoadTimetables()
+        private async Task LoadTimetablesAsync()
         {
             try
             {
-                dgvTimetables.DataSource = _timetableController.GetAllTimetables();
+                dgvTimetables.DataSource = await _timetableController.GetAllTimetablesAsync();
                 dgvTimetables.ClearSelection();
                 selectedTimetableID = -1;
 
@@ -208,12 +208,12 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvTimetables.DataSource = _timetableController.SearchTimetables(keyword);
+                dgvTimetables.DataSource = await _timetableController.SearchTimetablesAsync(keyword);
             }
             catch (Exception ex)
             {
@@ -254,7 +254,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -269,9 +269,9 @@ namespace UnicomTICManagementSystem.Views
 
                 if (confirm == DialogResult.Yes)
                 {
-                    _timetableController.DeleteTimetable(timetableID);
+                    await _timetableController.DeleteTimetableAsync(timetableID);
                     MessageBox.Show("Timetable deleted successfully.");
-                    LoadTimetables();
+                    await LoadTimetablesAsync();
                 }
             }
             catch (Exception ex)
@@ -280,7 +280,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -302,16 +302,16 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    _timetableController.AddTimetable(timetable);
+                    await _timetableController.AddTimetableAsync(timetable);
                     MessageBox.Show("Timetable successfully added.");
                 }
                 else
                 {
-                    _timetableController.UpdateTimetable(timetable);
+                    await _timetableController.UpdateTimetableAsync(timetable);
                     MessageBox.Show("Timetable successfully updated.");
                 }
 
-                LoadTimetables();
+                await LoadTimetablesAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)
@@ -319,17 +319,17 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show($"Failed to save timetable.\n{ex.Message}", "Save Error");
             }
         }
-        private void cmbRoomType_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbRoomType_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
                 string selectedType = cmbRoomType.SelectedItem?.ToString();
                 if (string.IsNullOrEmpty(selectedType)) return;
 
-                var rooms = _roomController.GetRoomsByType(selectedType);
+                var rooms = await _roomController.GetRoomsByTypeAsync(selectedType);
                 var roomIDs = rooms.Select(r => r.RoomID).ToList();
 
-                var timetables = _timetableController.GetAllTimetables()
+                var timetables = (await _timetableController.GetAllTimetablesAsync())
                     .Where(t => roomIDs.Contains(t.RoomID))
                     .ToList();
 

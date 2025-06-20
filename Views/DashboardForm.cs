@@ -54,7 +54,7 @@ namespace UnicomTICManagementSystem.Views
 
 
 
-        private void ConfigureUIByRole()
+        private async void ConfigureUIByRole()
         {
             try
             {
@@ -94,7 +94,7 @@ namespace UnicomTICManagementSystem.Views
                     btnRooms.Visible = true;
                     btnTimetable.Visible = true;
 
-                    LoadPendingUsers();
+                    await LoadPendingUsersAsync();
                 }
                 else if (currentUser.Role == "Lecturer")
                 {
@@ -134,14 +134,16 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show("❌ Failed to load control: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private int GetLecturerIDFromUserID()
+        private async Task<int> GetLecturerIDFromUserIDAsync()
         {
-            return _lecturerController.GetLecturerIDByUserID(currentUser.UserID);
+            return await _lecturerController.GetLecturerIDByUserIDAsync(currentUser.UserID);
         }
-        private int GetStudentIDFromUserID()
+
+        private async Task<int> GetStudentIDFromUserIDAsync()
         {
-            return _studentController.GetStudentIDByUserID(currentUser.UserID);
+            return await _studentController.GetStudentIDByUserIDAsync(currentUser.UserID);
         }
+
 
 
 
@@ -165,7 +167,7 @@ namespace UnicomTICManagementSystem.Views
             LoadControl(new StaffControl());
         }
 
-        private void btnAttendances_Click(object sender, EventArgs e)
+        private async void btnAttendances_Click(object sender, EventArgs e)
         {
             if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
             {
@@ -173,12 +175,12 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                int lecturerID = GetLecturerIDFromUserID();
+                int lecturerID = await GetLecturerIDFromUserIDAsync();
                 LoadControl(new LecturerAttendanceControl(lecturerID)); // Pass lecturer ID
             }
         }
 
-        private void btnMarks_Click(object sender, EventArgs e)
+        private async void btnMarks_Click(object sender, EventArgs e)
         {
             try
             {
@@ -188,12 +190,12 @@ namespace UnicomTICManagementSystem.Views
                 }
                 else if (currentUser.Role == "Lecturer")
                 {
-                    int lecturerID = GetLecturerIDFromUserID();
+                    int lecturerID = await GetLecturerIDFromUserIDAsync();
                     LoadControl(new LecturerMarksControl(lecturerID));
                 }
                 else if (currentUser.Role == "Student")
                 {
-                    int studentID = GetStudentIDFromUserID();
+                    int studentID = await GetLecturerIDFromUserIDAsync();
                     LoadControl(new StudentMarksControl(studentID));
                 }
             }
@@ -208,11 +210,11 @@ namespace UnicomTICManagementSystem.Views
             Application.Restart();
         }
 
-        private void LoadPendingUsers()
+        private async Task LoadPendingUsersAsync()
         {
             try
             {
-                List<PendingUserViewModel> pendingUsers = _approvalController.GetPendingApprovals();
+                List<PendingUserViewModel> pendingUsers = await _approvalController.GetPendingApprovalsAsync();
                 dgvPendingUsers.DataSource = pendingUsers;
                 dgvPendingUsers.Columns["UserID"].Visible = false;
             }
@@ -222,16 +224,16 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnApprove_Click(object sender, EventArgs e)
+        private async void btnApprove_Click(object sender, EventArgs e)
         {
             try
             {
                 if (dgvPendingUsers.CurrentRow != null)
                 {
                     int userID = (int)dgvPendingUsers.CurrentRow.Cells["UserID"].Value;
-                    _approvalController.ApproveUser(userID);
+                    await _approvalController.ApproveUserAsync(userID);
                     MessageBox.Show("✅ User approved.");
-                    LoadPendingUsers();
+                    await LoadPendingUsersAsync();
                 }
             }
             catch (Exception ex)
@@ -266,7 +268,7 @@ namespace UnicomTICManagementSystem.Views
             LoadControl(new TimetableControl());
         }
 
-        private void btnExams_Click(object sender, EventArgs e)
+        private async void btnExams_Click(object sender, EventArgs e)
         {
             if (currentUser.Role == "Admin")
             {
@@ -274,12 +276,12 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Lecturer")
             {
-                int lecturerID = GetLecturerIDFromUserID();
+                int lecturerID = await GetLecturerIDFromUserIDAsync();
                 LoadControl(new LecturerExamControl(lecturerID));
             }
             else if (currentUser.Role == "Student")
             {
-                int studentID = GetStudentIDFromUserID();
+                int studentID = await GetLecturerIDFromUserIDAsync();
                 LoadControl(new StudentExamControl(studentID));
             }
 

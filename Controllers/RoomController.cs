@@ -19,99 +19,99 @@ namespace UnicomTICManagementSystem.Controllers
             _roomService = roomService;
         }
 
-        public void AddRoom(Room room)
+        public async Task AddRoomAsync(Room room)
         {
             try
             {
-                _roomService.AddRoom(room);
+                await _roomService.AddRoomAsync(room);
                 MessageBox.Show("✅ Room added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.AddRoom");
+                ErrorLogger.Log(ex, "RoomController.AddRoomAsync");
                 MessageBox.Show("❌ Failed to add room: " + ex.Message);
             }
         }
 
-        public void UpdateRoom(Room room)
+        public async Task UpdateRoomAsync(Room room)
         {
             try
             {
-                _roomService.UpdateRoom(room);
+                await _roomService.UpdateRoomAsync(room);
                 MessageBox.Show("✅ Room updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.UpdateRoom");
+                ErrorLogger.Log(ex, "RoomController.UpdateRoomAsync");
                 MessageBox.Show("❌ Failed to update room: " + ex.Message);
             }
         }
 
-        public void DeleteRoom(int roomID)
+        public async Task DeleteRoomAsync(int roomID)
         {
             try
             {
-                _roomService.DeleteRoom(roomID);
+                await _roomService.DeleteRoomAsync(roomID);
                 MessageBox.Show("🗑️ Room deleted successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.DeleteRoom");
+                ErrorLogger.Log(ex, "RoomController.DeleteRoomAsync");
                 MessageBox.Show("❌ Failed to delete room: " + ex.Message);
             }
         }
 
-        public List<Room> GetAllRooms()
+        public async Task<List<Room>> GetAllRoomsAsync()
         {
             try
             {
-                return _roomService.GetAllRooms();
+                return await _roomService.GetAllRoomsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.GetAllRooms");
+                ErrorLogger.Log(ex, "RoomController.GetAllRoomsAsync");
                 MessageBox.Show("❌ Failed to load rooms.");
                 return new List<Room>();
             }
         }
 
-        public List<Room> SearchRooms(string keyword)
+        public async Task<List<Room>> SearchRoomsAsync(string keyword)
         {
             try
             {
-                return _roomService.SearchRooms(keyword);
+                return await _roomService.SearchRoomsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.SearchRooms");
+                ErrorLogger.Log(ex, "RoomController.SearchRoomsAsync");
                 MessageBox.Show("❌ Failed to search rooms.");
                 return new List<Room>();
             }
         }
 
-        public List<Room> GetRoomsByType(string roomType)
+        public async Task<List<Room>> GetRoomsByTypeAsync(string roomType)
         {
             try
             {
-                return _roomService.GetRoomsByType(roomType);
+                return await _roomService.GetRoomsByTypeAsync(roomType);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.GetRoomsByType");
+                ErrorLogger.Log(ex, "RoomController.GetRoomsByTypeAsync");
                 MessageBox.Show("❌ Failed to filter rooms.");
                 return new List<Room>();
             }
         }
 
-        public List<string> GetRoomTypes()
+        public async Task<List<string>> GetRoomTypesAsync()
         {
             try
             {
-                return _roomService.GetRoomTypes();
+                return await _roomService.GetRoomTypesAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomController.GetRoomTypes");
+                ErrorLogger.Log(ex, "RoomController.GetRoomTypesAsync");
                 MessageBox.Show("❌ Failed to retrieve room types.");
                 return new List<string>();
             }

@@ -9,10 +9,10 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IDepartmentRepository
     {
-        void AddDepartment(Department department);
-        void UpdateDepartment(Department department);
-        void DeleteDepartment(int departmentID);
-        List<Department> GetAllDepartments();
-        Department GetDepartmentByID(int departmentID);
+        Task AddDepartmentAsync(Department department);
+        Task UpdateDepartmentAsync(Department department);
+        Task DeleteDepartmentAsync(int departmentID);
+        Task<List<Department>> GetAllDepartmentsAsync();
+        Task<Department> GetDepartmentByIDAsync(int departmentID);
     }
 }

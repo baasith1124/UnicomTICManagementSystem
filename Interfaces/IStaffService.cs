@@ -9,13 +9,13 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IStaffService
     {
-        void AddStaff(int userID, string name, int departmentID, int position);
-        void UpdateStaff(Staff staff);
-        void DeleteStaff(int staffID);
-        List<Staff> GetAllStaff();
-        Staff GetStaffByID(int staffID);
-        List<Staff> SearchStaff(string keyword);
-        int GetUserIDByStaffID(int staffID);
+        Task AddStaffAsync(int userID, string name, int departmentID, int position);
+        Task UpdateStaffAsync(Staff staff);
+        Task DeleteStaffAsync(int staffID);
+        Task<List<Staff>> GetAllStaffAsync();
+        Task<Staff> GetStaffByIDAsync(int staffID);
+        Task<List<Staff>> SearchStaffAsync(string keyword);
+        Task<int> GetUserIDByStaffIDAsync(int staffID);
 
     }
 }

@@ -13,123 +13,108 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class DepartmentRepository : IDepartmentRepository
     {
-        public void AddDepartment(Department department)
+        public async Task AddDepartmentAsync(Department department)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "INSERT INTO Departments (DepartmentName) VALUES (@DepartmentName)";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "INSERT INTO Departments (DepartmentName) VALUES (@DepartmentName)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@DepartmentName", department.DepartmentName}
+                };
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentRepository.AddDepartment");
+                ErrorLogger.Log(ex, "DepartmentRepository.AddDepartmentAsync");
             }
         }
 
-        public void UpdateDepartment(Department department)
+        public async Task UpdateDepartmentAsync(Department department)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "UPDATE Departments SET DepartmentName = @DepartmentName WHERE DepartmentID = @DepartmentID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "UPDATE Departments SET DepartmentName = @DepartmentName WHERE DepartmentID = @DepartmentID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
-                        cmd.Parameters.AddWithValue("@DepartmentID", department.DepartmentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@DepartmentName", department.DepartmentName},
+                    {"@DepartmentID", department.DepartmentID}
+                };
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentRepository.UpdateDepartment");
+                ErrorLogger.Log(ex, "DepartmentRepository.UpdateDepartmentAsync");
             }
         }
 
-        public void DeleteDepartment(int departmentID)
+        public async Task DeleteDepartmentAsync(int departmentID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Departments WHERE DepartmentID = @DepartmentID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Departments WHERE DepartmentID = @DepartmentID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@DepartmentID", departmentID}
+                };
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentRepository.DeleteDepartment");
+                ErrorLogger.Log(ex, "DepartmentRepository.DeleteDepartmentAsync");
             }
         }
 
-        public List<Department> GetAllDepartments()
+        public async Task<List<Department>> GetAllDepartmentsAsync()
         {
             var departments = new List<Department>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT DepartmentID, DepartmentName FROM Departments";
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
-                    string query = "SELECT DepartmentID, DepartmentName FROM Departments";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        departments.Add(new Department
                         {
-                            departments.Add(new Department
-                            {
-                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                DepartmentName = reader["DepartmentName"].ToString()
-                            });
-                        }
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentRepository.GetAllDepartments");
+                ErrorLogger.Log(ex, "DepartmentRepository.GetAllDepartmentsAsync");
             }
             return departments;
         }
 
-        public Department GetDepartmentByID(int departmentID)
+        public async Task<Department> GetDepartmentByIDAsync(int departmentID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT DepartmentID, DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT DepartmentID, DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    {"@DepartmentID", departmentID}
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Department
                         {
-                            if (reader.Read())
-                            {
-                                return new Department
-                                {
-                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                    DepartmentName = reader["DepartmentName"].ToString()
-                                };
-                            }
-                        }
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString()
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentRepository.GetDepartmentByID");
+                ErrorLogger.Log(ex, "DepartmentRepository.GetDepartmentByIDAsync");
             }
             return null;
         }

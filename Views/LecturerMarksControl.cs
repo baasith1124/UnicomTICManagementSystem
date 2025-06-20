@@ -40,7 +40,7 @@ namespace UnicomTICManagementSystem.Views
             _marksController = new MarksController(new Services.MarksService(new Repositories.MarkRepository()));
 
             InitializeUI();
-            LoadSubjects();
+            _ = LoadSubjectsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -48,13 +48,13 @@ namespace UnicomTICManagementSystem.Views
         private void InitializeUI()
         {
             cmbSubject = new ComboBox { Location = new Point(20, 20), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbSubject.SelectedIndexChanged += (s, e) => LoadExamsAndStudents();
+            cmbSubject.SelectedIndexChanged += async (s, e) => await LoadExamsAndStudentsAsync();
 
             cmbExam = new ComboBox { Location = new Point(240, 20), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbExam.SelectedIndexChanged += (s, e) => LoadMarks();
+            cmbExam.SelectedIndexChanged += async (s, e) => await LoadMarksAsync();
 
             btnLoad = new Button { Text = "Load", Location = new Point(460, 20), Width = 100 };
-            btnLoad.Click += (s, e) => LoadMarks();
+            btnLoad.Click += async (s, e) => await LoadMarksAsync();
 
             dgvMarks = new DataGridView
             {
@@ -80,11 +80,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.AddRange(new Control[] { cmbSubject, cmbExam, btnLoad, dgvMarks, cmbStudent, txtMark, btnSave, btnClear, btnDelete });
         }
 
-        private void LoadSubjects()
+        private async Task LoadSubjectsAsync()
         {
             try
             {
-                var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
+                var subjects = await _subjectController.GetSubjectsByLecturerAsync(lecturerID);
                 cmbSubject.DataSource = null;
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
@@ -99,20 +99,20 @@ namespace UnicomTICManagementSystem.Views
 
         }
 
-        private void LoadExamsAndStudents()
+        private async Task LoadExamsAndStudentsAsync()
         {
             try
             {
                 if (cmbSubject.SelectedValue == null || cmbSubject.SelectedValue == DBNull.Value) return;
                 int subjectID = Convert.ToInt32(cmbSubject.SelectedValue);
 
-                var exams = _examController.GetExamsBySubject(subjectID);
+                var exams = await _examController.GetExamsBySubjectAsync(subjectID);
                 cmbExam.DataSource = null;
                 cmbExam.DisplayMember = "ExamName";
                 cmbExam.ValueMember = "ExamID";
                 cmbExam.DataSource = exams;
 
-                var students = _studentController.GetStudentsBySubject(subjectID);
+                var students = await _studentController.GetStudentsBySubjectAsync(subjectID);
                 cmbStudent.DataSource = null;
                 cmbStudent.DisplayMember = "Name";
                 cmbStudent.ValueMember = "StudentID";
@@ -125,14 +125,14 @@ namespace UnicomTICManagementSystem.Views
 
         }
 
-        private void LoadMarks()
+        private async Task LoadMarksAsync()
         {
             try
             {
                 if (cmbExam.SelectedValue == null) return;
                 int examID = Convert.ToInt32(cmbExam.SelectedValue);
 
-                var fullMarks = _marksController.GetMarksByExam(examID)
+                var fullMarks = (await _marksController.GetMarksByExamAsync(examID))
                                   .OrderByDescending(m => m.TotalMark)
                                   .ToList();
 
@@ -164,7 +164,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void BtnSave_Click(object sender, EventArgs e)
+        private async void BtnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -185,12 +185,12 @@ namespace UnicomTICManagementSystem.Views
                 };
 
                 if (selectedMarkID == -1)
-                    _marksController.AddMark(markObj);
+                    await _marksController.AddMarkAsync(markObj);
                 else
-                    _marksController.UpdateMark(markObj);
+                    await _marksController.UpdateMarkAsync(markObj);
 
                 MessageBox.Show("Mark saved.");
-                LoadMarks();
+                await LoadMarksAsync();
                 ClearForm();
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show("Error saving mark.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void BtnDelete_Click(object sender, EventArgs e)
+        private async void BtnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -211,9 +211,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure you want to delete this mark?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (confirm == DialogResult.Yes)
                 {
-                    _marksController.DeleteMark(selectedMarkID);
+                    await _marksController.DeleteMarkAsync(selectedMarkID);
                     MessageBox.Show("Mark deleted.");
-                    LoadMarks();
+                    await LoadMarksAsync();
                     ClearForm();
                 }
             }

@@ -18,93 +18,93 @@ namespace UnicomTICManagementSystem.Controllers
             _attendanceService = attendanceService;
         }
 
-        public void AddAttendance(Attendance attendance)
+        public async Task AddAttendanceAsync(Attendance attendance)
         {
             try
             {
-                _attendanceService.AddAttendance(attendance);
+                await _attendanceService.AddAttendanceAsync(attendance);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.AddAttendance");
+                ErrorLogger.Log(ex, "AttendanceController.AddAttendanceAsync");
                 throw new Exception("An error occurred while adding attendance.");
             }
         }
 
-        public void UpdateAttendance(Attendance attendance)
+        public async Task UpdateAttendanceAsync(Attendance attendance)
         {
             try
             {
-                _attendanceService.UpdateAttendance(attendance);
+                await _attendanceService.UpdateAttendanceAsync(attendance);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.UpdateAttendance");
+                ErrorLogger.Log(ex, "AttendanceController.UpdateAttendanceAsync");
                 throw new Exception("An error occurred while updating attendance.");
             }
         }
 
-        public List<Attendance> GetAttendanceByTimetable(int timetableID)
+        public async Task<List<Attendance>> GetAttendanceByTimetableAsync(int timetableID)
         {
             try
             {
-                return _attendanceService.GetAttendanceByTimetable(timetableID);
+                return await _attendanceService.GetAttendanceByTimetableAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.GetAttendanceByTimetable");
+                ErrorLogger.Log(ex, "AttendanceController.GetAttendanceByTimetableAsync");
                 return new List<Attendance>();
             }
         }
 
-        public Attendance GetAttendanceByID(int attendanceID)
+        public async Task<Attendance> GetAttendanceByIDAsync(int attendanceID)
         {
             try
             {
-                return _attendanceService.GetAttendanceByID(attendanceID);
+                return await _attendanceService.GetAttendanceByIDAsync(attendanceID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.GetAttendanceByID");
+                ErrorLogger.Log(ex, "AttendanceController.GetAttendanceByIDAsync");
                 return null;
             }
         }
 
-        public void DeleteAttendance(int attendanceID)
+        public async Task DeleteAttendanceAsync(int attendanceID)
         {
             try
             {
-                _attendanceService.DeleteAttendance(attendanceID);
+                await _attendanceService.DeleteAttendanceAsync(attendanceID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.DeleteAttendance");
+                ErrorLogger.Log(ex, "AttendanceController.DeleteAttendanceAsync");
                 throw new Exception("An error occurred while deleting attendance.");
             }
         }
 
-        public List<Attendance> GetFullAttendance()
+        public async Task<List<Attendance>> GetFullAttendanceAsync()
         {
             try
             {
-                return _attendanceService.GetFullAttendance();
+                return await _attendanceService.GetFullAttendanceAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.GetFullAttendance");
+                ErrorLogger.Log(ex, "AttendanceController.GetFullAttendanceAsync");
                 return new List<Attendance>();
             }
         }
 
-        public List<Attendance> SearchAttendance(int subjectID, string date)
+        public async Task<List<Attendance>> SearchAttendanceAsync(int subjectID, string date)
         {
             try
             {
-                return _attendanceService.SearchAttendance(subjectID, date);
+                return await _attendanceService.SearchAttendanceAsync(subjectID, date);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceController.SearchAttendance");
+                ErrorLogger.Log(ex, "AttendanceController.SearchAttendanceAsync");
                 return new List<Attendance>();
             }
         }

@@ -9,8 +9,8 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface ILecturerSubjectRepository
     {
-        void AssignSubject(int lecturerID, int subjectID, DateTime assignedDate);
-        void RemoveAssignment(int lecturerSubjectID);
-        List<LecturerSubject> GetAllAssignments();
+        Task AssignSubjectAsync(int lecturerID, int subjectID, DateTime assignedDate);
+        Task RemoveAssignmentAsync(int lecturerSubjectID);
+        Task<List<LecturerSubject>> GetAllAssignmentsAsync();
     }
 }

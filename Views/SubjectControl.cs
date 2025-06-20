@@ -39,8 +39,8 @@ namespace UnicomTICManagementSystem.Views
             _courseController = new CourseController(courseService);
 
             InitializeUI();
-            LoadCourses();
-            LoadSubjects();
+            _ = LoadCoursesAsync();
+            _ = LoadSubjectsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -54,10 +54,10 @@ namespace UnicomTICManagementSystem.Views
 
             TextBox txtSearch = new TextBox { Name = "txtSearch", Location = new Point(20, 20), Width = 200 };
             Button btnSearch = new Button { Text = "Search", Location = new Point(230, 18) };
-            btnSearch.Click += (s, e) =>
+            btnSearch.Click += async(s, e) =>
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvSubjects.DataSource = _subjectController.SearchSubjects(keyword);
+                dgvSubjects.DataSource = await _subjectController.SearchSubjectsAsync(keyword);
             };
 
             dgvSubjects = new DataGridView
@@ -117,11 +117,11 @@ namespace UnicomTICManagementSystem.Views
         private TextBox txtSubjectCode;
         private ComboBox cmbCourse;
 
-        private void LoadCourses()
+        private async Task LoadCoursesAsync()
         {
             try
             {
-                var courses = _courseController.GetAllCourses();
+                var courses = await _courseController.GetAllCoursesAsync();
                 if (courses == null || courses.Count == 0)
                 {
                     MessageBox.Show("No courses found.", "Load Warning");
@@ -139,11 +139,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadSubjects()
+        private async Task LoadSubjectsAsync()
         {
             try
             {
-                var subjects = _subjectController.GetAllSubjects();
+                var subjects = await _subjectController.GetAllSubjectsAsync();
                 dgvSubjects.DataSource = subjects ?? new List<Subject>();
                 dgvSubjects.ClearSelection();
                 selectedSubjectID = -1;
@@ -190,7 +190,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -205,9 +205,9 @@ namespace UnicomTICManagementSystem.Views
 
                 if (confirm == DialogResult.Yes)
                 {
-                    _subjectController.DeleteSubject(subjectID);
+                    await _subjectController.DeleteSubjectAsync(subjectID);
                     MessageBox.Show("Subject deleted successfully.");
-                    LoadSubjects();
+                    await LoadSubjectsAsync();
                 }
             }
             catch (Exception ex)
@@ -216,7 +216,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -242,16 +242,16 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    _subjectController.AddSubject(subject);
+                    await _subjectController.AddSubjectAsync(subject);
                     MessageBox.Show("Subject successfully added.");
                 }
                 else
                 {
-                    _subjectController.UpdateSubject(subject);
+                    await _subjectController.UpdateSubjectAsync(subject);
                     MessageBox.Show("Subject successfully updated.");
                 }
 
-                LoadSubjects();
+                await LoadSubjectsAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)

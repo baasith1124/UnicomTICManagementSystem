@@ -44,7 +44,7 @@ namespace UnicomTICManagementSystem.Views
                 _subjectController = new SubjectController(subjectService);
 
                 InitializeUI();
-                LoadSubjectsForLecturer();
+                _ = LoadSubjectsForLecturerAsync();
 
                 UIThemeHelper.ApplyTheme(this);
             }
@@ -78,11 +78,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.AddRange(new Control[] { lblSubject, cmbSubject, lblDate, dtpDate, btnSearch, dgvExams });
         }
 
-        private void LoadSubjectsForLecturer()
+        private async Task LoadSubjectsForLecturerAsync()
         {
             try
             {
-                var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
+                var subjects = await _subjectController.GetSubjectsByLecturerAsync(lecturerID);
                 cmbSubject.DataSource = subjects;
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
@@ -93,7 +93,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace UnicomTICManagementSystem.Views
                 }
 
                 int subjectID = (int)cmbSubject.SelectedValue;
-                var exams = _examController.GetExamsBySubject(subjectID);
+                var exams = await _examController.GetExamsBySubjectAsync(subjectID);
                 dgvExams.DataSource = exams;
             }
             catch (Exception ex)

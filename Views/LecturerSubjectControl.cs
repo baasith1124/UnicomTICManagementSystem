@@ -42,9 +42,9 @@ namespace UnicomTICManagementSystem.Views
             _subjectController = new SubjectController(subjectService);
 
             InitializeUI();
-            LoadLecturers();
-            LoadSubjects();
-            LoadAssignments();
+            _ = LoadLecturersAsync();
+            _ = LoadSubjectsAsync();
+            _ = LoadAssignmentsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -95,11 +95,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.AddRange(new Control[] { lblLecturer, cmbLecturer, lblSubject, cmbSubject, lblDate, dtpAssignedDate, btnAssign, dgvAssignments, btnDelete });
         }
 
-        private void LoadLecturers()
+        private async Task LoadLecturersAsync()
         {
             try
             {
-                cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
+                cmbLecturer.DataSource = await _lecturerController.GetAllLecturersAsync();
                 cmbLecturer.DisplayMember = "Name";
                 cmbLecturer.ValueMember = "LecturerID";
             }
@@ -109,11 +109,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadSubjects()
+        private async Task LoadSubjectsAsync()
         {
             try
             {
-                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DataSource = await _subjectController.GetAllSubjectsAsync();
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
             }
@@ -123,11 +123,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadAssignments()
+        private async Task LoadAssignmentsAsync()
         {
             try
             {
-                dgvAssignments.DataSource = _lecturerSubjectController.GetAllAssignments();
+                dgvAssignments.DataSource = await _lecturerSubjectController.GetAllAssignmentsAsync();
                 dgvAssignments.ClearSelection();
 
                 if (dgvAssignments.Columns["SubjectID"] != null)
@@ -143,7 +143,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnAssign_Click(object sender, EventArgs e)
+        private async void btnAssign_Click(object sender, EventArgs e)
         {
             if (cmbLecturer.SelectedValue == null || cmbSubject.SelectedValue == null)
             {
@@ -157,9 +157,9 @@ namespace UnicomTICManagementSystem.Views
 
             try
             {
-                _lecturerSubjectController.AssignSubject(lecturerID, subjectID, assignedDate);
+                await _lecturerSubjectController.AssignSubjectAsync(lecturerID, subjectID, assignedDate);
                 MessageBox.Show("Subject assigned successfully.");
-                LoadAssignments();
+                await LoadAssignmentsAsync();
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -181,9 +181,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete this assignment?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (confirm == DialogResult.Yes)
                 {
-                    _lecturerSubjectController.RemoveAssignment(lecturerSubjectID);
+                    await _lecturerSubjectController.RemoveAssignmentAsync(lecturerSubjectID);
                     MessageBox.Show("Assignment deleted.");
-                    LoadAssignments();
+                    await LoadAssignmentsAsync();
                 }
             }
             catch (Exception ex)

@@ -44,9 +44,9 @@ namespace UnicomTICManagementSystem.Views
             _departmentController = new DepartmentController(deptService);
 
             InitializeUI();
-            
-            LoadDepartments();
-            LoadCourses();
+
+            _ = LoadDepartmentsAsync();
+            _ = LoadCoursesAsync();
             UIThemeHelper.ApplyTheme(this);
         }
 
@@ -130,19 +130,19 @@ namespace UnicomTICManagementSystem.Views
         
 
 
-        private void LoadDepartments()
+        private async Task LoadDepartmentsAsync()
         {
             try
             {
-                var departments = _departmentController.GetAllDepartments();
+                var departments = await _departmentController.GetAllDepartmentsAsync();
                 cmbDepartment.DataSource = departments;
                 cmbDepartment.DisplayMember = "DepartmentName";
                 cmbDepartment.ValueMember = "DepartmentID";
 
                 var deptList = new List<Department>
-        {
-            new Department { DepartmentID = 0, DepartmentName = "-- All Departments --" }
-        };
+                {
+                    new Department { DepartmentID = 0, DepartmentName = "-- All Departments --" }
+                };
                 deptList.AddRange(departments);
 
                 cmbFilterDepartment.DataSource = deptList;
@@ -157,15 +157,15 @@ namespace UnicomTICManagementSystem.Views
 
         }
 
-        private void LoadCourses()
+        private async Task LoadCoursesAsync()
         {
             try
             {
                 int deptId = (cmbFilterDepartment.SelectedItem as Department)?.DepartmentID ?? 0;
 
                 var data = deptId == 0
-                    ? _courseController.GetAllCourses()
-                    : _courseController.GetCoursesByDepartment(deptId);
+                    ? await _courseController.GetAllCoursesAsync()
+                    : await _courseController.GetCoursesByDepartmentAsync(deptId);
 
                 dgvCourses.DataSource = data;
                 dgvCourses.ClearSelection();
@@ -182,12 +182,12 @@ namespace UnicomTICManagementSystem.Views
         }
 
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string term = txtSearch.Text.Trim();
-                dgvCourses.DataSource = _courseController.SearchCoursesByName(term);
+                dgvCourses.DataSource = await _courseController.SearchCoursesByNameAsync(term);
             }
             catch (Exception ex)
             {
@@ -195,16 +195,17 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void cmbFilterDepartment_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbFilterDepartment_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadCourses();
+            await LoadCoursesAsync();
+        
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private async void btnAdd_Click(object sender, EventArgs e)
         {
             ClearForm();
             isUpdateMode = false;
-            LoadDepartments();
+            await LoadDepartmentsAsync();
             SwitchToForm();
         }
 
@@ -234,7 +235,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -248,8 +249,8 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Confirm delete?", "Warning", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _courseController.DeleteCourse(id);
-                    LoadCourses();
+                    await _courseController.DeleteCourseAsync(id);
+                    await LoadCoursesAsync();
                     MessageBox.Show("✅ Course deleted.");
                 }
             }
@@ -259,7 +260,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -279,16 +280,16 @@ namespace UnicomTICManagementSystem.Views
                 if (isUpdateMode)
                 {
                     course.CourseID = selectedCourseID;
-                    _courseController.UpdateCourse(course);
+                    await _courseController.UpdateCourseAsync(course);
                     MessageBox.Show("✅ Course updated successfully.");
                 }
                 else
                 {
-                    _courseController.AddCourse(course);
+                    await _courseController.AddCourseAsync(course);
                     MessageBox.Show("✅ Course added successfully.");
                 }
 
-                LoadCourses();
+                await LoadCoursesAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)

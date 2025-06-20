@@ -9,14 +9,15 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface ISubjectRepository
     {
-        void AddSubject(Subject subject);
-        void UpdateSubject(Subject subject);
-        void DeleteSubject(int subjectID);
-        List<Subject> GetAllSubjects();
-        List<Subject> SearchSubjects(string keyword);
-        Subject GetSubjectByID(int subjectID);
+        Task AddSubjectAsync(Subject subject);
+        Task UpdateSubjectAsync(Subject subject);
+        Task DeleteSubjectAsync(int subjectID);
 
-        List<Subject> GetSubjectsByCourse(int courseID);
-        List<Subject> GetSubjectsByLecturer(int lecturerID);
+        Task<List<Subject>> GetAllSubjectsAsync();
+        Task<List<Subject>> SearchSubjectsAsync(string keyword);
+        Task<Subject> GetSubjectByIDAsync(int subjectID);
+
+        Task<List<Subject>> GetSubjectsByCourseAsync(int courseID);
+        Task<List<Subject>> GetSubjectsByLecturerAsync(int lecturerID);
     }
 }

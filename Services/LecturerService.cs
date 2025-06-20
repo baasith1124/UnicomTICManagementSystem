@@ -18,107 +18,107 @@ namespace UnicomTICManagementSystem.Services
             _lecturerRepository = lecturerRepository;
         }
 
-        public void AddLecturer(int userID, string name, int departmentID)
+        public async Task AddLecturerAsync(int userID, string name, int departmentID)
         {
             try
             {
-                _lecturerRepository.AddLecturer(userID, name, departmentID);
+                await _lecturerRepository.AddLecturerAsync(userID, name, departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.AddLecturer");
+                ErrorLogger.Log(ex, "LecturerService.AddLecturerAsync");
                 throw;
             }
         }
 
-        public void UpdateLecturer(Lecturer lecturer)
+        public async Task UpdateLecturerAsync(Lecturer lecturer)
         {
             try
             {
-                _lecturerRepository.UpdateLecturer(lecturer);
+                await _lecturerRepository.UpdateLecturerAsync(lecturer);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.UpdateLecturer");
+                ErrorLogger.Log(ex, "LecturerService.UpdateLecturerAsync");
                 throw;
             }
         }
 
-        public void DeleteLecturer(int lecturerID)
+        public async Task DeleteLecturerAsync(int lecturerID)
         {
             try
             {
-                _lecturerRepository.DeleteLecturer(lecturerID);
+                await _lecturerRepository.DeleteLecturerAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.DeleteLecturer");
+                ErrorLogger.Log(ex, "LecturerService.DeleteLecturerAsync");
                 throw;
             }
         }
 
-        public List<Lecturer> GetAllLecturers()
+        public async Task<List<Lecturer>> GetAllLecturersAsync()
         {
             try
             {
-                return _lecturerRepository.GetAllLecturers();
+                return await _lecturerRepository.GetAllLecturersAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.GetAllLecturers");
-                throw;
+                ErrorLogger.Log(ex, "LecturerService.GetAllLecturersAsync");
+                return new List<Lecturer>();
             }
         }
 
-        public List<Lecturer> SearchLecturers(string keyword)
+        public async Task<List<Lecturer>> SearchLecturersAsync(string keyword)
         {
             try
             {
-                return _lecturerRepository.SearchLecturers(keyword);
+                return await _lecturerRepository.SearchLecturersAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.SearchLecturers");
-                throw;
+                ErrorLogger.Log(ex, "LecturerService.SearchLecturersAsync");
+                return new List<Lecturer>();
             }
         }
 
-        public Lecturer GetLecturerByID(int lecturerID)
+        public async Task<Lecturer> GetLecturerByIDAsync(int lecturerID)
         {
             try
             {
-                return _lecturerRepository.GetLecturerByID(lecturerID);
+                return await _lecturerRepository.GetLecturerByIDAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.GetLecturerByID");
-                throw;
+                ErrorLogger.Log(ex, "LecturerService.GetLecturerByIDAsync");
+                return null;
             }
         }
 
-        public bool LecturerExistsByUserId(int userId)
+        public async Task<bool> LecturerExistsByUserIdAsync(int userId)
         {
             try
             {
-                return _lecturerRepository.LecturerExistsByUserId(userId);
+                return await _lecturerRepository.LecturerExistsByUserIdAsync(userId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.LecturerExistsByUserId");
-                throw;
+                ErrorLogger.Log(ex, "LecturerService.LecturerExistsByUserIdAsync");
+                return false;
             }
         }
 
-        public int GetLecturerIDByUserID(int userID)
+        public async Task<int> GetLecturerIDByUserIDAsync(int userID)
         {
             try
             {
-                return _lecturerRepository.GetLecturerIDByUserID(userID);
+                return await _lecturerRepository.GetLecturerIDByUserIDAsync(userID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerService.GetLecturerIDByUserID");
-                throw;
+                ErrorLogger.Log(ex, "LecturerService.GetLecturerIDByUserIDAsync");
+                return -1;
             }
         }
 

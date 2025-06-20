@@ -19,18 +19,25 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public bool Login(string username, string password, out User user)
+        public async Task<Tuple<bool, User>> LoginAsync(string username, string password)
         {
-            user = null;
             try
             {
-                return _userService.Login(username, password, out user);
+                var result = await _userService.LoginAsync(username, password);
+
+                if (!result.Item1 || result.Item2 == null)
+                {
+                    MessageBox.Show("❌ Invalid username or password.");
+                    return new Tuple<bool, User>(false, null);
+                }
+
+                return new Tuple<bool, User>(true, result.Item2);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LoginController.Login");
+                ErrorLogger.Log(ex, "LoginController.LoginAsync");
                 MessageBox.Show("❌ An error occurred during login. Please try again.");
-                return false;
+                return new Tuple<bool, User>(false, null);
             }
         }
     }

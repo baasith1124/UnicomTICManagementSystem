@@ -13,183 +13,182 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class CourseRepository : ICourseRepository
     {
-        public void AddCourse(Course course)
+        public async Task AddCourseAsync(Course course)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "INSERT INTO Courses (CourseName, Description, DepartmentID) VALUES (@CourseName, @Description, @DepartmentID)";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "INSERT INTO Courses (CourseName, Description, DepartmentID) VALUES (@CourseName, @Description, @DepartmentID)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@CourseName", course.CourseName);
-                        cmd.Parameters.AddWithValue("@Description", course.Description);
-                        cmd.Parameters.AddWithValue("@DepartmentID", course.DepartmentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@CourseName", course.CourseName},
+                    {"@Description", course.Description},
+                    {"@DepartmentID", course.DepartmentID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.AddCourse");
+                ErrorLogger.Log(ex, "CourseRepository.AddCourseAsync");
             }
         }
 
-        public void UpdateCourse(Course course)
+
+        public async Task UpdateCourseAsync(Course course)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "UPDATE Courses SET CourseName = @CourseName, Description = @Description, DepartmentID = @DepartmentID WHERE CourseID = @CourseID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "UPDATE Courses SET CourseName = @CourseName, Description = @Description, DepartmentID = @DepartmentID WHERE CourseID = @CourseID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@CourseID", course.CourseID);
-                        cmd.Parameters.AddWithValue("@CourseName", course.CourseName);
-                        cmd.Parameters.AddWithValue("@Description", course.Description);
-                        cmd.Parameters.AddWithValue("@DepartmentID", course.DepartmentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@CourseID", course.CourseID},
+                    {"@CourseName", course.CourseName},
+                    {"@Description", course.Description},
+                    {"@DepartmentID", course.DepartmentID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.UpdateCourse");
+                ErrorLogger.Log(ex, "CourseRepository.UpdateCourseAsync");
             }
         }
 
-        public void DeleteCourse(int courseId)
+
+        public async Task DeleteCourseAsync(int courseId)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Courses WHERE CourseID = @CourseID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Courses WHERE CourseID = @CourseID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@CourseID", courseId);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    { "@CourseID", courseId }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.DeleteCourse");
+                ErrorLogger.Log(ex, "CourseRepository.DeleteCourseAsync");
             }
         }
 
-        public Course GetCourseById(int courseId)
+
+        public async Task<Course> GetCourseByIdAsync(int courseId)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Courses WHERE CourseID = @CourseID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Courses WHERE CourseID = @CourseID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    { "@CourseID", courseId }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@CourseID", courseId);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                return MapReaderToCourse(reader);
-                        }
+                        return MapReaderToCourse(reader);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.GetCourseById");
+                ErrorLogger.Log(ex, "CourseRepository.GetCourseByIdAsync");
             }
             return null;
         }
 
-        public List<Course> GetAllCourses()
+
+        public async Task<List<Course>> GetAllCoursesAsync()
         {
             var courses = new List<Course>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT c.*, d.DepartmentName 
-                                     FROM Courses c 
-                                     LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID";
+                string query = @"SELECT c.*, d.DepartmentName 
+                         FROM Courses c 
+                         LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
-                        {
-                            courses.Add(MapReaderToCourse(reader));
-                        }
+                        var course = MapReaderToCourse(reader);
+                        if (course != null)
+                            courses.Add(course);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.GetAllCourses");
+                ErrorLogger.Log(ex, "CourseRepository.GetAllCoursesAsync");
             }
             return courses;
         }
 
-        public List<Course> SearchCoursesByName(string courseName)
+
+        public async Task<List<Course>> SearchCoursesByNameAsync(string courseName)
         {
             var courses = new List<Course>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT c.*, d.DepartmentName 
-                                     FROM Courses c 
-                                     LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
-                                     WHERE c.CourseName LIKE @CourseName";
+                string query = @"SELECT c.*, d.DepartmentName 
+                         FROM Courses c 
+                         LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
+                         WHERE c.CourseName LIKE @CourseName";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@CourseName", "%" + courseName + "%" }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@CourseName", "%" + courseName + "%");
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                courses.Add(MapReaderToCourse(reader));
-                            }
-                        }
+                        var course = MapReaderToCourse(reader);
+                        if (course != null)
+                            courses.Add(course);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.SearchCoursesByName");
+                ErrorLogger.Log(ex, "CourseRepository.SearchCoursesByNameAsync");
             }
             return courses;
         }
 
-        public List<Course> GetCoursesByDepartment(int departmentId)
+
+        public async Task<List<Course>> GetCoursesByDepartmentAsync(int departmentId)
         {
             var courses = new List<Course>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Courses WHERE DepartmentID = @DepartmentID";
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Courses WHERE DepartmentID = @DepartmentID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    { "@DepartmentID", departmentId }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@DepartmentID", departmentId);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                courses.Add(MapReaderToCourse(reader));
-                            }
-                        }
+                        var course = MapReaderToCourse(reader);
+                        if (course != null)
+                            courses.Add(course);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseRepository.GetCoursesByDepartment");
+                ErrorLogger.Log(ex, "CourseRepository.GetCoursesByDepartmentAsync");
             }
             return courses;
         }
+
 
         private Course MapReaderToCourse(SQLiteDataReader reader)
         {

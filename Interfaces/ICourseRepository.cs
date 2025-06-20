@@ -9,13 +9,13 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface ICourseRepository
     {
-        void AddCourse(Course course);
-        void UpdateCourse(Course course);
-        void DeleteCourse(int courseId);
-        Course GetCourseById(int courseId);
-        List<Course> GetAllCourses();
-        List<Course> SearchCoursesByName(string courseName);
-        List<Course> GetCoursesByDepartment(int departmentId);
+        Task AddCourseAsync(Course course);
+        Task UpdateCourseAsync(Course course);
+        Task DeleteCourseAsync(int courseId);
+        Task<Course> GetCourseByIdAsync(int courseId);
+        Task<List<Course>> GetAllCoursesAsync();
+        Task<List<Course>> SearchCoursesByNameAsync(string courseName);
+        Task<List<Course>> GetCoursesByDepartmentAsync(int departmentId);
 
     }
 }

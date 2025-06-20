@@ -19,110 +19,113 @@ namespace UnicomTICManagementSystem.Controllers
             _lecturerService = lecturerService;
         }
 
-        public void AddLecturer(int userID, string name, int departmentID)
+        public async Task AddLecturerAsync(int userID, string name, int departmentID)
         {
             try
             {
-                _lecturerService.AddLecturer(userID, name, departmentID);
+                await _lecturerService.AddLecturerAsync(userID, name, departmentID);
+                MessageBox.Show("✅ Lecturer added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.AddLecturer");
+                ErrorLogger.Log(ex, "LecturerController.AddLecturerAsync");
                 MessageBox.Show("❌ Failed to add lecturer.");
             }
         }
 
-        public void UpdateLecturer(Lecturer lecturer)
+        public async Task UpdateLecturerAsync(Lecturer lecturer)
         {
             try
             {
-                _lecturerService.UpdateLecturer(lecturer);
+                await _lecturerService.UpdateLecturerAsync(lecturer);
+                MessageBox.Show("✅ Lecturer updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.UpdateLecturer");
+                ErrorLogger.Log(ex, "LecturerController.UpdateLecturerAsync");
                 MessageBox.Show("❌ Failed to update lecturer.");
             }
         }
 
-        public void DeleteLecturer(int lecturerID)
+        public async Task DeleteLecturerAsync(int lecturerID)
         {
             try
             {
-                _lecturerService.DeleteLecturer(lecturerID);
+                await _lecturerService.DeleteLecturerAsync(lecturerID);
+                MessageBox.Show("🗑️ Lecturer deleted successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.DeleteLecturer");
+                ErrorLogger.Log(ex, "LecturerController.DeleteLecturerAsync");
                 MessageBox.Show("❌ Failed to delete lecturer.");
             }
         }
 
-        public List<Lecturer> GetAllLecturers()
+        public async Task<List<Lecturer>> GetAllLecturersAsync()
         {
             try
             {
-                return _lecturerService.GetAllLecturers();
+                return await _lecturerService.GetAllLecturersAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.GetAllLecturers");
+                ErrorLogger.Log(ex, "LecturerController.GetAllLecturersAsync");
                 MessageBox.Show("❌ Failed to retrieve lecturers.");
                 return new List<Lecturer>();
             }
         }
 
-        public List<Lecturer> SearchLecturers(string keyword)
+        public async Task<List<Lecturer>> SearchLecturersAsync(string keyword)
         {
             try
             {
-                return _lecturerService.SearchLecturers(keyword);
+                return await _lecturerService.SearchLecturersAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.SearchLecturers");
+                ErrorLogger.Log(ex, "LecturerController.SearchLecturersAsync");
                 MessageBox.Show("❌ Failed to search lecturers.");
                 return new List<Lecturer>();
             }
         }
 
-        public Lecturer GetLecturerByID(int lecturerID)
+        public async Task<Lecturer> GetLecturerByIDAsync(int lecturerID)
         {
             try
             {
-                return _lecturerService.GetLecturerByID(lecturerID);
+                return await _lecturerService.GetLecturerByIDAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.GetLecturerByID");
+                ErrorLogger.Log(ex, "LecturerController.GetLecturerByIDAsync");
                 MessageBox.Show("❌ Failed to get lecturer details.");
                 return null;
             }
         }
 
-        public bool LecturerExistsByUserId(int userId)
+        public async Task<bool> LecturerExistsByUserIdAsync(int userId)
         {
             try
             {
-                return _lecturerService.LecturerExistsByUserId(userId);
+                return await _lecturerService.LecturerExistsByUserIdAsync(userId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.LecturerExistsByUserId");
+                ErrorLogger.Log(ex, "LecturerController.LecturerExistsByUserIdAsync");
                 MessageBox.Show("❌ Failed to check lecturer existence.");
                 return false;
             }
         }
 
-        public int GetLecturerIDByUserID(int userID)
+        public async Task<int> GetLecturerIDByUserIDAsync(int userID)
         {
             try
             {
-                return _lecturerService.GetLecturerIDByUserID(userID);
+                return await _lecturerService.GetLecturerIDByUserIDAsync(userID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerController.GetLecturerIDByUserID");
+                ErrorLogger.Log(ex, "LecturerController.GetLecturerIDByUserIDAsync");
                 MessageBox.Show("❌ Failed to retrieve lecturer ID.");
                 return -1;
             }

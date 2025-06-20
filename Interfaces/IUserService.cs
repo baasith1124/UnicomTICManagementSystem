@@ -9,18 +9,18 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IUserService
     {
-        bool Login(string username, string password, out User user);
-        void RegisterUser(User user, int? courseID, int? departmentID, int position);
-        void ApproveUser(int userID);
-        List<PendingUserViewModel> GetPendingApprovals();
-        User GetUserByUsername(string username);
-        void ValidateUser(User user);
-        bool IsUsernameTaken(string username);
-        bool IsEmailTaken(string email);
-        void AdminRegisterStudent(User user, int courseID, DateTime enrollmentDate);
-        void AdminRegisterLecturer(User user, int departmentID);
-        User GetUserById(int userID);
-        void AdminRegisterStaff(User user, int departmentID, int positionID);
+        Task<(bool isSuccess, User user)> LoginAsync(string username, string password);
+        Task RegisterUserAsync(User user, int? courseID, int? departmentID, int position);
+        Task ApproveUserAsync(int userID);
+        Task<List<PendingUserViewModel>> GetPendingApprovalsAsync();
+        Task<User> GetUserByUsernameAsync(string username);
+        Task ValidateUserAsync(User user);
+        Task<bool> IsUsernameTakenAsync(string username);
+        Task<bool> IsEmailTakenAsync(string email);
+        Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate);
+        Task AdminRegisterLecturerAsync(User user, int departmentID);
+        Task<User> GetUserByIdAsync(int userID);
+        Task AdminRegisterStaffAsync(User user, int departmentID, int positionID);
 
 
 

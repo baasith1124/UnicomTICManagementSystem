@@ -9,14 +9,13 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IAttendanceService
     {
-        void AddAttendance(Attendance attendance);
-        void UpdateAttendance(Attendance attendance);
-        List<Attendance> GetAttendanceByTimetable(int timetableID);
-        Attendance GetAttendanceByID(int attendanceID);
-        void DeleteAttendance(int attendanceID);
-
-        List<Attendance> GetFullAttendance();
-        List<Attendance> SearchAttendance(int subjectID, string date);
+        Task AddAttendanceAsync(Attendance attendance);
+        Task UpdateAttendanceAsync(Attendance attendance);
+        Task<List<Attendance>> GetAttendanceByTimetableAsync(int timetableID);
+        Task<Attendance> GetAttendanceByIDAsync(int attendanceID);
+        Task DeleteAttendanceAsync(int attendanceID);
+        Task<List<Attendance>> GetFullAttendanceAsync();
+        Task<List<Attendance>> SearchAttendanceAsync(int subjectID, string date);
 
     }
 }

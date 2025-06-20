@@ -13,226 +13,214 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class RoomRepository : IRoomRepository
     {
-        public void AddRoom(Room room)
+        public async Task AddRoomAsync(Room room)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"INSERT INTO Rooms (RoomName, RoomType, Capacity) 
+                                 VALUES (@RoomName, @RoomType, @Capacity)";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"INSERT INTO Rooms (RoomName, RoomType, Capacity) 
-                                     VALUES (@RoomName, @RoomType, @Capacity)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
-                        cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
-                        cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@RoomName", room.RoomName},
+                    {"@RoomType", room.RoomType},
+                    {"@Capacity", room.Capacity}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.AddRoom");
+                ErrorLogger.Log(ex, "RoomRepository.AddRoomAsync");
             }
         }
 
-        public void UpdateRoom(Room room)
+        public async Task UpdateRoomAsync(Room room)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"UPDATE Rooms SET RoomName = @RoomName, RoomType = @RoomType, Capacity = @Capacity 
+                                 WHERE RoomID = @RoomID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"UPDATE Rooms SET RoomName = @RoomName, RoomType = @RoomType, Capacity = @Capacity 
-                                     WHERE RoomID = @RoomID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
-                        cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
-                        cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
-                        cmd.Parameters.AddWithValue("@RoomID", room.RoomID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@RoomName", room.RoomName},
+                    {"@RoomType", room.RoomType},
+                    {"@Capacity", room.Capacity},
+                    {"@RoomID", room.RoomID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.UpdateRoom");
+                ErrorLogger.Log(ex, "RoomRepository.UpdateRoomAsync");
             }
         }
 
-        public void DeleteRoom(int roomID)
+        public async Task DeleteRoomAsync(int roomID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Rooms WHERE RoomID = @RoomID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Rooms WHERE RoomID = @RoomID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@RoomID", roomID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@RoomID", roomID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.DeleteRoom");
+                ErrorLogger.Log(ex, "RoomRepository.DeleteRoomAsync");
             }
         }
 
-        public List<Room> GetAllRooms()
+        public async Task<List<Room>> GetAllRoomsAsync()
         {
             var rooms = new List<Room>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Rooms";
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
+
+                while (await reader.ReadAsync())
                 {
-                    string query = "SELECT * FROM Rooms";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                    rooms.Add(new Room
                     {
-                        while (reader.Read())
-                        {
-                            rooms.Add(new Room
-                            {
-                                RoomID = Convert.ToInt32(reader["RoomID"]),
-                                RoomName = reader["RoomName"].ToString(),
-                                RoomType = reader["RoomType"].ToString(),
-                                Capacity = Convert.ToInt32(reader["Capacity"])
-                            });
-                        }
-                    }
+                        RoomID = Convert.ToInt32(reader["RoomID"]),
+                        RoomName = reader["RoomName"].ToString(),
+                        RoomType = reader["RoomType"].ToString(),
+                        Capacity = Convert.ToInt32(reader["Capacity"])
+                    });
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.GetAllRooms");
+                ErrorLogger.Log(ex, "RoomRepository.GetAllRoomsAsync");
             }
             return rooms;
         }
 
-        public List<Room> SearchRooms(string keyword)
+        public async Task<List<Room>> SearchRoomsAsync(string keyword)
         {
             var rooms = new List<Room>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Rooms WHERE RoomName LIKE @keyword";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Rooms WHERE RoomName LIKE @keyword";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    {"@keyword", $"%{keyword}%"}
+                };
+
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters);
+
+                while (await reader.ReadAsync())
+                {
+                    rooms.Add(new Room
                     {
-                        cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                rooms.Add(new Room
-                                {
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    RoomName = reader["RoomName"].ToString(),
-                                    RoomType = reader["RoomType"].ToString(),
-                                    Capacity = Convert.ToInt32(reader["Capacity"])
-                                });
-                            }
-                        }
-                    }
+                        RoomID = Convert.ToInt32(reader["RoomID"]),
+                        RoomName = reader["RoomName"].ToString(),
+                        RoomType = reader["RoomType"].ToString(),
+                        Capacity = Convert.ToInt32(reader["Capacity"])
+                    });
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.SearchRooms");
+                ErrorLogger.Log(ex, "RoomRepository.SearchRoomsAsync");
             }
             return rooms;
         }
 
-        public Room GetRoomByID(int roomID)
+        public async Task<Room> GetRoomByIDAsync(int roomID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Rooms WHERE RoomID = @RoomID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Rooms WHERE RoomID = @RoomID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    {"@RoomID", roomID}
+                };
+
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters);
+
+                if (await reader.ReadAsync())
+                {
+                    var room = new Room
                     {
-                        cmd.Parameters.AddWithValue("@RoomID", roomID);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                return new Room
-                                {
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    RoomName = reader["RoomName"].ToString(),
-                                    RoomType = reader["RoomType"].ToString(),
-                                    Capacity = Convert.ToInt32(reader["Capacity"])
-                                };
-                            }
-                        }
-                    }
+                        RoomID = Convert.ToInt32(reader["RoomID"]),
+                        RoomName = reader["RoomName"].ToString(),
+                        RoomType = reader["RoomType"].ToString(),
+                        Capacity = Convert.ToInt32(reader["Capacity"])
+                    };
+                    reader.Close();
+                    return room;
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.GetRoomByID");
+                ErrorLogger.Log(ex, "RoomRepository.GetRoomByIDAsync");
             }
             return null;
         }
 
-        public List<Room> GetRoomsByType(string roomType)
+        public async Task<List<Room>> GetRoomsByTypeAsync(string roomType)
         {
             var rooms = new List<Room>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    {"@RoomType", roomType}
+                };
+
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters);
+
+                while (await reader.ReadAsync())
+                {
+                    rooms.Add(new Room
                     {
-                        cmd.Parameters.AddWithValue("@RoomType", roomType);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                rooms.Add(new Room
-                                {
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    RoomName = reader["RoomName"].ToString(),
-                                    RoomType = reader["RoomType"].ToString(),
-                                    Capacity = Convert.ToInt32(reader["Capacity"])
-                                });
-                            }
-                        }
-                    }
+                        RoomID = Convert.ToInt32(reader["RoomID"]),
+                        RoomName = reader["RoomName"].ToString(),
+                        RoomType = reader["RoomType"].ToString(),
+                        Capacity = Convert.ToInt32(reader["Capacity"])
+                    });
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.GetRoomsByType");
+                ErrorLogger.Log(ex, "RoomRepository.GetRoomsByTypeAsync");
             }
             return rooms;
         }
 
-        public List<string> GetDistinctRoomTypes()
+        public async Task<List<string>> GetDistinctRoomTypesAsync()
         {
             var types = new List<string>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT DISTINCT RoomType FROM Rooms";
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
+
+                while (await reader.ReadAsync())
                 {
-                    string query = "SELECT DISTINCT RoomType FROM Rooms";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            types.Add(reader["RoomType"].ToString());
-                        }
-                    }
+                    types.Add(reader["RoomType"].ToString());
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomRepository.GetDistinctRoomTypes");
+                ErrorLogger.Log(ex, "RoomRepository.GetDistinctRoomTypesAsync");
             }
             return types;
         }

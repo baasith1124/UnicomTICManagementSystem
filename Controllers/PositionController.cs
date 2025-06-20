@@ -19,15 +19,15 @@ namespace UnicomTICManagementSystem.Controllers
             _positionService = positionService;
         }
 
-        public List<Position> GetPositionsByDepartment(int departmentID)
+        public async Task<List<Position>> GetPositionsByDepartmentAsync(int departmentID)
         {
             try
             {
-                return _positionService.GetPositionsByDepartment(departmentID);
+                return await _positionService.GetPositionsByDepartmentAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "PositionController.GetPositionsByDepartment");
+                ErrorLogger.Log(ex, "PositionController.GetPositionsByDepartmentAsync");
                 MessageBox.Show("❌ Failed to retrieve positions for the department.");
                 return new List<Position>();
             }

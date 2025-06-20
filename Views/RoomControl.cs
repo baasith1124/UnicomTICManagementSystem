@@ -38,7 +38,7 @@ namespace UnicomTICManagementSystem.Views
             _roomController = new RoomController(roomService);
 
             InitializeUI();
-            LoadRooms();
+            _ = LoadRoomsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -103,11 +103,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.Add(panelForm);
         }
 
-        private void LoadRooms()
+        private async Task LoadRoomsAsync()
         {
             try
             {
-                dgvRooms.DataSource = _roomController.GetAllRooms();
+                dgvRooms.DataSource = await  _roomController.GetAllRoomsAsync();
                 dgvRooms.ClearSelection();
                 selectedRoomID = -1;
                 if (dgvRooms.Columns["RoomID"] != null)
@@ -119,12 +119,12 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvRooms.DataSource = _roomController.SearchRooms(keyword);
+                dgvRooms.DataSource = await _roomController.SearchRoomsAsync(keyword);
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -184,9 +184,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _roomController.DeleteRoom(roomID);
+                    await _roomController.DeleteRoomAsync(roomID);
                     MessageBox.Show("Room deleted successfully.");
-                    LoadRooms();
+                    await LoadRoomsAsync();
                 }
             }
             catch (Exception ex)
@@ -195,7 +195,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -221,16 +221,16 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    _roomController.AddRoom(room);
+                    await _roomController.AddRoomAsync(room);
                     MessageBox.Show("Room successfully added.");
                 }
                 else
                 {
-                    _roomController.UpdateRoom(room);
+                    await _roomController.UpdateRoomAsync(room);
                     MessageBox.Show("Room successfully updated.");
                 }
 
-                LoadRooms();
+                await LoadRoomsAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)

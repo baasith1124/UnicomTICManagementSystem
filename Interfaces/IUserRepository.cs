@@ -9,13 +9,14 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IUserRepository
     {
-        User GetUserByUsername(string username);
-        User GetUserByEmail(string email);
+        Task<User> GetUserByUsernameAsync(string username);
+        Task<User> GetUserByEmailAsync(string email);
+        Task<User> GetUserByIDAsync(int userID);
 
-        User GetUserByID(int userID);
-        void RegisterUser(User user);
-        void ApproveUser(int userID);
-        List<User> GetPendingApprovals();
-        List<User> GetUsers();
+        Task RegisterUserAsync(User user);
+        Task ApproveUserAsync(int userID);
+
+        Task<List<User>> GetPendingApprovalsAsync();
+        Task<List<User>> GetUsersAsync();
     }
 }

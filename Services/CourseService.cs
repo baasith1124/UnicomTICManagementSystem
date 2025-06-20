@@ -18,93 +18,93 @@ namespace UnicomTICManagementSystem.Services
             _courseRepository = courseRepository;
         }
 
-        public void AddCourse(Course course)
+        public async Task AddCourseAsync(Course course)
         {
             try
             {
-                _courseRepository.AddCourse(course);
+                await _courseRepository.AddCourseAsync(course);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.AddCourse");
+                ErrorLogger.Log(ex, "CourseService.AddCourseAsync");
                 throw;
             }
         }
 
-        public void UpdateCourse(Course course)
+        public async Task UpdateCourseAsync(Course course)
         {
             try
             {
-                _courseRepository.UpdateCourse(course);
+                await _courseRepository.UpdateCourseAsync(course);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.UpdateCourse");
+                ErrorLogger.Log(ex, "CourseService.UpdateCourseAsync");
                 throw;
             }
         }
 
-        public void DeleteCourse(int courseId)
+        public async Task DeleteCourseAsync(int courseId)
         {
             try
             {
-                _courseRepository.DeleteCourse(courseId);
+                await _courseRepository.DeleteCourseAsync(courseId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.DeleteCourse");
+                ErrorLogger.Log(ex, "CourseService.DeleteCourseAsync");
                 throw;
             }
         }
 
-        public Course GetCourseById(int courseId)
+        public async Task<Course> GetCourseByIdAsync(int courseId)
         {
             try
             {
-                return _courseRepository.GetCourseById(courseId);
+                return await _courseRepository.GetCourseByIdAsync(courseId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.GetCourseById");
+                ErrorLogger.Log(ex, "CourseService.GetCourseByIdAsync");
                 throw;
             }
         }
 
-        public List<Course> GetAllCourses()
+        public async Task<List<Course>> GetAllCoursesAsync()
         {
             try
             {
-                return _courseRepository.GetAllCourses();
+                return await _courseRepository.GetAllCoursesAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.GetAllCourses");
+                ErrorLogger.Log(ex, "CourseService.GetAllCoursesAsync");
                 throw;
             }
         }
 
-        public List<Course> SearchCoursesByName(string courseName)
+        public async Task<List<Course>> SearchCoursesByNameAsync(string courseName)
         {
             try
             {
-                return _courseRepository.SearchCoursesByName(courseName);
+                return await _courseRepository.SearchCoursesByNameAsync(courseName);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.SearchCoursesByName");
+                ErrorLogger.Log(ex, "CourseService.SearchCoursesByNameAsync");
                 throw;
             }
         }
 
-        public List<Course> GetCoursesByDepartment(int departmentId)
+        public async Task<List<Course>> GetCoursesByDepartmentAsync(int departmentId)
         {
             try
             {
-                return _courseRepository.GetCoursesByDepartment(departmentId);
+                return await _courseRepository.GetCoursesByDepartmentAsync(departmentId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "CourseService.GetCoursesByDepartment");
+                ErrorLogger.Log(ex, "CourseService.GetCoursesByDepartmentAsync");
                 throw;
             }
         }

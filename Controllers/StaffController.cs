@@ -19,99 +19,99 @@ namespace UnicomTICManagementSystem.Controllers
             _staffService = staffService;
         }
 
-        public void AddStaff(int userID, string name, int departmentID, int position)
+        public async Task AddStaffAsync(int userID, string name, int departmentID, int position)
         {
             try
             {
-                _staffService.AddStaff(userID, name, departmentID, position);
+                await _staffService.AddStaffAsync(userID, name, departmentID, position);
                 MessageBox.Show("✅ Staff added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.AddStaff");
+                ErrorLogger.Log(ex, "StaffController.AddStaffAsync");
                 MessageBox.Show("❌ Failed to add staff: " + ex.Message);
             }
         }
 
-        public void UpdateStaff(Staff staff)
+        public async Task UpdateStaffAsync(Staff staff)
         {
             try
             {
-                _staffService.UpdateStaff(staff);
+                await _staffService.UpdateStaffAsync(staff);
                 MessageBox.Show("✅ Staff updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.UpdateStaff");
+                ErrorLogger.Log(ex, "StaffController.UpdateStaffAsync");
                 MessageBox.Show("❌ Failed to update staff: " + ex.Message);
             }
         }
 
-        public void DeleteStaff(int staffID)
+        public async Task DeleteStaffAsync(int staffID)
         {
             try
             {
-                _staffService.DeleteStaff(staffID);
+                await _staffService.DeleteStaffAsync(staffID);
                 MessageBox.Show("🗑️ Staff deleted successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.DeleteStaff");
+                ErrorLogger.Log(ex, "StaffController.DeleteStaffAsync");
                 MessageBox.Show("❌ Failed to delete staff: " + ex.Message);
             }
         }
 
-        public List<Staff> GetAllStaff()
+        public async Task<List<Staff>> GetAllStaffAsync()
         {
             try
             {
-                return _staffService.GetAllStaff();
+                return await _staffService.GetAllStaffAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.GetAllStaff");
+                ErrorLogger.Log(ex, "StaffController.GetAllStaffAsync");
                 MessageBox.Show("❌ Failed to load staff list.");
                 return new List<Staff>();
             }
         }
 
-        public Staff GetStaffByID(int staffID)
+        public async Task<Staff> GetStaffByIDAsync(int staffID)
         {
             try
             {
-                return _staffService.GetStaffByID(staffID);
+                return await _staffService.GetStaffByIDAsync(staffID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.GetStaffByID");
+                ErrorLogger.Log(ex, "StaffController.GetStaffByIDAsync");
                 MessageBox.Show("❌ Failed to retrieve staff.");
                 return null;
             }
         }
 
-        public List<Staff> SearchStaff(string keyword)
+        public async Task<List<Staff>> SearchStaffAsync(string keyword)
         {
             try
             {
-                return _staffService.SearchStaff(keyword);
+                return await _staffService.SearchStaffAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.SearchStaff");
+                ErrorLogger.Log(ex, "StaffController.SearchStaffAsync");
                 MessageBox.Show("❌ Search failed.");
                 return new List<Staff>();
             }
         }
 
-        public int GetUserIDByStaffID(int staffID)
+        public async Task<int> GetUserIDByStaffIDAsync(int staffID)
         {
             try
             {
-                return _staffService.GetUserIDByStaffID(staffID);
+                return await _staffService.GetUserIDByStaffIDAsync(staffID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffController.GetUserIDByStaffID");
+                ErrorLogger.Log(ex, "StaffController.GetUserIDByStaffIDAsync");
                 MessageBox.Show("❌ Failed to get user ID for staff.");
                 return -1;
             }

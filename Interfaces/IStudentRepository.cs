@@ -9,20 +9,20 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IStudentRepository
     {
-        void AddStudent(int userID, string name, int courseID, DateTime enrollmentDate);
-        void UpdateStudent(Student student);
-        void DeleteStudent(int studentID);
-        List<Student> GetAllStudents();
-        List<Student> SearchStudents(string keyword);
-        Student GetStudentByID(int studentID);
+        Task AddStudentAsync(int userID, string name, int courseID, DateTime enrollmentDate);
+        Task UpdateStudentAsync(Student student);
+        Task DeleteStudentAsync(int studentID);
 
-        StudentDetails GetStudentFullDetailsByID(int studentID);
+        Task<List<Student>> GetAllStudentsAsync();
+        Task<List<Student>> SearchStudentsAsync(string keyword);
+        Task<Student> GetStudentByIDAsync(int studentID);
+        Task<StudentDetails> GetStudentFullDetailsByIDAsync(int studentID);
 
-        List<Student> GetStudentsByCourse(int courseID);
-        List<Student> GetStudentsBySubject(int subjectID);
+        Task<List<Student>> GetStudentsByCourseAsync(int courseID);
+        Task<List<Student>> GetStudentsBySubjectAsync(int subjectID);
 
-        Student GetStudentByUserId(int userID);
-        int GetStudentIDByUserID(int userID);
+        Task<Student> GetStudentByUserIdAsync(int userID);
+        Task<int> GetStudentIDByUserIDAsync(int userID);
 
 
 

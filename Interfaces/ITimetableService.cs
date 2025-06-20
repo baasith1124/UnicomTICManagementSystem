@@ -9,15 +9,14 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface ITimetableService
     {
-        void AddTimetable(Timetable timetable);
-        void UpdateTimetable(Timetable timetable);
-        void DeleteTimetable(int timetableID);
-        List<Timetable> GetAllTimetables();
-        List<Timetable> SearchTimetables(string keyword);
-        Timetable GetTimetableBySubjectAndDate(int subjectID, DateTime date);
-
-        Timetable GetTimetableByID(int timetableID);
-        List<Timetable> GetTimetablesByLecturer(int lecturerID);
+        Task AddTimetableAsync(Timetable timetable);
+        Task UpdateTimetableAsync(Timetable timetable);
+        Task DeleteTimetableAsync(int timetableID);
+        Task<List<Timetable>> GetAllTimetablesAsync();
+        Task<List<Timetable>> SearchTimetablesAsync(string keyword);
+        Task<Timetable> GetTimetableBySubjectAndDateAsync(int subjectID, DateTime date);
+        Task<Timetable> GetTimetableByIDAsync(int timetableID);
+        Task<List<Timetable>> GetTimetablesByLecturerAsync(int lecturerID);
 
     }
 

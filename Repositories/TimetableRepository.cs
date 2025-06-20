@@ -13,296 +13,259 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class TimetableRepository : ITimetableRepository
     {
-        public void AddTimetable(Timetable timetable)
+        public async Task AddTimetableAsync(Timetable timetable)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"INSERT INTO Timetables 
+                string query = @"INSERT INTO Timetables 
                     (SubjectID, RoomID, LecturerID, ScheduledDate, TimeSlot)
                     VALUES (@SubjectID, @RoomID, @LecturerID, @ScheduledDate, @TimeSlot)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SubjectID", timetable.SubjectID);
-                        cmd.Parameters.AddWithValue("@RoomID", timetable.RoomID);
-                        cmd.Parameters.AddWithValue("@LecturerID", timetable.LecturerID);
-                        cmd.Parameters.AddWithValue("@ScheduledDate", timetable.ScheduledDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@TimeSlot", timetable.TimeSlot);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+
+                var parameters = new Dictionary<string, object>
+                {
+                    {"@SubjectID", timetable.SubjectID},
+                    {"@RoomID", timetable.RoomID},
+                    {"@LecturerID", timetable.LecturerID},
+                    {"@ScheduledDate", timetable.ScheduledDate.ToString("yyyy-MM-dd")},
+                    {"@TimeSlot", timetable.TimeSlot}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.AddTimetable");
+                ErrorLogger.Log(ex, "TimetableRepository.AddTimetableAsync");
             }
         }
 
-        public void UpdateTimetable(Timetable timetable)
+        public async Task UpdateTimetableAsync(Timetable timetable)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"UPDATE Timetables SET 
+                    SubjectID=@SubjectID, RoomID=@RoomID, LecturerID=@LecturerID,
+                    ScheduledDate=@ScheduledDate, TimeSlot=@TimeSlot 
+                    WHERE TimetableID=@TimetableID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"UPDATE Timetables SET 
-                        SubjectID=@SubjectID, RoomID=@RoomID, LecturerID=@LecturerID,
-                        ScheduledDate=@ScheduledDate, TimeSlot=@TimeSlot 
-                        WHERE TimetableID=@TimetableID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SubjectID", timetable.SubjectID);
-                        cmd.Parameters.AddWithValue("@RoomID", timetable.RoomID);
-                        cmd.Parameters.AddWithValue("@LecturerID", timetable.LecturerID);
-                        cmd.Parameters.AddWithValue("@ScheduledDate", timetable.ScheduledDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@TimeSlot", timetable.TimeSlot);
-                        cmd.Parameters.AddWithValue("@TimetableID", timetable.TimetableID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@SubjectID", timetable.SubjectID},
+                    {"@RoomID", timetable.RoomID},
+                    {"@LecturerID", timetable.LecturerID},
+                    {"@ScheduledDate", timetable.ScheduledDate.ToString("yyyy-MM-dd")},
+                    {"@TimeSlot", timetable.TimeSlot},
+                    {"@TimetableID", timetable.TimetableID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.UpdateTimetable");
+                ErrorLogger.Log(ex, "TimetableRepository.UpdateTimetableAsync");
             }
         }
 
-        public void DeleteTimetable(int timetableID)
+        public async Task DeleteTimetableAsync(int timetableID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = "DELETE FROM Timetables WHERE TimetableID = @TimetableID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                string query = "DELETE FROM Timetables WHERE TimetableID = @TimetableID";
+                var parameters = new Dictionary<string, object> { { "@TimetableID", timetableID } };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.DeleteTimetable");
+                ErrorLogger.Log(ex, "TimetableRepository.DeleteTimetableAsync");
             }
         }
 
-        public List<Timetable> GetAllTimetables()
-        {
-            var timetables = new List<Timetable>();
-
-            try
-            {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT t.TimetableID, t.SubjectID, s.SubjectName, t.RoomID, r.RoomName, 
-                               t.LecturerID, l.Name AS LecturerName, t.ScheduledDate, t.TimeSlot
-                        FROM Timetables t
-                        INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                        INNER JOIN Rooms r ON t.RoomID = r.RoomID
-                        INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID";
-
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            timetables.Add(new Timetable
-                            {
-                                TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                SubjectName = reader["SubjectName"].ToString(),
-                                RoomID = Convert.ToInt32(reader["RoomID"]),
-                                RoomName = reader["RoomName"].ToString(),
-                                LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                LecturerName = reader["LecturerName"].ToString(),
-                                ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
-                                TimeSlot = reader["TimeSlot"].ToString()
-                            });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorLogger.Log(ex, "TimetableRepository.GetAllTimetables");
-            }
-            return timetables;
-        }
-
-        public List<Timetable> SearchTimetables(string keyword)
+        public async Task<List<Timetable>> GetAllTimetablesAsync()
         {
             var timetables = new List<Timetable>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT t.TimetableID, t.SubjectID, s.SubjectName, t.RoomID, r.RoomName, 
-                               t.LecturerID, l.Name AS LecturerName, t.ScheduledDate, t.TimeSlot
-                        FROM Timetables t
-                        INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                        INNER JOIN Rooms r ON t.RoomID = r.RoomID
-                        INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID
-                        WHERE s.SubjectName LIKE @keyword OR l.Name LIKE @keyword OR r.RoomName LIKE @keyword";
+                string query = @"
+                    SELECT t.TimetableID, t.SubjectID, s.SubjectName, t.RoomID, r.RoomName, 
+                           t.LecturerID, l.Name AS LecturerName, t.ScheduledDate, t.TimeSlot
+                    FROM Timetables t
+                    INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
+                    INNER JOIN Rooms r ON t.RoomID = r.RoomID
+                    INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@keyword", "%" + keyword + "%");
-                        using (var reader = cmd.ExecuteReader())
+                        timetables.Add(new Timetable
                         {
-                            while (reader.Read())
-                            {
-                                timetables.Add(new Timetable
-                                {
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    RoomName = reader["RoomName"].ToString(),
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    LecturerName = reader["LecturerName"].ToString(),
-                                    ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
-                                    TimeSlot = reader["TimeSlot"].ToString()
-                                });
-                            }
-                        }
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            RoomID = Convert.ToInt32(reader["RoomID"]),
+                            RoomName = reader["RoomName"].ToString(),
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            LecturerName = reader["LecturerName"].ToString(),
+                            ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
+                            TimeSlot = reader["TimeSlot"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.SearchTimetables");
+                ErrorLogger.Log(ex, "TimetableRepository.GetAllTimetablesAsync");
             }
             return timetables;
         }
-        public Timetable GetTimetableBySubjectAndDate(int subjectID, DateTime date)
+
+        public async Task<List<Timetable>> SearchTimetablesAsync(string keyword)
         {
+            var timetables = new List<Timetable>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"
+                    SELECT t.TimetableID, t.SubjectID, s.SubjectName, t.RoomID, r.RoomName, 
+                           t.LecturerID, l.Name AS LecturerName, t.ScheduledDate, t.TimeSlot
+                    FROM Timetables t
+                    INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
+                    INNER JOIN Rooms r ON t.RoomID = r.RoomID
+                    INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID
+                    WHERE s.SubjectName LIKE @keyword OR l.Name LIKE @keyword OR r.RoomName LIKE @keyword";
+
+                var parameters = new Dictionary<string, object> { { "@keyword", "%" + keyword + "%" } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = @"SELECT * FROM Timetables 
-                                     WHERE SubjectID = @SubjectID AND ScheduledDate = @Date";
-
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@SubjectID", subjectID);
-                        cmd.Parameters.AddWithValue("@Date", date.ToString("yyyy-MM-dd"));
-
-                        using (var reader = cmd.ExecuteReader())
+                        timetables.Add(new Timetable
                         {
-                            if (reader.Read())
-                            {
-                                return new Timetable
-                                {
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    TimeSlot = reader["TimeSlot"].ToString(),
-                                    ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString())
-                                };
-                            }
-                        }
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            RoomID = Convert.ToInt32(reader["RoomID"]),
+                            RoomName = reader["RoomName"].ToString(),
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            LecturerName = reader["LecturerName"].ToString(),
+                            ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
+                            TimeSlot = reader["TimeSlot"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.GetTimetableBySubjectAndDate");
+                ErrorLogger.Log(ex, "TimetableRepository.SearchTimetablesAsync");
+            }
+            return timetables;
+        }
+
+        public async Task<Timetable> GetTimetableBySubjectAndDateAsync(int subjectID, DateTime date)
+        {
+            try
+            {
+                string query = "SELECT * FROM Timetables WHERE SubjectID = @SubjectID AND ScheduledDate = @Date";
+                var parameters = new Dictionary<string, object>
+                {
+                    {"@SubjectID", subjectID},
+                    {"@Date", date.ToString("yyyy-MM-dd")}
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new Timetable
+                        {
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            RoomID = Convert.ToInt32(reader["RoomID"]),
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            TimeSlot = reader["TimeSlot"].ToString(),
+                            ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString())
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "TimetableRepository.GetTimetableBySubjectAndDateAsync");
             }
             return null;
         }
 
-        public List<Timetable> GetTimetablesByLecturer(int lecturerID)
+        public async Task<Timetable> GetTimetableByIDAsync(int timetableID)
         {
-            var timetables = new List<Timetable>();
-
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"SELECT t.*, s.SubjectName, s.CourseID
+                                 FROM Timetables t
+                                 INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
+                                 WHERE t.TimetableID = @TimetableID";
+
+                var parameters = new Dictionary<string, object> { { "@TimetableID", timetableID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = @"SELECT t.*, s.SubjectName, s.CourseID
-                                     FROM Timetables t
-                                     INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                                     WHERE t.LecturerID = @LecturerID";
-
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@LecturerID", lecturerID);
-
-                        using (var reader = cmd.ExecuteReader())
+                        return new Timetable
                         {
-                            while (reader.Read())
-                            {
-                                timetables.Add(new Timetable
-                                {
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    TimeSlot = reader["TimeSlot"].ToString(),
-                                    ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"])
-                                });
-                            }
-                        }
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            RoomID = Convert.ToInt32(reader["RoomID"]),
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            TimeSlot = reader["TimeSlot"].ToString(),
+                            ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"])
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.GetTimetablesByLecturer");
+                ErrorLogger.Log(ex, "TimetableRepository.GetTimetableByIDAsync");
             }
-
-            return timetables;
+            return null;
         }
 
-        public Timetable GetTimetableByID(int timetableID)
+        public async Task<List<Timetable>> GetTimetablesByLecturerAsync(int lecturerID)
         {
+            var timetables = new List<Timetable>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"SELECT t.*, s.SubjectName, s.CourseID
+                                 FROM Timetables t
+                                 INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
+                                 WHERE t.LecturerID = @LecturerID";
+
+                var parameters = new Dictionary<string, object> { { "@LecturerID", lecturerID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = @"SELECT t.*, s.SubjectName, s.CourseID
-                                     FROM Timetables t
-                                     INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                                     WHERE t.TimetableID = @TimetableID";
-
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-
-                        using (var reader = cmd.ExecuteReader())
+                        timetables.Add(new Timetable
                         {
-                            if (reader.Read())
-                            {
-                                return new Timetable
-                                {
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    RoomID = Convert.ToInt32(reader["RoomID"]),
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    TimeSlot = reader["TimeSlot"].ToString(),
-                                    ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"])
-                                };
-                            }
-                        }
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            RoomID = Convert.ToInt32(reader["RoomID"]),
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            TimeSlot = reader["TimeSlot"].ToString(),
+                            ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"])
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableRepository.GetTimetableByID");
+                ErrorLogger.Log(ex, "TimetableRepository.GetTimetablesByLecturerAsync");
             }
-
-            return null;
-
+            return timetables;
         }
 
 

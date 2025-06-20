@@ -18,133 +18,132 @@ namespace UnicomTICManagementSystem.Services
             _studentRepository = studentRepository;
         }
 
-        public void AddStudent(int userID, string name, int courseID, DateTime enrollmentDate)
+        public async Task AddStudentAsync(int userID, string name, int courseID, DateTime enrollmentDate)
         {
             try
             {
-                _studentRepository.AddStudent(userID, name, courseID, enrollmentDate);
+                await _studentRepository.AddStudentAsync(userID, name, courseID, enrollmentDate);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.AddStudent");
+                ErrorLogger.Log(ex, "StudentService.AddStudentAsync");
             }
         }
 
-        public void UpdateStudent(Student student)
+        public async Task UpdateStudentAsync(Student student)
         {
             try
             {
-                _studentRepository.UpdateStudent(student);
+                await _studentRepository.UpdateStudentAsync(student);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.UpdateStudent");
+                ErrorLogger.Log(ex, "StudentService.UpdateStudentAsync");
             }
         }
 
-        public void DeleteStudent(int studentID)
+        public async Task DeleteStudentAsync(int studentID)
         {
             try
             {
-                _studentRepository.DeleteStudent(studentID);
+                await _studentRepository.DeleteStudentAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.DeleteStudent");
+                ErrorLogger.Log(ex, "StudentService.DeleteStudentAsync");
             }
         }
 
-        public List<Student> GetAllStudents()
+        public async Task<List<Student>> GetAllStudentsAsync()
         {
             try
             {
-                return _studentRepository.GetAllStudents();
+                return await _studentRepository.GetAllStudentsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetAllStudents");
+                ErrorLogger.Log(ex, "StudentService.GetAllStudentsAsync");
                 return new List<Student>();
             }
         }
 
-        public List<Student> SearchStudents(string keyword)
+        public async Task<List<Student>> SearchStudentsAsync(string keyword)
         {
             try
             {
-                return _studentRepository.SearchStudents(keyword);
+                return await _studentRepository.SearchStudentsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.SearchStudents");
+                ErrorLogger.Log(ex, "StudentService.SearchStudentsAsync");
                 return new List<Student>();
             }
         }
 
-        public Student GetStudentByID(int studentID)
+        public async Task<Student> GetStudentByIDAsync(int studentID)
         {
             try
             {
-                return _studentRepository.GetStudentByID(studentID);
+                return await _studentRepository.GetStudentByIDAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetStudentByID");
+                ErrorLogger.Log(ex, "StudentService.GetStudentByIDAsync");
                 return null;
             }
         }
 
-        public StudentDetails GetStudentFullDetailsByID(int studentID)
+        public async Task<StudentDetails> GetStudentFullDetailsByIDAsync(int studentID)
         {
             try
             {
-                return _studentRepository.GetStudentFullDetailsByID(studentID);
+                return await _studentRepository.GetStudentFullDetailsByIDAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetStudentFullDetailsByID");
+                ErrorLogger.Log(ex, "StudentService.GetStudentFullDetailsByIDAsync");
                 return null;
             }
         }
 
-        public List<Student> GetStudentsByCourse(int courseID)
+        public async Task<List<Student>> GetStudentsByCourseAsync(int courseID)
         {
             try
             {
-                return _studentRepository.GetStudentsByCourse(courseID);
+                return await _studentRepository.GetStudentsByCourseAsync(courseID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetStudentsByCourse");
+                ErrorLogger.Log(ex, "StudentService.GetStudentsByCourseAsync");
                 return new List<Student>();
             }
         }
 
-        public List<Student> GetStudentsBySubject(int subjectID)
+        public async Task<List<Student>> GetStudentsBySubjectAsync(int subjectID)
         {
             try
             {
-                return _studentRepository.GetStudentsBySubject(subjectID);
+                return await _studentRepository.GetStudentsBySubjectAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetStudentsBySubject");
+                ErrorLogger.Log(ex, "StudentService.GetStudentsBySubjectAsync");
                 return new List<Student>();
             }
         }
 
-        public int GetStudentIDByUserID(int userID)
+        public async Task<int> GetStudentIDByUserIDAsync(int userID)
         {
             try
             {
-                return _studentRepository.GetStudentIDByUserID(userID);
+                return await _studentRepository.GetStudentIDByUserIDAsync(userID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentService.GetStudentIDByUserID");
+                ErrorLogger.Log(ex, "StudentService.GetStudentIDByUserIDAsync");
                 return -1;
             }
         }
-
 
 
     }

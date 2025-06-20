@@ -55,8 +55,8 @@ namespace UnicomTICManagementSystem.Views
 
 
             InitializeUI();
-            LoadDepartments();
-            LoadStaff();
+            _ = LoadDepartmentsAsync();
+            _ = LoadStaffAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -151,11 +151,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.Add(panelForm);
         }
 
-        private void LoadDepartments()
+        private async Task LoadDepartmentsAsync()
         {
             try
             {
-                cmbDepartment.DataSource = _departmentController.GetAllDepartments();
+                cmbDepartment.DataSource = await _departmentController.GetAllDepartmentsAsync();
                 cmbDepartment.DisplayMember = "DepartmentName";
                 cmbDepartment.ValueMember = "DepartmentID";
             }
@@ -165,11 +165,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadPositions(int departmentID)
+        private async Task LoadPositionsAsync(int departmentID)
         {
             try
             {
-                cmbPosition.DataSource = _positionController.GetPositionsByDepartment(departmentID);
+                cmbPosition.DataSource = await _positionController.GetPositionsByDepartmentAsync(departmentID);
                 cmbPosition.DisplayMember = "PositionName";
                 cmbPosition.ValueMember = "PositionID";
             }
@@ -179,11 +179,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadStaff()
+        private async Task LoadStaffAsync()
         {
             try
             {
-                dgvStaff.DataSource = _staffController.GetAllStaff();
+                dgvStaff.DataSource = await _staffController.GetAllStaffAsync();
                 dgvStaff.ClearSelection();
                 selectedStaffID = -1;
 
@@ -214,23 +214,23 @@ namespace UnicomTICManagementSystem.Views
 
         }
 
-        private void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selectedDept = cmbDepartment.SelectedItem as Department;
             if (selectedDept != null)
             {
-                LoadPositions(selectedDept.DepartmentID);
+                await LoadPositionsAsync(selectedDept.DepartmentID);
             }
         }
 
 
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvStaff.DataSource = _staffController.SearchStaff(keyword);
+                dgvStaff.DataSource = await _staffController.SearchStaffAsync(keyword);
             }
             catch (Exception ex)
             {
@@ -252,7 +252,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             // Basic validations
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
@@ -293,14 +293,14 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    var existingUser = userRepo.GetUserByUsername(username);
+                    var existingUser = await userRepo.GetUserByUsernameAsync(username);
                     int userID;
 
                     if (existingUser != null)
                     {
                         userID = existingUser.UserID;
 
-                        if (staffRepo.StaffExistsByUserId(userID))
+                        if (await staffRepo.StaffExistsByUserIdAsync(userID))
                         {
                             MessageBox.Show("Staff member already exists for this user.");
                             return;
@@ -327,7 +327,7 @@ namespace UnicomTICManagementSystem.Views
                     );
 
                     var userController = new UserController(userService);
-                    userController.AdminRegisterStaff(newUser, departmentID, positionID);
+                    await userController.AdminRegisterStaffAsync(newUser, departmentID, positionID);
 
                     MessageBox.Show("✅ Staff successfully added.");
                 }
@@ -342,11 +342,11 @@ namespace UnicomTICManagementSystem.Views
                         PositionID = positionID
                     };
 
-                    _staffController.UpdateStaff(staff);
+                    await _staffController.UpdateStaffAsync(staff);
                     MessageBox.Show("✅ Staff successfully updated.");
                 }
 
-                LoadStaff();
+                await LoadStaffAsync();
                 SwitchToGrid();
                 ClearForm();
             }
@@ -356,7 +356,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
+        private async void btnUpdate_Click(object sender, EventArgs e)
         {
             if (dgvStaff.CurrentRow == null)
             {
@@ -374,7 +374,7 @@ namespace UnicomTICManagementSystem.Views
 
                 // Ensure departments are loaded
                 if (cmbDepartment.DataSource == null)
-                    LoadDepartments();
+                    await LoadDepartmentsAsync();
 
                 // Temporarily remove event to avoid recursion
                 cmbDepartment.SelectedIndexChanged -= cmbDepartment_SelectedIndexChanged;
@@ -382,7 +382,7 @@ namespace UnicomTICManagementSystem.Views
                 cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
 
                 // Manually load positions for selected department
-                LoadPositions(departmentID);
+                await LoadPositionsAsync(departmentID);
 
                 // Safely set position value
                 var posList = cmbPosition.DataSource as List<Position>;
@@ -392,11 +392,11 @@ namespace UnicomTICManagementSystem.Views
                 }
 
                 // Load user details safely
-                int userID = _staffController.GetUserIDByStaffID(selectedStaffID);
+                int userID = await _staffController.GetUserIDByStaffIDAsync(selectedStaffID);
                 if (userID <= 0)
                     throw new Exception("User ID not found for the selected staff.");
 
-                var user = _userController.GetUserById(userID);
+                var user = await _userController.GetUserByIdAsync(userID);
                 if (user == null)
                     throw new Exception("User details not found.");
 
@@ -416,7 +416,7 @@ namespace UnicomTICManagementSystem.Views
             SwitchToForm();
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -430,9 +430,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _staffController.DeleteStaff(staffID);
+                    await _staffController.DeleteStaffAsync(staffID);
                     MessageBox.Show("Staff deleted successfully.");
-                    LoadStaff();
+                    await LoadStaffAsync();
                 }
             }
             catch (Exception ex)

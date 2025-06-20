@@ -9,14 +9,14 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IRoomRepository
     {
-        void AddRoom(Room room);
-        void UpdateRoom(Room room);
-        void DeleteRoom(int roomID);
-        List<Room> GetAllRooms();
-        List<Room> SearchRooms(string keyword);
-        Room GetRoomByID(int roomID);
-        List<Room> GetRoomsByType(string roomType);
-        List<string> GetDistinctRoomTypes();
+        Task AddRoomAsync(Room room);
+        Task UpdateRoomAsync(Room room);
+        Task DeleteRoomAsync(int roomID);
+        Task<List<Room>> GetAllRoomsAsync();
+        Task<List<Room>> SearchRoomsAsync(string keyword);
+        Task<Room> GetRoomByIDAsync(int roomID);
+        Task<List<Room>> GetRoomsByTypeAsync(string roomType);
+        Task<List<string>> GetDistinctRoomTypesAsync();
 
     }
 }

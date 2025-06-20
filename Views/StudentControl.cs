@@ -42,8 +42,8 @@ namespace UnicomTICManagementSystem.Views
             _courseController = new CourseController(courseService);
 
             InitializeUI();
-            LoadCourses();
-            LoadStudents();
+            _ = LoadCoursesAsync();
+            _ = LoadStudentsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -57,11 +57,11 @@ namespace UnicomTICManagementSystem.Views
             dgvStudents.MultiSelect = false;
         }
 
-        private void LoadCourses()
+        private async Task LoadCoursesAsync()
         {
             try
             {
-                cmbCourse.DataSource = _courseController.GetAllCourses();
+                cmbCourse.DataSource = await _courseController.GetAllCoursesAsync();
                 cmbCourse.DisplayMember = "CourseName";
                 cmbCourse.ValueMember = "CourseID";
             }
@@ -71,11 +71,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadStudents()
+        private async Task LoadStudentsAsync()
         {
             try
             {
-                dgvStudents.DataSource = _studentController.GetAllStudents();
+                dgvStudents.DataSource = await _studentController.GetAllStudentsAsync();
                 dgvStudents.ClearSelection();
                 selectedStudentID = -1;
 
@@ -92,12 +92,12 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvStudents.DataSource = _studentController.SearchStudents(keyword);
+                dgvStudents.DataSource = await _studentController.SearchStudentsAsync(keyword);
             }
             catch (Exception ex)
             {
@@ -105,11 +105,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private async void btnAdd_Click(object sender, EventArgs e)
         {
             try
             {
-                LoadCourses();
+                await LoadCoursesAsync();
                 ClearForm();
                 isUpdateMode = false;
                 SwitchToForm();
@@ -120,7 +120,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             // Form validations
             if (string.IsNullOrWhiteSpace(txtUsername.Text) ||
@@ -158,7 +158,7 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    _userController.AdminRegisterStudent(user, courseID, enrollmentDate);
+                    await _userController.AdminRegisterStudentAsync(user, courseID, enrollmentDate);
                     MessageBox.Show("Student successfully added.");
                 }
                 else
@@ -166,7 +166,7 @@ namespace UnicomTICManagementSystem.Views
                     MessageBox.Show("Update logic will be handled separately.");
                 }
 
-                LoadStudents();
+                await LoadStudentsAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)
@@ -175,7 +175,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             if (dgvStudents.CurrentRow == null)
             {
@@ -189,9 +189,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _studentController.DeleteStudent(studentID);
+                    await _studentController.DeleteStudentAsync(studentID);
                     MessageBox.Show("Student deleted successfully.");
-                    LoadStudents();
+                    await LoadStudentsAsync();
                 }
             }
             catch (Exception ex)
@@ -204,7 +204,7 @@ namespace UnicomTICManagementSystem.Views
         {
             SwitchToGrid();
         }
-        private void btnUpdate_Click(object sender, EventArgs e)
+        private async void btnUpdate_Click(object sender, EventArgs e)
         {
             if (dgvStudents.CurrentRow == null)
             {
@@ -215,7 +215,7 @@ namespace UnicomTICManagementSystem.Views
             try
             {
                 selectedStudentID = Convert.ToInt32(dgvStudents.CurrentRow.Cells["StudentID"].Value);
-                var studentData = _studentController.GetStudentFullDetailsByID(selectedStudentID);
+                var studentData = await _studentController.GetStudentFullDetailsByIDAsync(selectedStudentID);
 
                 txtUsername.Text = studentData.Username;
                 txtName.Text = studentData.FullName;

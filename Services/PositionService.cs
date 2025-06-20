@@ -18,15 +18,15 @@ namespace UnicomTICManagementSystem.Services
             _positionRepository = positionRepository;
         }
 
-        public List<Position> GetPositionsByDepartment(int departmentID)
+        public async Task<List<Position>> GetPositionsByDepartmentAsync(int departmentID)
         {
             try
             {
-                return _positionRepository.GetPositionsByDepartment(departmentID);
+                return await _positionRepository.GetPositionsByDepartmentAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "PositionService.GetPositionsByDepartment");
+                ErrorLogger.Log(ex, "PositionService.GetPositionsByDepartmentAsync");
                 return new List<Position>(); // Return empty list to prevent UI crash
             }
         }

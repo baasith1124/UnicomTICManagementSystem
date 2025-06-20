@@ -39,8 +39,8 @@ namespace UnicomTICManagementSystem.Views
             _subjectController = new SubjectController(subjectService);
 
             InitializeUI();
-            LoadSubjects();
-            LoadExams();
+            _ = LoadSubjectsAsync();
+            _ = LoadExamsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -113,11 +113,11 @@ namespace UnicomTICManagementSystem.Views
 
         #endregion
 
-        private void LoadSubjects()
+        private async Task LoadSubjectsAsync()
         {
             try
             {
-                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DataSource = await _subjectController.GetAllSubjectsAsync();
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
             }
@@ -127,11 +127,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadExams()
+        private async Task LoadExamsAsync()
         {
             try
             {
-                dgvExams.DataSource = _examController.GetAllExams();
+                dgvExams.DataSource = await _examController.GetAllExamsAsync();
                 dgvExams.ClearSelection();
                 selectedExamID = -1;
 
@@ -176,7 +176,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -191,8 +191,8 @@ namespace UnicomTICManagementSystem.Views
 
                 if (confirm == DialogResult.Yes)
                 {
-                    _examController.DeleteExam(examID);
-                    LoadExams();
+                    await _examController.DeleteExamAsync(examID);
+                    await LoadExamsAsync();
                     MessageBox.Show("✅ Exam deleted successfully.");
                 }
             }
@@ -202,7 +202,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -223,16 +223,16 @@ namespace UnicomTICManagementSystem.Views
 
                 if (isUpdateMode)
                 {
-                    _examController.UpdateExam(exam);
+                    await _examController.UpdateExamAsync(exam);
                     MessageBox.Show("✅ Exam updated successfully.");
                 }
                 else
                 {
-                    _examController.AddExam(exam);
+                    await _examController.AddExamAsync(exam);
                     MessageBox.Show("✅ Exam added successfully.");
                 }
 
-                LoadExams();
+                await LoadExamsAsync();
                 ClearForm();
             }
             catch (Exception ex)

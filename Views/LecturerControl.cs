@@ -50,8 +50,8 @@ namespace UnicomTICManagementSystem.Views
                 _userController = new UserController(userService);
 
                 InitializeUI();
-                LoadDepartments();
-                LoadLecturers();
+                _ = LoadDepartmentsAsync();
+                _ = LoadLecturersAsync();
 
                 UIThemeHelper.ApplyTheme(this);
             }
@@ -140,11 +140,11 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.Add(panelForm);
         }
 
-        private void LoadDepartments()
+        private async Task LoadDepartmentsAsync()
         {
             try
             {
-                cmbDepartment.DataSource = _departmentController.GetAllDepartments();
+                cmbDepartment.DataSource = await _departmentController.GetAllDepartmentsAsync();
                 cmbDepartment.DisplayMember = "DepartmentName";
                 cmbDepartment.ValueMember = "DepartmentID";
             }
@@ -154,11 +154,11 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void LoadLecturers()
+        private async Task LoadLecturersAsync()
         {
             try
             {
-                dgvLecturers.DataSource = _lecturerController.GetAllLecturers();
+                dgvLecturers.DataSource = await _lecturerController.GetAllLecturersAsync();
                 dgvLecturers.ClearSelection();
                 selectedLecturerID = -1;
 
@@ -189,12 +189,12 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
                 string keyword = txtSearch.Text.Trim();
-                dgvLecturers.DataSource = _lecturerController.SearchLecturers(keyword);
+                dgvLecturers.DataSource = await _lecturerController.SearchLecturersAsync(keyword);
             }
             catch (Exception ex)
             {
@@ -221,7 +221,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -257,19 +257,19 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    var existingUser = userRepo.GetUserByUsername(username);
+                    var existingUser = await userRepo.GetUserByUsernameAsync(username);
 
                     if (existingUser != null)
                     {
                         userID = existingUser.UserID;
 
-                        if (lecturerRepo.LecturerExistsByUserId(userID))
+                        if (await lecturerRepo.LecturerExistsByUserIdAsync(userID))
                         {
                             MessageBox.Show("Lecturer already exists for this user.");
                             return;
                         }
 
-                        _lecturerController.AddLecturer(userID, name, departmentID);
+                        await _lecturerController.AddLecturerAsync(userID, name, departmentID);
                     }
                     else
                     {
@@ -291,8 +291,7 @@ namespace UnicomTICManagementSystem.Views
                             new StaffRepository(),
                             lecturerRepo);
 
-                        var userController = new UserController(userService);
-                        userController.AdminRegisterLecturer(newUser, departmentID);
+                        await _userController.AdminRegisterLecturerAsync(newUser, departmentID);
                     }
 
                     MessageBox.Show("Lecturer successfully added.");
@@ -306,12 +305,12 @@ namespace UnicomTICManagementSystem.Views
                         DepartmentID = departmentID
                     };
 
-                    _lecturerController.UpdateLecturer(lecturer);
+                    await _lecturerController.UpdateLecturerAsync(lecturer);
                     MessageBox.Show("Lecturer successfully updated.");
                 }
 
                 ClearForm();
-                LoadLecturers();
+                await LoadLecturersAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)
@@ -320,7 +319,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
+        private async void btnUpdate_Click(object sender, EventArgs e)
         {
             try
             {
@@ -333,11 +332,11 @@ namespace UnicomTICManagementSystem.Views
                 selectedLecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
                 int userID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["UserID"].Value);
 
-                Lecturer lecturer = _lecturerController.GetLecturerByID(selectedLecturerID);
+                Lecturer lecturer =await _lecturerController.GetLecturerByIDAsync(selectedLecturerID);
                 txtName.Text = lecturer.Name;
                 cmbDepartment.SelectedValue = lecturer.DepartmentID;
 
-                var user = _userController.GetUserById(userID);
+                var user = await _userController.GetUserByIdAsync(userID);
 
                 if (user != null)
                 {
@@ -355,7 +354,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -369,9 +368,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _lecturerController.DeleteLecturer(lecturerID);
+                    await _lecturerController.DeleteLecturerAsync(lecturerID);
                     MessageBox.Show("Lecturer deleted successfully.");
-                    LoadLecturers();
+                    await LoadLecturersAsync();
                 }
             }
             catch (Exception ex)

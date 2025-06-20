@@ -18,94 +18,95 @@ namespace UnicomTICManagementSystem.Services
             _roomRepository = roomRepository;
         }
 
-        public void AddRoom(Room room)
+        public async Task AddRoomAsync(Room room)
         {
             try
             {
-                _roomRepository.AddRoom(room);
+                await _roomRepository.AddRoomAsync(room);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.AddRoom");
+                ErrorLogger.Log(ex, "RoomService.AddRoomAsync");
             }
         }
 
-        public void UpdateRoom(Room room)
+        public async Task UpdateRoomAsync(Room room)
         {
             try
             {
-                _roomRepository.UpdateRoom(room);
+                await _roomRepository.UpdateRoomAsync(room);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.UpdateRoom");
+                ErrorLogger.Log(ex, "RoomService.UpdateRoomAsync");
             }
         }
 
-        public void DeleteRoom(int roomID)
+        public async Task DeleteRoomAsync(int roomID)
         {
             try
             {
-                _roomRepository.DeleteRoom(roomID);
+                await _roomRepository.DeleteRoomAsync(roomID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.DeleteRoom");
+                ErrorLogger.Log(ex, "RoomService.DeleteRoomAsync");
             }
         }
 
-        public List<Room> GetAllRooms()
+        public async Task<List<Room>> GetAllRoomsAsync()
         {
             try
             {
-                return _roomRepository.GetAllRooms();
+                return await _roomRepository.GetAllRoomsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.GetAllRooms");
+                ErrorLogger.Log(ex, "RoomService.GetAllRoomsAsync");
                 return new List<Room>();
             }
         }
 
-        public List<Room> SearchRooms(string keyword)
+        public async Task<List<Room>> SearchRoomsAsync(string keyword)
         {
             try
             {
-                return _roomRepository.SearchRooms(keyword);
+                return await _roomRepository.SearchRoomsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.SearchRooms");
+                ErrorLogger.Log(ex, "RoomService.SearchRoomsAsync");
                 return new List<Room>();
             }
         }
 
-        public List<Room> GetRoomsByType(string roomType)
+        public async Task<List<Room>> GetRoomsByTypeAsync(string roomType)
         {
             try
             {
-                return _roomRepository.GetRoomsByType(roomType);
+                return await _roomRepository.GetRoomsByTypeAsync(roomType);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.GetRoomsByType");
+                ErrorLogger.Log(ex, "RoomService.GetRoomsByTypeAsync");
                 return new List<Room>();
             }
         }
 
-        public List<string> GetRoomTypes()
+        public async Task<List<string>> GetRoomTypesAsync()
         {
             try
             {
-                return _roomRepository.GetDistinctRoomTypes();
+                return await _roomRepository.GetDistinctRoomTypesAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RoomService.GetRoomTypes");
+                ErrorLogger.Log(ex, "RoomService.GetRoomTypesAsync");
                 return new List<string>();
             }
         }
-
     }
+
+    
 
 }

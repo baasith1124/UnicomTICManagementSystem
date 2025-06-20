@@ -15,7 +15,15 @@ namespace UnicomTICManagementSystem
         [STAThread]
         static void Main()
         {
-            Migration.Initialize();
+            try
+            {
+                Migration.InitializeAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Initialization failed: " + ex.Message, "Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

@@ -18,42 +18,42 @@ namespace UnicomTICManagementSystem.Services
             _repository = repository;
         }
 
-        public void AssignSubject(int lecturerID, int subjectID, DateTime assignedDate)
+        public async Task AssignSubjectAsync(int lecturerID, int subjectID, DateTime assignedDate)
         {
             try
             {
-                _repository.AssignSubject(lecturerID, subjectID, assignedDate);
+                await _repository.AssignSubjectAsync(lecturerID, subjectID, assignedDate);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerSubjectService.AssignSubject");
-                throw; //  rethrow if UI needs to handle it
-            }
-        }
-
-        public void RemoveAssignment(int lecturerSubjectID)
-        {
-            try
-            {
-                _repository.RemoveAssignment(lecturerSubjectID);
-            }
-            catch (Exception ex)
-            {
-                ErrorLogger.Log(ex, "LecturerSubjectService.RemoveAssignment");
+                ErrorLogger.Log(ex, "LecturerSubjectService.AssignSubjectAsync");
                 throw;
             }
         }
 
-        public List<LecturerSubject> GetAllAssignments()
+        public async Task RemoveAssignmentAsync(int lecturerSubjectID)
         {
             try
             {
-                return _repository.GetAllAssignments();
+                await _repository.RemoveAssignmentAsync(lecturerSubjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerSubjectService.GetAllAssignments");
-                return new List<LecturerSubject>(); // return safe fallback
+                ErrorLogger.Log(ex, "LecturerSubjectService.RemoveAssignmentAsync");
+                throw;
+            }
+        }
+
+        public async Task<List<LecturerSubject>> GetAllAssignmentsAsync()
+        {
+            try
+            {
+                return await _repository.GetAllAssignmentsAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerSubjectService.GetAllAssignmentsAsync");
+                return new List<LecturerSubject>();
             }
         }
     }

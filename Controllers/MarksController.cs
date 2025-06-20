@@ -19,110 +19,110 @@ namespace UnicomTICManagementSystem.Controllers
             _marksService = marksService;
         }
 
-        public void AddMark(Mark mark)
+        public async Task AddMarkAsync(Mark mark)
         {
             try
             {
-                _marksService.AddMark(mark);
+                await _marksService.AddMarkAsync(mark);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.AddMark");
+                ErrorLogger.Log(ex, "MarksController.AddMarkAsync");
                 MessageBox.Show("❌ Failed to add mark.");
             }
         }
 
-        public void UpdateMark(Mark mark)
+        public async Task UpdateMarkAsync(Mark mark)
         {
             try
             {
-                _marksService.UpdateMark(mark);
+                await _marksService.UpdateMarkAsync(mark);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.UpdateMark");
+                ErrorLogger.Log(ex, "MarksController.UpdateMarkAsync");
                 MessageBox.Show("❌ Failed to update mark.");
             }
         }
 
-        public void DeleteMark(int markID)
+        public async Task DeleteMarkAsync(int markID)
         {
             try
             {
-                _marksService.DeleteMark(markID);
+                await _marksService.DeleteMarkAsync(markID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.DeleteMark");
+                ErrorLogger.Log(ex, "MarksController.DeleteMarkAsync");
                 MessageBox.Show("❌ Failed to delete mark.");
             }
         }
 
-        public Mark GetMarkByID(int markID)
+        public async Task<Mark> GetMarkByIDAsync(int markID)
         {
             try
             {
-                return _marksService.GetMarkByID(markID);
+                return await _marksService.GetMarkByIDAsync(markID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.GetMarkByID");
+                ErrorLogger.Log(ex, "MarksController.GetMarkByIDAsync");
                 MessageBox.Show("❌ Failed to retrieve mark.");
                 return null;
             }
         }
 
-        public List<Mark> GetMarksByTimetable(int timetableID)
+        public async Task<List<Mark>> GetMarksByTimetableAsync(int timetableID)
         {
             try
             {
-                return _marksService.GetMarksByTimetable(timetableID);
+                return await _marksService.GetMarksByTimetableAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.GetMarksByTimetable");
+                ErrorLogger.Log(ex, "MarksController.GetMarksByTimetableAsync");
                 MessageBox.Show("❌ Failed to retrieve marks by timetable.");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetMarksByStudent(int studentID)
+        public async Task<List<Mark>> GetMarksByStudentAsync(int studentID)
         {
             try
             {
-                return _marksService.GetMarksByStudent(studentID);
+                return await _marksService.GetMarksByStudentAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.GetMarksByStudent");
+                ErrorLogger.Log(ex, "MarksController.GetMarksByStudentAsync");
                 MessageBox.Show("❌ Failed to retrieve student marks.");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetAllMarks()
+        public async Task<List<Mark>> GetAllMarksAsync()
         {
             try
             {
-                return _marksService.GetAllMarks();
+                return await _marksService.GetAllMarksAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.GetAllMarks");
+                ErrorLogger.Log(ex, "MarksController.GetAllMarksAsync");
                 MessageBox.Show("❌ Failed to retrieve all marks.");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetMarksByExam(int examId)
+        public async Task<List<Mark>> GetMarksByExamAsync(int examId)
         {
             try
             {
-                return _marksService.GetMarksByExam(examId);
+                return await _marksService.GetMarksByExamAsync(examId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksController.GetMarksByExam");
+                ErrorLogger.Log(ex, "MarksController.GetMarksByExamAsync");
                 MessageBox.Show("❌ Failed to retrieve exam marks.");
                 return new List<Mark>();
             }

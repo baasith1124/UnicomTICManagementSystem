@@ -18,106 +18,106 @@ namespace UnicomTICManagementSystem.Services
             _marksRepository = marksRepository;
         }
 
-        public void AddMark(Mark mark)
+        public async Task AddMarkAsync(Mark mark)
         {
             try
             {
-                _marksRepository.AddMark(mark);
+                await _marksRepository.AddMarkAsync(mark);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.AddMark");
+                ErrorLogger.Log(ex, "MarksService.AddMarkAsync");
                 throw;
             }
         }
 
-        public void UpdateMark(Mark mark)
+        public async Task UpdateMarkAsync(Mark mark)
         {
             try
             {
-                _marksRepository.UpdateMark(mark);
+                await _marksRepository.UpdateMarkAsync(mark);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.UpdateMark");
+                ErrorLogger.Log(ex, "MarksService.UpdateMarkAsync");
                 throw;
             }
         }
 
-        public void DeleteMark(int markID)
+        public async Task DeleteMarkAsync(int markID)
         {
             try
             {
-                _marksRepository.DeleteMark(markID);
+                await _marksRepository.DeleteMarkAsync(markID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.DeleteMark");
+                ErrorLogger.Log(ex, "MarksService.DeleteMarkAsync");
                 throw;
             }
         }
 
-        public Mark GetMarkByID(int markID)
+        public async Task<Mark> GetMarkByIDAsync(int markID)
         {
             try
             {
-                return _marksRepository.GetMarkByID(markID);
+                return await _marksRepository.GetMarkByIDAsync(markID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.GetMarkByID");
+                ErrorLogger.Log(ex, "MarksService.GetMarkByIDAsync");
                 return null;
             }
         }
 
-        public List<Mark> GetMarksByTimetable(int timetableID)
+        public async Task<List<Mark>> GetMarksByTimetableAsync(int timetableID)
         {
             try
             {
-                return _marksRepository.GetMarksByTimetable(timetableID);
+                return await _marksRepository.GetMarksByTimetableAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.GetMarksByTimetable");
+                ErrorLogger.Log(ex, "MarksService.GetMarksByTimetableAsync");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetMarksByStudent(int studentID)
+        public async Task<List<Mark>> GetMarksByStudentAsync(int studentID)
         {
             try
             {
-                return _marksRepository.GetMarksByStudent(studentID);
+                return await _marksRepository.GetMarksByStudentAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.GetMarksByStudent");
+                ErrorLogger.Log(ex, "MarksService.GetMarksByStudentAsync");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetAllMarks()
+        public async Task<List<Mark>> GetAllMarksAsync()
         {
             try
             {
-                return _marksRepository.GetAllMarks();
+                return await _marksRepository.GetAllMarksAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.GetAllMarks");
+                ErrorLogger.Log(ex, "MarksService.GetAllMarksAsync");
                 return new List<Mark>();
             }
         }
 
-        public List<Mark> GetMarksByExam(int examId)
+        public async Task<List<Mark>> GetMarksByExamAsync(int examId)
         {
             try
             {
-                return _marksRepository.GetMarksByExam(examId);
+                return await _marksRepository.GetMarksByExamAsync(examId);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarksService.GetMarksByExam");
+                ErrorLogger.Log(ex, "MarksService.GetMarksByExamAsync");
                 return new List<Mark>();
             }
         }

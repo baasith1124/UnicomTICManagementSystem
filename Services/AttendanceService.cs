@@ -18,93 +18,93 @@ namespace UnicomTICManagementSystem.Services
             _attendanceRepository = attendanceRepository;
         }
 
-        public void AddAttendance(Attendance attendance)
+        public async Task AddAttendanceAsync(Attendance attendance)
         {
             try
             {
-                _attendanceRepository.AddAttendance(attendance);
+                await _attendanceRepository.AddAttendanceAsync(attendance);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.AddAttendance");
+                ErrorLogger.Log(ex, "AttendanceService.AddAttendanceAsync");
                 throw;
             }
         }
 
-        public void UpdateAttendance(Attendance attendance)
+        public async Task UpdateAttendanceAsync(Attendance attendance)
         {
             try
             {
-                _attendanceRepository.UpdateAttendance(attendance);
+                await _attendanceRepository.UpdateAttendanceAsync(attendance);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.UpdateAttendance");
+                ErrorLogger.Log(ex, "AttendanceService.UpdateAttendanceAsync");
                 throw;
             }
         }
 
-        public List<Attendance> GetAttendanceByTimetable(int timetableID)
+        public async Task<List<Attendance>> GetAttendanceByTimetableAsync(int timetableID)
         {
             try
             {
-                return _attendanceRepository.GetAttendanceByTimetable(timetableID);
+                return await _attendanceRepository.GetAttendanceByTimetableAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.GetAttendanceByTimetable");
+                ErrorLogger.Log(ex, "AttendanceService.GetAttendanceByTimetableAsync");
                 throw;
             }
         }
 
-        public Attendance GetAttendanceByID(int attendanceID)
+        public async Task<Attendance> GetAttendanceByIDAsync(int attendanceID)
         {
             try
             {
-                return _attendanceRepository.GetAttendanceByID(attendanceID);
+                return await _attendanceRepository.GetAttendanceByIDAsync(attendanceID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.GetAttendanceByID");
+                ErrorLogger.Log(ex, "AttendanceService.GetAttendanceByIDAsync");
                 throw;
             }
         }
 
-        public void DeleteAttendance(int attendanceID)
+        public async Task DeleteAttendanceAsync(int attendanceID)
         {
             try
             {
-                _attendanceRepository.DeleteAttendance(attendanceID);
+                await _attendanceRepository.DeleteAttendanceAsync(attendanceID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.DeleteAttendance");
+                ErrorLogger.Log(ex, "AttendanceService.DeleteAttendanceAsync");
                 throw;
             }
         }
 
-        public List<Attendance> GetFullAttendance()
+        public async Task<List<Attendance>> GetFullAttendanceAsync()
         {
             try
             {
-                return _attendanceRepository.GetFullAttendance();
+                return await _attendanceRepository.GetFullAttendanceAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.GetFullAttendance");
+                ErrorLogger.Log(ex, "AttendanceService.GetFullAttendanceAsync");
                 throw;
             }
         }
 
-        public List<Attendance> SearchAttendance(int subjectID, string date)
+        public async Task<List<Attendance>> SearchAttendanceAsync(int subjectID, string date)
         {
             try
             {
-                return _attendanceRepository.SearchAttendance(subjectID, date);
+                return await _attendanceRepository.SearchAttendanceAsync(subjectID, date);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceService.SearchAttendance");
+                ErrorLogger.Log(ex, "AttendanceService.SearchAttendanceAsync");
                 throw;
             }
         }

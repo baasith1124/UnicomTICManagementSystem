@@ -18,67 +18,67 @@ namespace UnicomTICManagementSystem.Controllers
             _departmentService = departmentService;
         }
 
-        public void AddDepartment(Department department)
+        public async Task AddDepartmentAsync(Department department)
         {
             try
             {
-                _departmentService.AddDepartment(department);
+                await _departmentService.AddDepartmentAsync(department);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentController.AddDepartment");
+                ErrorLogger.Log(ex, "DepartmentController.AddDepartmentAsync");
                 throw new Exception("An error occurred while adding the department.");
             }
         }
 
-        public void UpdateDepartment(Department department)
+        public async Task UpdateDepartmentAsync(Department department)
         {
             try
             {
-                _departmentService.UpdateDepartment(department);
+                await _departmentService.UpdateDepartmentAsync(department);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentController.UpdateDepartment");
+                ErrorLogger.Log(ex, "DepartmentController.UpdateDepartmentAsync");
                 throw new Exception("An error occurred while updating the department.");
             }
         }
 
-        public void DeleteDepartment(int departmentID)
+        public async Task DeleteDepartmentAsync(int departmentID)
         {
             try
             {
-                _departmentService.DeleteDepartment(departmentID);
+                await _departmentService.DeleteDepartmentAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentController.DeleteDepartment");
+                ErrorLogger.Log(ex, "DepartmentController.DeleteDepartmentAsync");
                 throw new Exception("An error occurred while deleting the department.");
             }
         }
 
-        public List<Department> GetAllDepartments()
+        public async Task<List<Department>> GetAllDepartmentsAsync()
         {
             try
             {
-                return _departmentService.GetAllDepartments();
+                return await _departmentService.GetAllDepartmentsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentController.GetAllDepartments");
+                ErrorLogger.Log(ex, "DepartmentController.GetAllDepartmentsAsync");
                 return new List<Department>();
             }
         }
 
-        public Department GetDepartmentByID(int departmentID)
+        public async Task<Department> GetDepartmentByIDAsync(int departmentID)
         {
             try
             {
-                return _departmentService.GetDepartmentByID(departmentID);
+                return await _departmentService.GetDepartmentByIDAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentController.GetDepartmentByID");
+                ErrorLogger.Log(ex, "DepartmentController.GetDepartmentByIDAsync");
                 return null;
             }
         }

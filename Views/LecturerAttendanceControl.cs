@@ -43,7 +43,7 @@ namespace UnicomTICManagementSystem.Views
             _studentController = new StudentController(studentService);
 
             InitializeUI();
-            LoadLecturerTimetables();
+            _ = LoadLecturerTimetablesAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -116,11 +116,11 @@ namespace UnicomTICManagementSystem.Views
 
         #endregion
 
-        private void LoadLecturerTimetables()
+        private async Task LoadLecturerTimetablesAsync()
         {
             try
             {
-                var timetables = _timetableController.GetTimetablesByLecturer(lecturerID);
+                var timetables = await _timetableController.GetTimetablesByLecturerAsync(lecturerID);
                 cmbTimetable.DataSource = timetables;
                 cmbTimetable.DisplayMember = "TimetableDisplay";  // Custom display property
                 cmbTimetable.ValueMember = "TimetableID";
@@ -131,7 +131,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnLoadStudents_Click(object sender, EventArgs e)
+        private async void btnLoadStudents_Click(object sender, EventArgs e)
         {
             try
             {
@@ -142,9 +142,9 @@ namespace UnicomTICManagementSystem.Views
                 }
 
                 int timetableID = (int)cmbTimetable.SelectedValue;
-                Timetable timetable = _timetableController.GetTimetableByID(timetableID);
+                Timetable timetable = await _timetableController.GetTimetableByIDAsync(timetableID);
 
-                var students = _studentController.GetStudentsByCourse(timetable.CourseID);
+                var students = await _studentController.GetStudentsByCourseAsync(timetable.CourseID);
                 dgvStudents.Columns.Clear(); // Clear previous columns if any
                 dgvStudents.DataSource = students;
 
@@ -170,7 +170,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -206,7 +206,7 @@ namespace UnicomTICManagementSystem.Views
                         MarkedDate = DateTime.Now
                     };
 
-                    _attendanceController.AddAttendance(attendance);
+                    await _attendanceController.AddAttendanceAsync(attendance);
                     savedCount++;
                 }
 

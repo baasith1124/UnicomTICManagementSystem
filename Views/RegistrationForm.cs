@@ -50,19 +50,19 @@ namespace UnicomTICManagementSystem.Views
             cmbRole.SelectedIndex = 0;
             cmbRole.SelectedIndexChanged += cmbRole_SelectedIndexChanged;
 
-            LoadCourses();
-            LoadDepartments();
+            LoadCoursesAsync();
+            LoadDepartmentsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
 
 
-        private void LoadDepartments()
+        private async void LoadDepartmentsAsync()
         {
             try
             {
                 IDepartmentRepository deptRepo = new DepartmentRepository();
-                var departments = deptRepo.GetAllDepartments();
+                var departments = await deptRepo.GetAllDepartmentsAsync();
                 cmbDepartment.DataSource = departments;
                 cmbDepartment.DisplayMember = "DepartmentName";
                 cmbDepartment.ValueMember = "DepartmentID";
@@ -72,12 +72,12 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show("Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void LoadCourses()
+        private async void LoadCoursesAsync()
         {
             try
             {
                 ICourseRepository courseRepo = new CourseRepository();
-                var courses = courseRepo.GetAllCourses();
+                var courses = await Task.Run(() => courseRepo.GetAllCoursesAsync());
                 cmbCourse.DataSource = courses;
                 cmbCourse.DisplayMember = "CourseName";
                 cmbCourse.ValueMember = "CourseID";
@@ -87,14 +87,14 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show("Failed to load courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void LoadPositions(int departmentID)
+        private async Task LoadPositionsAsync(int departmentID)
         {
             try
             {
-                var positions = _positionController.GetPositionsByDepartment(departmentID);
+                var positions = await Task.Run(() => _positionController.GetPositionsByDepartmentAsync(departmentID));
                 cmbPosition.DataSource = positions;
                 cmbPosition.DisplayMember = "PositionName";
-                cmbPosition.ValueMember = "PositionName"; // Stored as string
+                cmbPosition.ValueMember = "PositionID"; // Stored as string
                 cmbPosition.Visible = true;
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace UnicomTICManagementSystem.Views
 
 
 
-        private void btnRegister_Click(object sender, EventArgs e)
+        private async void btnRegister_Click(object sender, EventArgs e)
         {
             // UI Level Form Validations
             if (string.IsNullOrWhiteSpace(txtUsername.Text) ||
@@ -180,8 +180,8 @@ namespace UnicomTICManagementSystem.Views
 
             try
             {
-                
-                _registrationController.Register(user, selectedCourseID, selectedDepartmentID, positionID);
+
+                await _registrationController.RegisterAsync(user, selectedCourseID, selectedDepartmentID, positionID);
 
                 MessageBox.Show("Registration successful. Waiting for Admin approval.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
@@ -226,14 +226,14 @@ namespace UnicomTICManagementSystem.Views
 
         }
 
-        private void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
                 if (cmbDepartment.SelectedValue != null)
                 {
                     int departmentID = (int)cmbDepartment.SelectedValue;
-                    LoadPositions(departmentID);
+                    await LoadPositionsAsync(departmentID);
                 }
             }
             catch (Exception ex)

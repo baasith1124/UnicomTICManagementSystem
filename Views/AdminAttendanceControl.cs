@@ -46,7 +46,7 @@ namespace UnicomTICManagementSystem.Views
             _studentController = new StudentController(studentService);
 
             InitializeUI();
-            LoadTimetables();
+            _ = LoadTimetablesAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -154,11 +154,11 @@ namespace UnicomTICManagementSystem.Views
         }
 
 
-        private void LoadTimetables()
+        private async Task LoadTimetablesAsync()
         {
             try
             {
-                var timetables = _timetableController.GetAllTimetables();
+                var timetables = await _timetableController.GetAllTimetablesAsync();
                 foreach (var t in timetables)
                 {
                     t.TimeSlot = $"{t.ScheduledDate:yyyy-MM-dd} - {t.TimeSlot}";
@@ -173,7 +173,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
@@ -184,7 +184,8 @@ namespace UnicomTICManagementSystem.Views
                 }
 
                 selectedTimetableID = (int)cmbTimetable.SelectedValue;
-                dgvAttendance.DataSource = _attendanceController.GetAttendanceByTimetable(selectedTimetableID);
+                var attendanceList = await _attendanceController.GetAttendanceByTimetableAsync(selectedTimetableID);
+                dgvAttendance.DataSource = attendanceList;
             }
             catch (Exception ex)
             {
@@ -192,7 +193,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private async void btnAdd_Click(object sender, EventArgs e)
         {
             try
             {
@@ -204,8 +205,8 @@ namespace UnicomTICManagementSystem.Views
 
                 selectedTimetableID = (int)cmbTimetable.SelectedValue;
 
-                var timetable = _timetableController.GetTimetableByID(selectedTimetableID);
-                var students = _studentController.GetStudentsByCourse(timetable.CourseID);
+                var timetable = await _timetableController.GetTimetableByIDAsync(selectedTimetableID);
+                var students = await _studentController.GetStudentsByCourseAsync(timetable.CourseID);
 
                 cmbStudent.DataSource = students;
                 cmbStudent.DisplayMember = "Name";
@@ -221,7 +222,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             try
             {
@@ -240,7 +241,7 @@ namespace UnicomTICManagementSystem.Views
                     MarkedDate = DateTime.Now
                 };
 
-                _attendanceController.AddAttendance(attendance);
+                await _attendanceController.AddAttendanceAsync(attendance);
                 MessageBox.Show("✅ Attendance successfully marked.");
 
                 btnCancel_Click(null, null);

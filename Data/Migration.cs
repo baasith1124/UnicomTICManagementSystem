@@ -5,161 +5,143 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Data
 {
-    public class Migration
+    public static class Migration
     {
-        public static void Initialize()
+        public static async Task InitializeAsync()
         {
-            using (var connection = DatabaseManager.GetConnection())
+            using (var connection = await DatabaseManager.GetOpenConnectionAsync())
             {
-                CreateDepartmentsTable(connection);
-                CreateUsersTable(connection);
-                CreateCoursesTable(connection);
-                CreateSubjectsTable(connection);
-                CreateLecturersTable(connection);
-                CreateLecturerSubjectsTable(connection);
-                CreateStudentsTable(connection);
-                CreateStaffTable(connection);
-                CreateExamsTable(connection);
-                CreateMarksTable(connection);
-                CreateRoomsTable(connection);
-                CreateTimetablesTable(connection);
-                CreateAttendanceTable(connection);
-                CreatePositionsTable(connection);
-                InsertDefaultAdmin(connection);
-                InsertDefaultDepartments(connection);
-                InsertDefaultPositions(connection);
+                await CreateDepartmentsTable(connection);
+                await CreateUsersTable(connection);
+                await CreateCoursesTable(connection);
+                await CreateSubjectsTable(connection);
+                await CreateLecturersTable(connection);
+                await CreateLecturerSubjectsTable(connection);
+                await CreateStudentsTable(connection);
+                await CreateStaffTable(connection);
+                await CreateExamsTable(connection);
+                await CreateMarksTable(connection);
+                await CreateRoomsTable(connection);
+                await CreateTimetablesTable(connection);
+                await CreateAttendanceTable(connection);
+                await CreatePositionsTable(connection);
+                await InsertDefaultDepartments(connection);
+                await InsertDefaultPositions(connection);
+                await InsertDefaultAdmin(connection);
             }
         }
 
-        private static void CreateDepartmentsTable(SQLiteConnection conn)
+        private static async Task CreateDepartmentsTable(SQLiteConnection conn)
         {
             string query = @"
                 CREATE TABLE IF NOT EXISTS Departments (
                     DepartmentID INTEGER PRIMARY KEY AUTOINCREMENT,
                     DepartmentName TEXT UNIQUE NOT NULL
                 );";
-            ExecuteQuery(conn, query);
+            await DatabaseManager.ExecuteNonQueryAsync(query, null);
         }
 
-        private static void CreatePositionsTable(SQLiteConnection conn)
+        private static async Task CreatePositionsTable(SQLiteConnection conn)
         {
             string query = @"
-        CREATE TABLE IF NOT EXISTS Positions (
-            PositionID INTEGER PRIMARY KEY AUTOINCREMENT,
-            DepartmentID INTEGER NOT NULL,
-            PositionName TEXT UNIQUE NOT NULL,
-            FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
-        );";
-            ExecuteQuery(conn, query);
+                CREATE TABLE IF NOT EXISTS Positions (
+                    PositionID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    DepartmentID INTEGER NOT NULL,
+                    PositionName TEXT UNIQUE NOT NULL,
+                    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+                );";
+            await DatabaseManager.ExecuteNonQueryAsync(query, null);
         }
 
-
-        private static void InsertDefaultDepartments(SQLiteConnection conn)
+        private static async Task InsertDefaultDepartments(SQLiteConnection conn)
         {
             string[] departments = { "IT", "Math", "Physics", "Business", "Engineering", "Management" };
             foreach (var dept in departments)
             {
                 string checkQuery = "SELECT COUNT(*) FROM Departments WHERE DepartmentName = @name";
-                using (var cmd = new SQLiteCommand(checkQuery, conn))
+                var parameters = new Dictionary<string, object> { { "@name", dept } };
+                long count = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(checkQuery, parameters));
+
+                if (count == 0)
                 {
-                    cmd.Parameters.AddWithValue("@name", dept);
-                    long count = (long)cmd.ExecuteScalar();
-                    if (count == 0)
-                    {
-                        string insertQuery = "INSERT INTO Departments (DepartmentName) VALUES (@name)";
-                        using (var insertCmd = new SQLiteCommand(insertQuery, conn))
-                        {
-                            insertCmd.Parameters.AddWithValue("@name", dept);
-                            insertCmd.ExecuteNonQuery();
-                        }
-                    }
+                    string insertQuery = "INSERT INTO Departments (DepartmentName) VALUES (@name)";
+                    await DatabaseManager.ExecuteNonQueryAsync(insertQuery, parameters);
                 }
             }
         }
-        private static void InsertDefaultPositions(SQLiteConnection conn)
+
+        private static async Task InsertDefaultPositions(SQLiteConnection conn)
         {
             var seedPositions = new Dictionary<string, string[]>
-    {
-        { "IT", new[] { "Lab Instructor", "Admin Assistant", "Technician" } },
-        { "Business", new[] { "HR Assistant", "Accountant", "Office Coordinator" } },
-        { "Engineering", new[] { "Workshop Manager", "Safety Officer", "Lab Assistant" } },
-        { "Math", new[] { "Tutor", "Exam Coordinator", "Research Assistant" } },
-        { "Physics", new[] { "Lab Technician", "Physics Assistant" } },
-        { "Management", new[] { "Director", "Secretary" } }
-    };
+            {
+                { "IT", new[] { "Lab Instructor", "Admin Assistant", "Technician" } },
+                { "Business", new[] { "HR Assistant", "Accountant", "Office Coordinator" } },
+                { "Engineering", new[] { "Workshop Manager", "Safety Officer", "Lab Assistant" } },
+                { "Math", new[] { "Tutor", "Exam Coordinator", "Research Assistant" } },
+                { "Physics", new[] { "Lab Technician", "Physics Assistant" } },
+                { "Management", new[] { "Director", "Secretary" } }
+            };
 
             foreach (var dept in seedPositions)
             {
                 string deptQuery = "SELECT DepartmentID FROM Departments WHERE DepartmentName = @name";
-                using (var deptCmd = new SQLiteCommand(deptQuery, conn))
-                {
-                    deptCmd.Parameters.AddWithValue("@name", dept.Key);
-                    var deptID = Convert.ToInt32(deptCmd.ExecuteScalar());
+                var deptID = Convert.ToInt32(await DatabaseManager.ExecuteScalarAsync(deptQuery, new Dictionary<string, object> { { "@name", dept.Key } }));
 
-                    foreach (var pos in dept.Value)
+                foreach (var pos in dept.Value)
+                {
+                    string checkQuery = "SELECT COUNT(*) FROM Positions WHERE PositionName = @pos";
+                    long count = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(checkQuery, new Dictionary<string, object> { { "@pos", pos } }));
+
+                    if (count == 0)
                     {
-                        string checkQuery = "SELECT COUNT(*) FROM Positions WHERE PositionName = @pos";
-                        using (var checkCmd = new SQLiteCommand(checkQuery, conn))
+                        string insertQuery = @"INSERT INTO Positions (DepartmentID, PositionName) VALUES (@deptID, @pos)";
+                        var insertParams = new Dictionary<string, object>
                         {
-                            checkCmd.Parameters.AddWithValue("@pos", pos);
-                            long count = (long)checkCmd.ExecuteScalar();
-                            if (count == 0)
-                            {
-                                string insertQuery = @"INSERT INTO Positions (DepartmentID, PositionName) VALUES (@deptID, @pos)";
-                                using (var insertCmd = new SQLiteCommand(insertQuery, conn))
-                                {
-                                    insertCmd.Parameters.AddWithValue("@deptID", deptID);
-                                    insertCmd.Parameters.AddWithValue("@pos", pos);
-                                    insertCmd.ExecuteNonQuery();
-                                }
-                            }
-                        }
+                            { "@deptID", deptID },
+                            { "@pos", pos }
+                        };
+                        await DatabaseManager.ExecuteNonQueryAsync(insertQuery, insertParams);
                     }
                 }
             }
         }
 
-
-        private static void InsertDefaultAdmin(SQLiteConnection conn)
+        private static async Task InsertDefaultAdmin(SQLiteConnection conn)
         {
             try
             {
                 string checkQuery = "SELECT COUNT(*) FROM Users WHERE Role = 'Admin'";
-                using (var checkCmd = new SQLiteCommand(checkQuery, conn))
+                long count = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(checkQuery, null));
+
+                if (count == 0)
                 {
-                    long count = (long)checkCmd.ExecuteScalar();
+                    string hashedPassword = PasswordHasher.HashPassword("admin123");
+                    int managementDeptID = await GetDepartmentIDAsync("Management");
 
-                    if (count == 0)
-                    {
-                        string hashedPassword = Helpers.PasswordHasher.HashPassword("admin123");
-
-                        string insertQuery = @"
+                    string insertQuery = @"
                         INSERT INTO Users 
                         (Username, Password, Role, FullName, DepartmentID, Email, Phone, RegisteredDate, IsApproved) 
                         VALUES 
                         (@Username, @Password, @Role, @FullName, @DepartmentID, @Email, @Phone, @RegisteredDate, @IsApproved)";
 
-                        // Always assign Management to Admin
-                        int managementDeptID = GetDepartmentID(conn, "Management");
+                    var insertParams = new Dictionary<string, object>
+                    {
+                        { "@Username", "admin" },
+                        { "@Password", hashedPassword },
+                        { "@Role", "Admin" },
+                        { "@FullName", "System Administrator" },
+                        { "@DepartmentID", managementDeptID },
+                        { "@Email", "admin@example.com" },
+                        { "@Phone", "0000000000" },
+                        { "@RegisteredDate", DateTime.Now.ToString("yyyy-MM-dd") },
+                        { "@IsApproved", 1 }
+                    };
 
-                        using (var insertCmd = new SQLiteCommand(insertQuery, conn))
-                        {
-                            insertCmd.Parameters.AddWithValue("@Username", "admin");
-                            insertCmd.Parameters.AddWithValue("@Password", hashedPassword);
-                            insertCmd.Parameters.AddWithValue("@Role", "Admin");
-                            insertCmd.Parameters.AddWithValue("@FullName", "System Administrator");
-                            insertCmd.Parameters.AddWithValue("@DepartmentID", managementDeptID);
-                            insertCmd.Parameters.AddWithValue("@Email", "admin@example.com");
-                            insertCmd.Parameters.AddWithValue("@Phone", "0000000000");
-                            insertCmd.Parameters.AddWithValue("@RegisteredDate", DateTime.Now.ToString("yyyy-MM-dd"));
-                            insertCmd.Parameters.AddWithValue("@IsApproved", 1);
-
-                            insertCmd.ExecuteNonQuery();
-                        }
-                    }
+                    await DatabaseManager.ExecuteNonQueryAsync(insertQuery, insertParams);
                 }
             }
             catch (Exception ex)
@@ -168,19 +150,17 @@ namespace UnicomTICManagementSystem.Data
             }
         }
 
-        private static int GetDepartmentID(SQLiteConnection conn, string departmentName)
+        private static async Task<int> GetDepartmentIDAsync(string departmentName)
         {
             string query = "SELECT DepartmentID FROM Departments WHERE DepartmentName = @name";
-            using (var cmd = new SQLiteCommand(query, conn))
-            {
-                cmd.Parameters.AddWithValue("@name", departmentName);
-                return Convert.ToInt32(cmd.ExecuteScalar());
-            }
+            var parameters = new Dictionary<string, object> { { "@name", departmentName } };
+            return Convert.ToInt32(await DatabaseManager.ExecuteScalarAsync(query, parameters));
         }
 
-        private static void CreateUsersTable(SQLiteConnection conn)
-        {
-            string query = @"
+        
+
+        private static async Task CreateUsersTable(SQLiteConnection conn) =>
+            await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Users (
                     UserID INTEGER PRIMARY KEY AUTOINCREMENT,
                     Username TEXT UNIQUE NOT NULL,
@@ -193,39 +173,27 @@ namespace UnicomTICManagementSystem.Data
                     RegisteredDate TEXT NOT NULL,
                     IsApproved INTEGER DEFAULT 0 CHECK (IsApproved IN (0, 1)),
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateCoursesTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateCoursesTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Courses (
                     CourseID INTEGER PRIMARY KEY AUTOINCREMENT,
                     CourseName TEXT UNIQUE NOT NULL,
                     Description TEXT,
                     DepartmentID INTEGER NOT NULL,
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateSubjectsTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateSubjectsTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Subjects (
                     SubjectID INTEGER PRIMARY KEY AUTOINCREMENT,
                     SubjectName TEXT NOT NULL,
                     SubjectCode TEXT UNIQUE NOT NULL,
                     CourseID INTEGER NOT NULL,
                     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateLecturersTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateLecturersTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Lecturers (
                     LecturerID INTEGER PRIMARY KEY AUTOINCREMENT,
                     UserID INTEGER UNIQUE NOT NULL,
@@ -233,14 +201,9 @@ namespace UnicomTICManagementSystem.Data
                     DepartmentID INTEGER,
                     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID) ON DELETE SET NULL
-                );
-                ";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateLecturerSubjectsTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateLecturerSubjectsTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS LecturerSubjects (
                     LecturerSubjectID INTEGER PRIMARY KEY AUTOINCREMENT,
                     LecturerID INTEGER NOT NULL,
@@ -249,13 +212,9 @@ namespace UnicomTICManagementSystem.Data
                     FOREIGN KEY (LecturerID) REFERENCES Lecturers(LecturerID),
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
                     UNIQUE (LecturerID, SubjectID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateStudentsTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateStudentsTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Students (
                     StudentID INTEGER PRIMARY KEY AUTOINCREMENT,
                     UserID INTEGER UNIQUE NOT NULL,
@@ -264,13 +223,9 @@ namespace UnicomTICManagementSystem.Data
                     EnrollmentDate TEXT,
                     FOREIGN KEY (UserID) REFERENCES Users(UserID),
                     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateStaffTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateStaffTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Staff (
                     StaffID INTEGER PRIMARY KEY AUTOINCREMENT,
                     UserID INTEGER UNIQUE NOT NULL,
@@ -280,13 +235,9 @@ namespace UnicomTICManagementSystem.Data
                     FOREIGN KEY (UserID) REFERENCES Users(UserID),
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
                     FOREIGN KEY (PositionID) REFERENCES Positions(PositionID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateExamsTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateExamsTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Exams (
                     ExamID INTEGER PRIMARY KEY AUTOINCREMENT,
                     ExamName TEXT NOT NULL,
@@ -294,13 +245,9 @@ namespace UnicomTICManagementSystem.Data
                     ExamDate TEXT NOT NULL,
                     Duration INTEGER,
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateMarksTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateMarksTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Marks (
                     MarkID INTEGER PRIMARY KEY AUTOINCREMENT,
                     TimetableID INTEGER NOT NULL,
@@ -309,7 +256,7 @@ namespace UnicomTICManagementSystem.Data
                     MidExamMark REAL,
                     FinalExamMark REAL,
                     TotalMark REAL,
-                    GradedBy INTEGER, 
+                    GradedBy INTEGER,
                     GradedDate TEXT,
                     ExamID INTEGER,
                     FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
@@ -317,25 +264,17 @@ namespace UnicomTICManagementSystem.Data
                     FOREIGN KEY (GradedBy) REFERENCES Lecturers(LecturerID),
                     FOREIGN KEY (ExamID) REFERENCES Exams(ExamID),
                     UNIQUE (TimetableID, StudentID)
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateRoomsTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateRoomsTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Rooms (
                     RoomID INTEGER PRIMARY KEY AUTOINCREMENT,
                     RoomName TEXT UNIQUE NOT NULL,
                     RoomType TEXT NOT NULL CHECK (RoomType IN ('Lab', 'Hall')),
                     Capacity INTEGER DEFAULT 0
-                );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-        private static void CreateTimetablesTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateTimetablesTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Timetables (
                     TimetableID INTEGER PRIMARY KEY AUTOINCREMENT,
                     SubjectID INTEGER NOT NULL,
@@ -347,14 +286,9 @@ namespace UnicomTICManagementSystem.Data
                     FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
                     FOREIGN KEY (LecturerID) REFERENCES Lecturers(LecturerID),
                     UNIQUE (SubjectID, ScheduledDate, TimeSlot)
-        );";
-            ExecuteQuery(conn, query);
-        }
+                );", null);
 
-
-        private static void CreateAttendanceTable(SQLiteConnection conn)
-        {
-            string query = @"
+        private static async Task CreateAttendanceTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
                 CREATE TABLE IF NOT EXISTS Attendance (
                     AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
                     TimetableID INTEGER NOT NULL,
@@ -366,16 +300,6 @@ namespace UnicomTICManagementSystem.Data
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
                     FOREIGN KEY (MarkedBy) REFERENCES Lecturers(LecturerID),
                     UNIQUE (TimetableID, StudentID)
-                );";
-            ExecuteQuery(conn, query);
-        }
-
-        private static void ExecuteQuery(SQLiteConnection conn, string query)
-        {
-            using (var cmd = new SQLiteCommand(query, conn))
-            {
-                cmd.ExecuteNonQuery();
-            }
-        }
+                );", null);
     }
 }

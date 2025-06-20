@@ -13,262 +13,230 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class SubjectRepository : ISubjectRepository
     {
-        public void AddSubject(Subject subject)
+        public async Task AddSubjectAsync(Subject subject)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"INSERT INTO Subjects (SubjectName, SubjectCode, CourseID) 
+                                 VALUES (@SubjectName, @SubjectCode, @CourseID)";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"INSERT INTO Subjects (SubjectName, SubjectCode, CourseID) 
-                                     VALUES (@SubjectName, @SubjectCode, @CourseID)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SubjectName", subject.SubjectName);
-                        cmd.Parameters.AddWithValue("@SubjectCode", subject.SubjectCode);
-                        cmd.Parameters.AddWithValue("@CourseID", subject.CourseID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@SubjectName", subject.SubjectName},
+                    {"@SubjectCode", subject.SubjectCode},
+                    {"@CourseID", subject.CourseID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.AddSubject");
+                ErrorLogger.Log(ex, "SubjectRepository.AddSubjectAsync");
             }
         }
 
-        public void UpdateSubject(Subject subject)
+        public async Task UpdateSubjectAsync(Subject subject)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"UPDATE Subjects 
+                                 SET SubjectName = @SubjectName, SubjectCode = @SubjectCode, CourseID = @CourseID
+                                 WHERE SubjectID = @SubjectID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"UPDATE Subjects 
-                                     SET SubjectName = @SubjectName, SubjectCode = @SubjectCode, CourseID = @CourseID
-                                     WHERE SubjectID = @SubjectID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SubjectName", subject.SubjectName);
-                        cmd.Parameters.AddWithValue("@SubjectCode", subject.SubjectCode);
-                        cmd.Parameters.AddWithValue("@CourseID", subject.CourseID);
-                        cmd.Parameters.AddWithValue("@SubjectID", subject.SubjectID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@SubjectName", subject.SubjectName},
+                    {"@SubjectCode", subject.SubjectCode},
+                    {"@CourseID", subject.CourseID},
+                    {"@SubjectID", subject.SubjectID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.UpdateSubject");
+                ErrorLogger.Log(ex, "SubjectRepository.UpdateSubjectAsync");
             }
         }
 
-        public void DeleteSubject(int subjectID)
+        public async Task DeleteSubjectAsync(int subjectID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"DELETE FROM Subjects WHERE SubjectID = @SubjectID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SubjectID", subjectID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                string query = "DELETE FROM Subjects WHERE SubjectID = @SubjectID";
+                var parameters = new Dictionary<string, object> { { "@SubjectID", subjectID } };
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.DeleteSubject");
+                ErrorLogger.Log(ex, "SubjectRepository.DeleteSubjectAsync");
             }
         }
 
-        public List<Subject> GetAllSubjects()
+        public async Task<List<Subject>> GetAllSubjectsAsync()
         {
             var subjects = new List<Subject>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
-                                     FROM Subjects s
-                                     INNER JOIN Courses c ON s.CourseID = c.CourseID";
+                string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
+                                 FROM Subjects s
+                                 INNER JOIN Courses c ON s.CourseID = c.CourseID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        subjects.Add(new Subject
                         {
-                            subjects.Add(new Subject
-                            {
-                                SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                SubjectName = reader["SubjectName"].ToString(),
-                                SubjectCode = reader["SubjectCode"].ToString(),
-                                CourseID = Convert.ToInt32(reader["CourseID"]),
-                                CourseName = reader["CourseName"].ToString()
-                            });
-                        }
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            SubjectCode = reader["SubjectCode"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.GetAllSubjects");
+                ErrorLogger.Log(ex, "SubjectRepository.GetAllSubjectsAsync");
             }
             return subjects;
         }
 
-        public List<Subject> SearchSubjects(string keyword)
+        public async Task<List<Subject>> SearchSubjectsAsync(string keyword)
         {
             var subjects = new List<Subject>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
-                                     FROM Subjects s
-                                     INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                     WHERE s.SubjectName LIKE @keyword";
+                string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
+                                 FROM Subjects s
+                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
+                                 WHERE s.SubjectName LIKE @keyword";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object> { { "@keyword", "%" + keyword + "%" } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
-                        using (var reader = cmd.ExecuteReader())
+                        subjects.Add(new Subject
                         {
-                            while (reader.Read())
-                            {
-                                subjects.Add(new Subject
-                                {
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    SubjectCode = reader["SubjectCode"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    CourseName = reader["CourseName"].ToString()
-                                });
-                            }
-                        }
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            SubjectCode = reader["SubjectCode"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.SearchSubjects");
+                ErrorLogger.Log(ex, "SubjectRepository.SearchSubjectsAsync");
             }
             return subjects;
         }
 
-        public Subject GetSubjectByID(int subjectID)
+        public async Task<Subject> GetSubjectByIDAsync(int subjectID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
-                                     FROM Subjects s
-                                     INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                     WHERE s.SubjectID = @SubjectID";
+                string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
+                                 FROM Subjects s
+                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
+                                 WHERE s.SubjectID = @SubjectID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object> { { "@SubjectID", subjectID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@SubjectID", subjectID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Subject
                         {
-                            if (reader.Read())
-                            {
-                                return new Subject
-                                {
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    SubjectCode = reader["SubjectCode"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    CourseName = reader["CourseName"].ToString()
-                                };
-                            }
-                        }
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            SubjectCode = reader["SubjectCode"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString()
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectByID");
+                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectByIDAsync");
             }
             return null;
         }
 
-        public List<Subject> GetSubjectsByCourse(int courseID)
+        public async Task<List<Subject>> GetSubjectsByCourseAsync(int courseID)
         {
             var subjects = new List<Subject>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
-                                     FROM Subjects s
-                                     INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                     WHERE s.CourseID = @CourseID";
+                string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
+                                 FROM Subjects s
+                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
+                                 WHERE s.CourseID = @CourseID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object> { { "@CourseID", courseID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@CourseID", courseID);
-                        using (var reader = cmd.ExecuteReader())
+                        subjects.Add(new Subject
                         {
-                            while (reader.Read())
-                            {
-                                subjects.Add(new Subject
-                                {
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    SubjectCode = reader["SubjectCode"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    CourseName = reader["CourseName"].ToString()
-                                });
-                            }
-                        }
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            SubjectCode = reader["SubjectCode"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectsByCourse");
+                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectsByCourseAsync");
             }
             return subjects;
         }
-        public List<Subject> GetSubjectsByLecturer(int lecturerID)
+
+        public async Task<List<Subject>> GetSubjectsByLecturerAsync(int lecturerID)
         {
             var subjects = new List<Subject>();
-
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
-                        FROM LecturerSubjects ls
-                        INNER JOIN Subjects s ON ls.SubjectID = s.SubjectID
-                        INNER JOIN Courses c ON s.CourseID = c.CourseID
-                        WHERE ls.LecturerID = @LecturerID";
+                string query = @"
+                    SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
+                    FROM LecturerSubjects ls
+                    INNER JOIN Subjects s ON ls.SubjectID = s.SubjectID
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    WHERE ls.LecturerID = @LecturerID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object> { { "@LecturerID", lecturerID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@LecturerID", lecturerID);
-                        using (var reader = cmd.ExecuteReader())
+                        subjects.Add(new Subject
                         {
-                            while (reader.Read())
-                            {
-                                subjects.Add(new Subject
-                                {
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    SubjectCode = reader["SubjectCode"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    CourseName = reader["CourseName"].ToString()
-                                });
-                            }
-                        }
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            SubjectCode = reader["SubjectCode"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectsByLecturer");
+                ErrorLogger.Log(ex, "SubjectRepository.GetSubjectsByLecturerAsync");
             }
             return subjects;
         }

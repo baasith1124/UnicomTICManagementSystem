@@ -18,68 +18,68 @@ namespace UnicomTICManagementSystem.Services
             _departmentRepository = departmentRepository;
         }
 
-        public void AddDepartment(Department department)
+        public async Task AddDepartmentAsync(Department department)
         {
             try
             {
-                _departmentRepository.AddDepartment(department);
+                await _departmentRepository.AddDepartmentAsync(department);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentService.AddDepartment");
+                ErrorLogger.Log(ex, "DepartmentService.AddDepartmentAsync");
                 throw;
             }
         }
 
-        public void UpdateDepartment(Department department)
+        public async Task UpdateDepartmentAsync(Department department)
         {
             try
             {
-                _departmentRepository.UpdateDepartment(department);
+                await _departmentRepository.UpdateDepartmentAsync(department);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentService.UpdateDepartment");
+                ErrorLogger.Log(ex, "DepartmentService.UpdateDepartmentAsync");
                 throw;
             }
         }
 
-        public void DeleteDepartment(int departmentID)
+        public async Task DeleteDepartmentAsync(int departmentID)
         {
             try
             {
-                _departmentRepository.DeleteDepartment(departmentID);
+                await _departmentRepository.DeleteDepartmentAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentService.DeleteDepartment");
+                ErrorLogger.Log(ex, "DepartmentService.DeleteDepartmentAsync");
                 throw;
             }
         }
 
-        public List<Department> GetAllDepartments()
+        public async Task<List<Department>> GetAllDepartmentsAsync()
         {
             try
             {
-                return _departmentRepository.GetAllDepartments();
+                return await _departmentRepository.GetAllDepartmentsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentService.GetAllDepartments");
-                throw;
+                ErrorLogger.Log(ex, "DepartmentService.GetAllDepartmentsAsync");
+                return new List<Department>();
             }
         }
 
-        public Department GetDepartmentByID(int departmentID)
+        public async Task<Department> GetDepartmentByIDAsync(int departmentID)
         {
             try
             {
-                return _departmentRepository.GetDepartmentByID(departmentID);
+                return await _departmentRepository.GetDepartmentByIDAsync(departmentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "DepartmentService.GetDepartmentByID");
-                throw;
+                ErrorLogger.Log(ex, "DepartmentService.GetDepartmentByIDAsync");
+                return null;
             }
         }
     }

@@ -13,246 +13,244 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class AttendanceRepository : IAttendanceRepository
     {
-        public void AddAttendance(Attendance attendance)
+        public async Task AddAttendanceAsync(Attendance attendance)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"
+            INSERT INTO Attendance (TimetableID, StudentID, Status, MarkedBy, MarkedDate)
+            VALUES (@TimetableID, @StudentID, @Status, @MarkedBy, @MarkedDate)";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"
-                        INSERT INTO Attendance (TimetableID, StudentID, Status, MarkedBy, MarkedDate)
-                        VALUES (@TimetableID, @StudentID, @Status, @MarkedBy, @MarkedDate)";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@TimetableID", attendance.TimetableID);
-                        cmd.Parameters.AddWithValue("@StudentID", attendance.StudentID);
-                        cmd.Parameters.AddWithValue("@Status", attendance.Status);
-                        cmd.Parameters.AddWithValue("@MarkedBy", attendance.MarkedBy);
-                        cmd.Parameters.AddWithValue("@MarkedDate", attendance.MarkedDate.ToString("yyyy-MM-dd"));
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    {"@TimetableID", attendance.TimetableID},
+                    {"@StudentID", attendance.StudentID},
+                    {"@Status", attendance.Status},
+                    {"@MarkedBy", attendance.MarkedBy},
+                    {"@MarkedDate", attendance.MarkedDate.ToString("yyyy-MM-dd")}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.AddAttendance");
+                ErrorLogger.Log(ex, "AttendanceRepository.AddAttendanceAsync");
             }
         }
 
-        public void UpdateAttendance(Attendance attendance)
+
+        public async Task UpdateAttendanceAsync(Attendance attendance)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"
+            UPDATE Attendance 
+            SET Status = @Status 
+            WHERE AttendanceID = @AttendanceID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = @"
-                        UPDATE Attendance 
-                        SET Status = @Status 
-                        WHERE AttendanceID = @AttendanceID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Status", attendance.Status);
-                        cmd.Parameters.AddWithValue("@AttendanceID", attendance.AttendanceID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    { "@Status", attendance.Status },
+                    { "@AttendanceID", attendance.AttendanceID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.UpdateAttendance");
+                ErrorLogger.Log(ex, "AttendanceRepository.UpdateAttendanceAsync");
             }
         }
 
-        public void DeleteAttendance(int attendanceID)
+
+        public async Task DeleteAttendanceAsync(int attendanceID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Attendance WHERE AttendanceID = @AttendanceID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Attendance WHERE AttendanceID = @AttendanceID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@AttendanceID", attendanceID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    { "@AttendanceID", attendanceID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.DeleteAttendance");
+                ErrorLogger.Log(ex, "AttendanceRepository.DeleteAttendanceAsync");
             }
         }
 
-        public Attendance GetAttendanceByID(int attendanceID)
+
+        public async Task<Attendance> GetAttendanceByIDAsync(int attendanceID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT AttendanceID, TimetableID, StudentID, Status, MarkedBy, MarkedDate 
-                        FROM Attendance
-                        WHERE AttendanceID = @AttendanceID";
+                string query = @"
+                    SELECT AttendanceID, TimetableID, StudentID, Status, MarkedBy, MarkedDate 
+                    FROM Attendance
+                    WHERE AttendanceID = @AttendanceID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@AttendanceID", attendanceID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@AttendanceID", attendanceID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Attendance
                         {
-                            if (reader.Read())
-                            {
-                                return new Attendance
-                                {
-                                    AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    Status = reader["Status"].ToString(),
-                                    MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
-                                    MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
-                                };
-                            }
-                        }
+                            AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            Status = reader["Status"].ToString(),
+                            MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                            MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.GetAttendanceByID");
+                ErrorLogger.Log(ex, "AttendanceRepository.GetAttendanceByIDAsync");
             }
+
             return null;
         }
 
-        public List<Attendance> GetAttendanceByTimetable(int timetableID)
+
+        public async Task<List<Attendance>> GetAttendanceByTimetableAsync(int timetableID)
         {
             var list = new List<Attendance>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName, 
-                               a.Status, a.MarkedBy, a.MarkedDate
-                        FROM Attendance a
-                        INNER JOIN Students s ON a.StudentID = s.StudentID
-                        WHERE a.TimetableID = @TimetableID";
+                string query = @"
+                    SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName, 
+                           a.Status, a.MarkedBy, a.MarkedDate
+                    FROM Attendance a
+                    INNER JOIN Students s ON a.StudentID = s.StudentID
+                    WHERE a.TimetableID = @TimetableID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@TimetableID", timetableID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-                        using (var reader = cmd.ExecuteReader())
+                        list.Add(new Attendance
                         {
-                            while (reader.Read())
-                            {
-                                list.Add(new Attendance
-                                {
-                                    AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    StudentName = reader["StudentName"].ToString(),
-                                    Status = reader["Status"].ToString(),
-                                    MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
-                                    MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
-                                });
-                            }
-                        }
+                            AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            StudentName = reader["StudentName"].ToString(),
+                            Status = reader["Status"].ToString(),
+                            MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                            MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.GetAttendanceByTimetable");
+                ErrorLogger.Log(ex, "AttendanceRepository.GetAttendanceByTimetableAsync");
             }
+
             return list;
         }
 
-        public List<Attendance> GetFullAttendance()
+
+        public async Task<List<Attendance>> GetFullAttendanceAsync()
         {
             var attendanceList = new List<Attendance>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName,
-                               sub.SubjectName, a.Status, a.MarkedBy, a.MarkedDate
-                        FROM Attendance a
-                        INNER JOIN Students s ON a.StudentID = s.StudentID
-                        INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
-                        INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID";
+                string query = @"
+                    SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName,
+                           sub.SubjectName, a.Status, a.MarkedBy, a.MarkedDate
+                    FROM Attendance a
+                    INNER JOIN Students s ON a.StudentID = s.StudentID
+                    INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
+                    INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        attendanceList.Add(new Attendance
                         {
-                            attendanceList.Add(new Attendance
-                            {
-                                AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
-                                TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                StudentID = Convert.ToInt32(reader["StudentID"]),
-                                StudentName = reader["StudentName"].ToString(),
-                                SubjectName = reader["SubjectName"].ToString(),
-                                Status = reader["Status"].ToString(),
-                                MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
-                                MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
-                            });
-                        }
+                            AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            StudentName = reader["StudentName"].ToString(),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            Status = reader["Status"].ToString(),
+                            MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                            MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.GetFullAttendance");
+                ErrorLogger.Log(ex, "AttendanceRepository.GetFullAttendanceAsync");
             }
+
             return attendanceList;
         }
 
-        public List<Attendance> SearchAttendance(int subjectID, string date)
+
+        public async Task<List<Attendance>> SearchAttendanceAsync(int subjectID, string date)
         {
             var attendanceList = new List<Attendance>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName,
-                               sub.SubjectName, a.Status, a.MarkedBy, a.MarkedDate
-                        FROM Attendance a
-                        INNER JOIN Students s ON a.StudentID = s.StudentID
-                        INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
-                        INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID
-                        WHERE t.SubjectID = @SubjectID AND a.MarkedDate = @Date";
+                string query = @"
+                    SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName,
+                           sub.SubjectName, a.Status, a.MarkedBy, a.MarkedDate
+                    FROM Attendance a
+                    INNER JOIN Students s ON a.StudentID = s.StudentID
+                    INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
+                    INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID
+                    WHERE t.SubjectID = @SubjectID AND a.MarkedDate = @Date";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@SubjectID", subjectID },
+                    { "@Date", date }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@SubjectID", subjectID);
-                        cmd.Parameters.AddWithValue("@Date", date);
-                        using (var reader = cmd.ExecuteReader())
+                        attendanceList.Add(new Attendance
                         {
-                            while (reader.Read())
-                            {
-                                attendanceList.Add(new Attendance
-                                {
-                                    AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    StudentName = reader["StudentName"].ToString(),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    Status = reader["Status"].ToString(),
-                                    MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
-                                    MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
-                                });
-                            }
-                        }
+                            AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            StudentName = reader["StudentName"].ToString(),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            Status = reader["Status"].ToString(),
+                            MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                            MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "AttendanceRepository.SearchAttendance");
+                ErrorLogger.Log(ex, "AttendanceRepository.SearchAttendanceAsync");
             }
+
             return attendanceList;
         }
+
 
 
 

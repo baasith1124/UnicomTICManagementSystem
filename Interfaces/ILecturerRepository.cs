@@ -9,15 +9,15 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface ILecturerRepository
     {
-        void AddLecturer(int userID, string name, int departmentID);
-        void UpdateLecturer(Lecturer lecturer);
-        void DeleteLecturer(int lecturerID);
-        List<Lecturer> GetAllLecturers();
-        List<Lecturer> SearchLecturers(string keyword);
-        Lecturer GetLecturerByID(int lecturerID);
-        Lecturer GetLecturerByUserId(int userID);
-        bool LecturerExistsByUserId(int userId);
-        int GetLecturerIDByUserID(int userID);
+        Task AddLecturerAsync(int userID, string name, int departmentID);
+        Task UpdateLecturerAsync(Lecturer lecturer);
+        Task DeleteLecturerAsync(int lecturerID);
+        Task<List<Lecturer>> GetAllLecturersAsync();
+        Task<List<Lecturer>> SearchLecturersAsync(string keyword);
+        Task<Lecturer> GetLecturerByIDAsync(int lecturerID);
+        Task<Lecturer> GetLecturerByUserIdAsync(int userID);
+        Task<bool> LecturerExistsByUserIdAsync(int userId);
+        Task<int> GetLecturerIDByUserIDAsync(int userID);
 
 
     }

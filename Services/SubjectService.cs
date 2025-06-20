@@ -18,103 +18,103 @@ namespace UnicomTICManagementSystem.Services
             _subjectRepository = subjectRepository;
         }
 
-        public void AddSubject(Subject subject)
+        public async Task AddSubjectAsync(Subject subject)
         {
             try
             {
-                _subjectRepository.AddSubject(subject);
+                await _subjectRepository.AddSubjectAsync(subject);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.AddSubject");
+                ErrorLogger.Log(ex, "SubjectService.AddSubjectAsync");
             }
         }
 
-        public void UpdateSubject(Subject subject)
+        public async Task UpdateSubjectAsync(Subject subject)
         {
             try
             {
-                _subjectRepository.UpdateSubject(subject);
+                await _subjectRepository.UpdateSubjectAsync(subject);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.UpdateSubject");
+                ErrorLogger.Log(ex, "SubjectService.UpdateSubjectAsync");
             }
         }
 
-        public void DeleteSubject(int subjectID)
+        public async Task DeleteSubjectAsync(int subjectID)
         {
             try
             {
-                _subjectRepository.DeleteSubject(subjectID);
+                await _subjectRepository.DeleteSubjectAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.DeleteSubject");
+                ErrorLogger.Log(ex, "SubjectService.DeleteSubjectAsync");
             }
         }
 
-        public List<Subject> GetAllSubjects()
+        public async Task<List<Subject>> GetAllSubjectsAsync()
         {
             try
             {
-                return _subjectRepository.GetAllSubjects();
+                return await _subjectRepository.GetAllSubjectsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.GetAllSubjects");
+                ErrorLogger.Log(ex, "SubjectService.GetAllSubjectsAsync");
                 return new List<Subject>();
             }
         }
 
-        public List<Subject> SearchSubjects(string keyword)
+        public async Task<List<Subject>> SearchSubjectsAsync(string keyword)
         {
             try
             {
-                return _subjectRepository.SearchSubjects(keyword);
+                return await _subjectRepository.SearchSubjectsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.SearchSubjects");
+                ErrorLogger.Log(ex, "SubjectService.SearchSubjectsAsync");
                 return new List<Subject>();
             }
         }
 
-        public Subject GetSubjectByID(int subjectID)
+        public async Task<Subject> GetSubjectByIDAsync(int subjectID)
         {
             try
             {
-                return _subjectRepository.GetSubjectByID(subjectID);
+                return await _subjectRepository.GetSubjectByIDAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.GetSubjectByID");
+                ErrorLogger.Log(ex, "SubjectService.GetSubjectByIDAsync");
                 return null;
             }
         }
 
-        public List<Subject> GetSubjectsByCourse(int courseID)
+        public async Task<List<Subject>> GetSubjectsByCourseAsync(int courseID)
         {
             try
             {
-                return _subjectRepository.GetSubjectsByCourse(courseID);
+                return await _subjectRepository.GetSubjectsByCourseAsync(courseID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.GetSubjectsByCourse");
+                ErrorLogger.Log(ex, "SubjectService.GetSubjectsByCourseAsync");
                 return new List<Subject>();
             }
         }
 
-        public List<Subject> GetSubjectsByLecturer(int lecturerID)
+        public async Task<List<Subject>> GetSubjectsByLecturerAsync(int lecturerID)
         {
             try
             {
-                return _subjectRepository.GetSubjectsByLecturer(lecturerID);
+                return await _subjectRepository.GetSubjectsByLecturerAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectService.GetSubjectsByLecturer");
+                ErrorLogger.Log(ex, "SubjectService.GetSubjectsByLecturerAsync");
                 return new List<Subject>();
             }
         }

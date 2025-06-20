@@ -19,113 +19,113 @@ namespace UnicomTICManagementSystem.Controllers
             _timetableService = timetableService;
         }
 
-        public void AddTimetable(Timetable timetable)
+        public async Task AddTimetableAsync(Timetable timetable)
         {
             try
             {
-                _timetableService.AddTimetable(timetable);
+                await _timetableService.AddTimetableAsync(timetable);
                 MessageBox.Show("✅ Timetable added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.AddTimetable");
+                ErrorLogger.Log(ex, "TimetableController.AddTimetableAsync");
                 MessageBox.Show("❌ Failed to add timetable.");
             }
         }
 
-        public void UpdateTimetable(Timetable timetable)
+        public async Task UpdateTimetableAsync(Timetable timetable)
         {
             try
             {
-                _timetableService.UpdateTimetable(timetable);
+                await _timetableService.UpdateTimetableAsync(timetable);
                 MessageBox.Show("✅ Timetable updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.UpdateTimetable");
+                ErrorLogger.Log(ex, "TimetableController.UpdateTimetableAsync");
                 MessageBox.Show("❌ Failed to update timetable.");
             }
         }
 
-        public void DeleteTimetable(int timetableID)
+        public async Task DeleteTimetableAsync(int timetableID)
         {
             try
             {
-                _timetableService.DeleteTimetable(timetableID);
+                await _timetableService.DeleteTimetableAsync(timetableID);
                 MessageBox.Show("🗑️ Timetable deleted.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.DeleteTimetable");
+                ErrorLogger.Log(ex, "TimetableController.DeleteTimetableAsync");
                 MessageBox.Show("❌ Failed to delete timetable.");
             }
         }
 
-        public List<Timetable> GetAllTimetables()
+        public async Task<List<Timetable>> GetAllTimetablesAsync()
         {
             try
             {
-                return _timetableService.GetAllTimetables();
+                return await _timetableService.GetAllTimetablesAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.GetAllTimetables");
+                ErrorLogger.Log(ex, "TimetableController.GetAllTimetablesAsync");
                 MessageBox.Show("❌ Failed to load timetables.");
                 return new List<Timetable>();
             }
         }
 
-        public List<Timetable> SearchTimetables(string keyword)
+        public async Task<List<Timetable>> SearchTimetablesAsync(string keyword)
         {
             try
             {
-                return _timetableService.SearchTimetables(keyword);
+                return await _timetableService.SearchTimetablesAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.SearchTimetables");
+                ErrorLogger.Log(ex, "TimetableController.SearchTimetablesAsync");
                 MessageBox.Show("❌ Search failed.");
                 return new List<Timetable>();
             }
         }
 
-        public Timetable GetTimetableBySubjectAndDate(int subjectID, DateTime date)
+        public async Task<Timetable> GetTimetableBySubjectAndDateAsync(int subjectID, DateTime date)
         {
             try
             {
-                return _timetableService.GetTimetableBySubjectAndDate(subjectID, date);
+                return await _timetableService.GetTimetableBySubjectAndDateAsync(subjectID, date);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.GetTimetableBySubjectAndDate");
+                ErrorLogger.Log(ex, "TimetableController.GetTimetableBySubjectAndDateAsync");
                 MessageBox.Show("❌ Could not retrieve timetable.");
                 return null;
             }
         }
 
-        public Timetable GetTimetableByID(int timetableID)
+        public async Task<Timetable> GetTimetableByIDAsync(int timetableID)
         {
             try
             {
-                return _timetableService.GetTimetableByID(timetableID);
+                return await _timetableService.GetTimetableByIDAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.GetTimetableByID");
+                ErrorLogger.Log(ex, "TimetableController.GetTimetableByIDAsync");
                 MessageBox.Show("❌ Failed to retrieve timetable.");
                 return null;
             }
         }
 
-        public List<Timetable> GetTimetablesByLecturer(int lecturerID)
+        public async Task<List<Timetable>> GetTimetablesByLecturerAsync(int lecturerID)
         {
             try
             {
-                return _timetableService.GetTimetablesByLecturer(lecturerID);
+                return await _timetableService.GetTimetablesByLecturerAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableController.GetTimetablesByLecturer");
+                ErrorLogger.Log(ex, "TimetableController.GetTimetablesByLecturerAsync");
                 MessageBox.Show("❌ Failed to retrieve lecturer's timetable.");
                 return new List<Timetable>();
             }

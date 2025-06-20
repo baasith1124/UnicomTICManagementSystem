@@ -13,313 +13,316 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class MarkRepository : IMarkRepository
     {
-        public void AddMark(Mark mark)
+        public async Task AddMarkAsync(Mark mark)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"INSERT INTO Marks 
-                        (TimetableID, StudentID, AssignmentMark, MidExamMark, FinalExamMark, TotalMark, GradedBy, GradedDate, ExamID)
-                        VALUES 
-                        (@TimetableID, @StudentID, @AssignmentMark, @MidExamMark, @FinalExamMark, @TotalMark, @GradedBy, @GradedDate, @ExamID)";
+                string query = @"INSERT INTO Marks 
+                (TimetableID, StudentID, AssignmentMark, MidExamMark, FinalExamMark, TotalMark, GradedBy, GradedDate, ExamID)
+                VALUES 
+                (@TimetableID, @StudentID, @AssignmentMark, @MidExamMark, @FinalExamMark, @TotalMark, @GradedBy, @GradedDate, @ExamID)";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@TimetableID", mark.TimetableID);
-                        cmd.Parameters.AddWithValue("@StudentID", mark.StudentID);
-                        cmd.Parameters.AddWithValue("@AssignmentMark", mark.AssignmentMark);
-                        cmd.Parameters.AddWithValue("@MidExamMark", mark.MidExamMark);
-                        cmd.Parameters.AddWithValue("@FinalExamMark", mark.FinalExamMark);
-                        cmd.Parameters.AddWithValue("@TotalMark", mark.TotalMark);
-                        cmd.Parameters.AddWithValue("@GradedBy", mark.GradedBy);
-                        cmd.Parameters.AddWithValue("@GradedDate", mark.GradedDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@ExamID", mark.ExamID ?? (object)DBNull.Value);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    ["@TimetableID"] = mark.TimetableID,
+                    ["@StudentID"] = mark.StudentID,
+                    ["@AssignmentMark"] = mark.AssignmentMark,
+                    ["@MidExamMark"] = mark.MidExamMark,
+                    ["@FinalExamMark"] = mark.FinalExamMark,
+                    ["@TotalMark"] = mark.TotalMark,
+                    ["@GradedBy"] = mark.GradedBy,
+                    ["@GradedDate"] = mark.GradedDate.ToString("yyyy-MM-dd"),
+                    ["@ExamID"] = mark.ExamID ?? (object)DBNull.Value
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.AddMark");
+                ErrorLogger.Log(ex, "MarkRepository.AddMarkAsync");
             }
         }
 
-        public void UpdateMark(Mark mark)
+
+        public async Task UpdateMarkAsync(Mark mark)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"UPDATE Marks SET 
-                        AssignmentMark = @AssignmentMark,
-                        MidExamMark = @MidExamMark,
-                        FinalExamMark = @FinalExamMark,
-                        TotalMark = @TotalMark,
-                        GradedBy = @GradedBy,
-                        GradedDate = @GradedDate,
-                        ExamID = @ExamID
-                        WHERE MarkID = @MarkID";
+                string query = @"UPDATE Marks SET 
+                            AssignmentMark = @AssignmentMark,
+                            MidExamMark = @MidExamMark,
+                            FinalExamMark = @FinalExamMark,
+                            TotalMark = @TotalMark,
+                            GradedBy = @GradedBy,
+                            GradedDate = @GradedDate,
+                            ExamID = @ExamID
+                         WHERE MarkID = @MarkID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@AssignmentMark", mark.AssignmentMark);
-                        cmd.Parameters.AddWithValue("@MidExamMark", mark.MidExamMark);
-                        cmd.Parameters.AddWithValue("@FinalExamMark", mark.FinalExamMark);
-                        cmd.Parameters.AddWithValue("@TotalMark", mark.TotalMark);
-                        cmd.Parameters.AddWithValue("@GradedBy", mark.GradedBy);
-                        cmd.Parameters.AddWithValue("@GradedDate", mark.GradedDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@ExamID", mark.ExamID ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@MarkID", mark.MarkID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@AssignmentMark", mark.AssignmentMark },
+                    { "@MidExamMark", mark.MidExamMark },
+                    { "@FinalExamMark", mark.FinalExamMark },
+                    { "@TotalMark", mark.TotalMark },
+                    { "@GradedBy", mark.GradedBy },
+                    { "@GradedDate", mark.GradedDate.ToString("yyyy-MM-dd") },
+                    { "@ExamID", mark.ExamID ?? (object)DBNull.Value },
+                    { "@MarkID", mark.MarkID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.UpdateMark");
+                ErrorLogger.Log(ex, "MarkRepository.UpdateMarkAsync");
             }
         }
 
-        public void DeleteMark(int markID)
+
+        public async Task DeleteMarkAsync(int markID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Marks WHERE MarkID = @MarkID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Marks WHERE MarkID = @MarkID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@MarkID", markID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    { "@MarkID", markID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.DeleteMark");
+                ErrorLogger.Log(ex, "MarkRepository.DeleteMarkAsync");
             }
         }
 
-        public Mark GetMarkByID(int markID)
+
+        public async Task<Mark> GetMarkByIDAsync(int markID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Marks WHERE MarkID = @MarkID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Marks WHERE MarkID = @MarkID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    { "@MarkID", markID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@MarkID", markID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Mark
                         {
-                            if (reader.Read())
-                            {
-                                return new Mark
-                                {
-                                    MarkID = Convert.ToInt32(reader["MarkID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
-                                    MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
-                                    FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
-                                    TotalMark = Convert.ToDouble(reader["TotalMark"]),
-                                    GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                    GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
-                                    ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
-                                };
-                            }
-                        }
+                            MarkID = Convert.ToInt32(reader["MarkID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
+                            MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
+                            FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
+                            TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                            GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                            ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.GetMarkByID");
+                ErrorLogger.Log(ex, "MarkRepository.GetMarkByIDAsync");
             }
+
             return null;
         }
 
-        public List<Mark> GetMarksByTimetable(int timetableID)
+
+        public async Task<List<Mark>> GetMarksByTimetableAsync(int timetableID)
         {
             var marks = new List<Mark>();
+
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Marks WHERE TimetableID = @TimetableID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT * FROM Marks WHERE TimetableID = @TimetableID";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    { "@TimetableID", timetableID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@TimetableID", timetableID);
-                        using (var reader = cmd.ExecuteReader())
+                        marks.Add(new Mark
                         {
-                            while (reader.Read())
-                            {
-                                marks.Add(new Mark
-                                {
-                                    MarkID = Convert.ToInt32(reader["MarkID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
-                                    MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
-                                    FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
-                                    TotalMark = Convert.ToDouble(reader["TotalMark"]),
-                                    GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                    GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
-                                    ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
-                                });
-                            }
-                        }
+                            MarkID = Convert.ToInt32(reader["MarkID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
+                            MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
+                            FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
+                            TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                            GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                            ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.GetMarksByTimetable");
+                ErrorLogger.Log(ex, "MarkRepository.GetMarksByTimetableAsync");
             }
+
             return marks;
         }
 
-        public List<Mark> GetMarksByStudent(int studentID)
+
+        public async Task<List<Mark>> GetMarksByStudentAsync(int studentID)
         {
             var marks = new List<Mark>();
+
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT 
-                            m.MarkID, m.TimetableID, m.StudentID, m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
-                            s.SubjectID, s.SubjectName, e.ExamName, u.FullName AS LecturerName
-                        FROM Marks m
-                        JOIN Timetables t ON m.TimetableID = t.TimetableID
-                        JOIN Subjects s ON t.SubjectID = s.SubjectID
-                        JOIN Exams e ON m.ExamID = e.ExamID
-                        JOIN Users u ON m.GradedBy = u.UserID
-                        WHERE m.StudentID = @StudentID";
+                string query = @"
+            SELECT 
+                m.MarkID, m.TimetableID, m.StudentID, m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
+                s.SubjectID, s.SubjectName, e.ExamName, u.FullName AS LecturerName
+            FROM Marks m
+            JOIN Timetables t ON m.TimetableID = t.TimetableID
+            JOIN Subjects s ON t.SubjectID = s.SubjectID
+            JOIN Exams e ON m.ExamID = e.ExamID
+            JOIN Users u ON m.GradedBy = u.UserID
+            WHERE m.StudentID = @StudentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@StudentID", studentID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@StudentID", studentID);
-                        using (var reader = cmd.ExecuteReader())
+                        marks.Add(new Mark
                         {
-                            while (reader.Read())
-                            {
-                                marks.Add(new Mark
-                                {
-                                    MarkID = Convert.ToInt32(reader["MarkID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    TotalMark = Convert.ToDouble(reader["TotalMark"]),
-                                    GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                    GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
-                                    ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null,
-                                    SubjectID = Convert.ToInt32(reader["SubjectID"]),
-                                    SubjectName = reader["SubjectName"].ToString(),
-                                    ExamName = reader["ExamName"].ToString(),
-                                    LecturerName = reader["LecturerName"].ToString()
-                                });
-                            }
-                        }
+                            MarkID = Convert.ToInt32(reader["MarkID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                            GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                            ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null,
+                            SubjectID = Convert.ToInt32(reader["SubjectID"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            ExamName = reader["ExamName"].ToString(),
+                            LecturerName = reader["LecturerName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.GetMarksByStudent");
+                ErrorLogger.Log(ex, "MarkRepository.GetMarksByStudentAsync");
             }
+
             return marks;
         }
 
-        public List<Mark> GetAllMarks()
+
+        public async Task<List<Mark>> GetAllMarksAsync()
         {
             var marks = new List<Mark>();
+
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Marks";
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
-                    string query = "SELECT * FROM Marks";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        marks.Add(new Mark
                         {
-                            marks.Add(new Mark
-                            {
-                                MarkID = Convert.ToInt32(reader["MarkID"]),
-                                TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                StudentID = Convert.ToInt32(reader["StudentID"]),
-                                AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
-                                MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
-                                FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
-                                TotalMark = Convert.ToDouble(reader["TotalMark"]),
-                                GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
-                                ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
-                            });
-                        }
+                            MarkID = Convert.ToInt32(reader["MarkID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
+                            MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
+                            FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
+                            TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                            GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                            GradedDate = DateTime.Parse(reader["GradedDate"].ToString()),
+                            ExamID = reader["ExamID"] != DBNull.Value ? Convert.ToInt32(reader["ExamID"]) : (int?)null
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.GetAllMarks");
+                ErrorLogger.Log(ex, "MarkRepository.GetAllMarksAsync");
             }
+
             return marks;
         }
 
-        public List<Mark> GetMarksByExam(int examId)
+
+        public async Task<List<Mark>> GetMarksByExamAsync(int examId)
         {
             var marks = new List<Mark>();
+
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT 
-                            m.MarkID, m.TimetableID, m.StudentID, m.AssignmentMark, m.MidExamMark, m.FinalExamMark,
-                            m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
-                            s.Name AS StudentName, e.ExamName, u.FullName AS LecturerName
-                        FROM Marks m
-                        JOIN Students s ON m.StudentID = s.StudentID
-                        JOIN Exams e ON m.ExamID = e.ExamID
-                        JOIN Users u ON m.GradedBy = u.UserID
-                        WHERE m.ExamID = @examId";
+                string query = @"
+            SELECT 
+                m.MarkID, m.TimetableID, m.StudentID, m.AssignmentMark, m.MidExamMark, m.FinalExamMark,
+                m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
+                s.Name AS StudentName, e.ExamName, u.FullName AS LecturerName
+            FROM Marks m
+            JOIN Students s ON m.StudentID = s.StudentID
+            JOIN Exams e ON m.ExamID = e.ExamID
+            JOIN Users u ON m.GradedBy = u.UserID
+            WHERE m.ExamID = @examId";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@examId", examId }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@examId", examId);
-                        using (var reader = cmd.ExecuteReader())
+                        marks.Add(new Mark
                         {
-                            while (reader.Read())
-                            {
-                                marks.Add(new Mark
-                                {
-                                    MarkID = Convert.ToInt32(reader["MarkID"]),
-                                    TimetableID = Convert.ToInt32(reader["TimetableID"]),
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
-                                    MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
-                                    FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
-                                    TotalMark = Convert.ToDouble(reader["TotalMark"]),
-                                    GradedBy = Convert.ToInt32(reader["GradedBy"]),
-                                    GradedDate = Convert.ToDateTime(reader["GradedDate"]),
-                                    ExamID = reader["ExamID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["ExamID"]) : null,
-                                    StudentName = reader["StudentName"].ToString(),
-                                    ExamName = reader["ExamName"].ToString(),
-                                    LecturerName = reader["LecturerName"].ToString()
-                                });
-                            }
-                        }
+                            MarkID = Convert.ToInt32(reader["MarkID"]),
+                            TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            AssignmentMark = Convert.ToDouble(reader["AssignmentMark"]),
+                            MidExamMark = Convert.ToDouble(reader["MidExamMark"]),
+                            FinalExamMark = Convert.ToDouble(reader["FinalExamMark"]),
+                            TotalMark = Convert.ToDouble(reader["TotalMark"]),
+                            GradedBy = Convert.ToInt32(reader["GradedBy"]),
+                            GradedDate = Convert.ToDateTime(reader["GradedDate"]),
+                            ExamID = reader["ExamID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["ExamID"]) : null,
+                            StudentName = reader["StudentName"].ToString(),
+                            ExamName = reader["ExamName"].ToString(),
+                            LecturerName = reader["LecturerName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "MarkRepository.GetMarksByExam");
+                ErrorLogger.Log(ex, "MarkRepository.GetMarksByExamAsync");
             }
+
             return marks;
         }
+
 
 
 

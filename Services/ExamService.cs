@@ -18,81 +18,81 @@ namespace UnicomTICManagementSystem.Services
             _examRepository = examRepository;
         }
 
-        public void AddExam(Exam exam)
+        public async Task AddExamAsync(Exam exam)
         {
             try
             {
-                _examRepository.AddExam(exam);
+                await _examRepository.AddExamAsync(exam);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.AddExam");
+                ErrorLogger.Log(ex, "ExamService.AddExamAsync");
                 throw;
             }
         }
 
-        public void UpdateExam(Exam exam)
+        public async Task UpdateExamAsync(Exam exam)
         {
             try
             {
-                _examRepository.UpdateExam(exam);
+                await _examRepository.UpdateExamAsync(exam);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.UpdateExam");
+                ErrorLogger.Log(ex, "ExamService.UpdateExamAsync");
                 throw;
             }
         }
 
-        public void DeleteExam(int examID)
+        public async Task DeleteExamAsync(int examID)
         {
             try
             {
-                _examRepository.DeleteExam(examID);
+                await _examRepository.DeleteExamAsync(examID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.DeleteExam");
+                ErrorLogger.Log(ex, "ExamService.DeleteExamAsync");
                 throw;
             }
         }
 
-        public Exam GetExamByID(int examID)
+        public async Task<Exam> GetExamByIDAsync(int examID)
         {
             try
             {
-                return _examRepository.GetExamByID(examID);
+                return await _examRepository.GetExamByIDAsync(examID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.GetExamByID");
+                ErrorLogger.Log(ex, "ExamService.GetExamByIDAsync");
                 throw;
             }
         }
 
-        public List<Exam> GetAllExams()
+        public async Task<List<Exam>> GetAllExamsAsync()
         {
             try
             {
-                return _examRepository.GetAllExams();
+                return await _examRepository.GetAllExamsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.GetAllExams");
-                throw;
+                ErrorLogger.Log(ex, "ExamService.GetAllExamsAsync");
+                return new List<Exam>();
             }
         }
 
-        public List<Exam> GetExamsBySubject(int subjectID)
+        public async Task<List<Exam>> GetExamsBySubjectAsync(int subjectID)
         {
             try
             {
-                return _examRepository.GetExamsBySubject(subjectID);
+                return await _examRepository.GetExamsBySubjectAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ExamService.GetExamsBySubject");
-                throw;
+                ErrorLogger.Log(ex, "ExamService.GetExamsBySubjectAsync");
+                return new List<Exam>();
             }
         }
     }

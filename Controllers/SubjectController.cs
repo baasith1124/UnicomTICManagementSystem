@@ -19,116 +19,116 @@ namespace UnicomTICManagementSystem.Controllers
             _subjectService = subjectService;
         }
 
-        public void AddSubject(Subject subject)
+        public async Task AddSubjectAsync(Subject subject)
         {
             try
             {
-                _subjectService.AddSubject(subject);
+                await _subjectService.AddSubjectAsync(subject);
                 MessageBox.Show("✅ Subject added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.AddSubject");
+                ErrorLogger.Log(ex, "SubjectController.AddSubjectAsync");
                 MessageBox.Show("❌ Failed to add subject: " + ex.Message);
             }
         }
 
-        public void UpdateSubject(Subject subject)
+        public async Task UpdateSubjectAsync(Subject subject)
         {
             try
             {
-                _subjectService.UpdateSubject(subject);
+                await _subjectService.UpdateSubjectAsync(subject);
                 MessageBox.Show("✅ Subject updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.UpdateSubject");
+                ErrorLogger.Log(ex, "SubjectController.UpdateSubjectAsync");
                 MessageBox.Show("❌ Failed to update subject: " + ex.Message);
             }
         }
 
-        public void DeleteSubject(int subjectID)
+        public async Task DeleteSubjectAsync(int subjectID)
         {
             try
             {
-                _subjectService.DeleteSubject(subjectID);
+                await _subjectService.DeleteSubjectAsync(subjectID);
                 MessageBox.Show("🗑️ Subject deleted successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.DeleteSubject");
+                ErrorLogger.Log(ex, "SubjectController.DeleteSubjectAsync");
                 MessageBox.Show("❌ Failed to delete subject: " + ex.Message);
             }
         }
 
-        public List<Subject> GetAllSubjects()
+        public async Task<List<Subject>> GetAllSubjectsAsync()
         {
             try
             {
-                return _subjectService.GetAllSubjects();
+                return await _subjectService.GetAllSubjectsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.GetAllSubjects");
+                ErrorLogger.Log(ex, "SubjectController.GetAllSubjectsAsync");
                 MessageBox.Show("❌ Failed to load subjects.");
                 return new List<Subject>();
             }
         }
 
-        public List<Subject> SearchSubjects(string keyword)
+        public async Task<List<Subject>> SearchSubjectsAsync(string keyword)
         {
             try
             {
-                return _subjectService.SearchSubjects(keyword);
+                return await _subjectService.SearchSubjectsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.SearchSubjects");
+                ErrorLogger.Log(ex, "SubjectController.SearchSubjectsAsync");
                 MessageBox.Show("❌ Search failed.");
                 return new List<Subject>();
             }
         }
 
-        public Subject GetSubjectByID(int subjectID)
+        public async Task<Subject> GetSubjectByIDAsync(int subjectID)
         {
             try
             {
-                return _subjectService.GetSubjectByID(subjectID);
+                return await _subjectService.GetSubjectByIDAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.GetSubjectByID");
+                ErrorLogger.Log(ex, "SubjectController.GetSubjectByIDAsync");
                 MessageBox.Show("❌ Failed to retrieve subject.");
                 return null;
             }
         }
 
-        public List<Subject> GetSubjectsByCourse(int courseId)
+        public async Task<List<Subject>> GetSubjectsByCourseAsync(int courseId)
         {
             try
             {
-                var subjects = _subjectService.GetSubjectsByCourse(courseId);
+                var subjects = await _subjectService.GetSubjectsByCourseAsync(courseId);
                 if (subjects == null || subjects.Count == 0)
                     MessageBox.Show("⚠️ No subjects found for this course.");
                 return subjects;
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.GetSubjectsByCourse");
+                ErrorLogger.Log(ex, "SubjectController.GetSubjectsByCourseAsync");
                 MessageBox.Show("❌ Failed to retrieve subjects by course.");
                 return new List<Subject>();
             }
         }
 
-        public List<Subject> GetSubjectsByLecturer(int lecturerID)
+        public async Task<List<Subject>> GetSubjectsByLecturerAsync(int lecturerID)
         {
             try
             {
-                return _subjectService.GetSubjectsByLecturer(lecturerID);
+                return await _subjectService.GetSubjectsByLecturerAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "SubjectController.GetSubjectsByLecturer");
+                ErrorLogger.Log(ex, "SubjectController.GetSubjectsByLecturerAsync");
                 MessageBox.Show("❌ Failed to retrieve subjects by lecturer.");
                 return new List<Subject>();
             }

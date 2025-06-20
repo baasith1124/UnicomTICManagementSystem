@@ -28,21 +28,21 @@ namespace UnicomTICManagementSystem.Services
             _lecturerRepository = lecturerRepository;
         }
 
-        public void AdminRegisterStudent(User user, int courseID, DateTime enrollmentDate)
+        public async Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate)
         {
             try
             {
-                ValidateUser(user);
+                await ValidateUserAsync(user);
 
-                if (IsUsernameTaken(user.Username)) throw new Exception("Username already exists.");
-                if (IsEmailTaken(user.Email)) throw new Exception("Email already exists.");
+                if (await IsUsernameTakenAsync(user.Username)) throw new Exception("Username already exists.");
+                if (await IsEmailTakenAsync(user.Email)) throw new Exception("Email already exists.");
 
                 user.RegisteredDate = DateTime.Now;
                 user.IsApproved = true;
 
-                _userRepository.RegisterUser(user);
-                int userID = _userRepository.GetUserByUsername(user.Username).UserID;
-                _studentRepository.AddStudent(userID, user.FullName, courseID, enrollmentDate);
+                await _userRepository.RegisterUserAsync(user);
+                int userID = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
+                await _studentRepository.AddStudentAsync(userID, user.FullName, courseID, enrollmentDate);
             }
             catch (Exception ex)
             {
@@ -51,36 +51,36 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public void RegisterUser(User user, int? courseID, int? departmentID, int position)
+        public async Task RegisterUserAsync(User user, int? courseID, int? departmentID, int position)
         {
             try
             {
-                ValidateUser(user);
+                await ValidateUserAsync(user);
 
-                if (IsUsernameTaken(user.Username)) throw new Exception("Username already exists.");
-                if (IsEmailTaken(user.Email)) throw new Exception("Email already exists.");
+                if (await IsUsernameTakenAsync(user.Username)) throw new Exception("Username already exists.");
+                if (await IsEmailTakenAsync(user.Email)) throw new Exception("Email already exists.");
 
                 user.RegisteredDate = DateTime.Now;
                 user.IsApproved = false;
 
-                _userRepository.RegisterUser(user);
-                int userID = _userRepository.GetUserByUsername(user.Username).UserID;
+                await _userRepository.RegisterUserAsync(user);
+                int userID = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
 
                 switch (user.Role)
                 {
                     case "Student":
                         if (courseID == null) throw new Exception("Course must be selected for students.");
-                        _studentRepository.AddStudent(userID, user.FullName, courseID.Value, DateTime.Now);
+                        await _studentRepository.AddStudentAsync(userID, user.FullName, courseID.Value, DateTime.Now);
                         break;
 
                     case "Staff":
                         if (departmentID == null) throw new Exception("Department must be selected for staff.");
-                        _staffRepository.AddStaff(userID, user.FullName, departmentID.Value, position);
+                        await _staffRepository.AddStaffAsync(userID, user.FullName, departmentID.Value, position);
                         break;
 
                     case "Lecturer":
                         if (departmentID == null) throw new Exception("Department must be selected for lecturer.");
-                        _lecturerRepository.AddLecturer(userID, user.FullName, departmentID.Value);
+                        await _lecturerRepository.AddLecturerAsync(userID, user.FullName, departmentID.Value);
                         break;
                 }
             }
@@ -91,29 +91,31 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public bool Login(string username, string password, out User user)
+
+        public async Task<(bool isSuccess, User user)> LoginAsync(string username, string password)
         {
-            user = null;
             try
             {
-                user = _userRepository.GetUserByUsername(username);
+                var user = await _userRepository.GetUserByUsernameAsync(username);
                 if (user == null || !user.IsApproved)
-                    return false;
+                    return (false, null);
 
-                return PasswordHasher.VerifyPassword(password, user.Password);
+                bool verified = PasswordHasher.VerifyPassword(password, user.Password);
+                return (verified, verified ? user : null);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserService.Login");
-                return false;
+                ErrorLogger.Log(ex, "UserService.LoginAsync");
+                return (false, null);
             }
         }
 
-        public void ApproveUser(int userID)
+
+        public async Task ApproveUserAsync(int userID)
         {
             try
             {
-                _userRepository.ApproveUser(userID);
+                await _userRepository.ApproveUserAsync(userID);
             }
             catch (Exception ex)
             {
@@ -122,12 +124,12 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public List<PendingUserViewModel> GetPendingApprovals()
+        public async Task<List<PendingUserViewModel>> GetPendingApprovalsAsync()
         {
             var result = new List<PendingUserViewModel>();
             try
             {
-                var pendingUsers = _userRepository.GetUsers().Where(u => !u.IsApproved).ToList();
+                var pendingUsers = (await _userRepository.GetUsersAsync()).Where(u => !u.IsApproved).ToList();
 
                 foreach (var user in pendingUsers)
                 {
@@ -143,14 +145,14 @@ namespace UnicomTICManagementSystem.Services
                     };
 
                     if (user.Role == "Student")
-                        viewModel.CourseName = _studentRepository.GetStudentByUserId(user.UserID)?.CourseName;
+                        viewModel.CourseName = (await _studentRepository.GetStudentByUserIdAsync(user.UserID))?.CourseName;
 
                     else if (user.Role == "Lecturer")
-                        viewModel.DepartmentName = _lecturerRepository.GetLecturerByUserId(user.UserID)?.DepartmentName;
+                        viewModel.DepartmentName = (await _lecturerRepository.GetLecturerByUserIdAsync(user.UserID))?.DepartmentName;
 
                     else if (user.Role == "Staff")
                     {
-                        var staff = _staffRepository.GetStaffByUserId(user.UserID);
+                        var staff = await _staffRepository.GetStaffByUserIdAsync(user.UserID);
                         viewModel.DepartmentName = staff?.DepartmentName;
                         viewModel.PositionName = staff?.PositionName;
                     }
@@ -166,11 +168,11 @@ namespace UnicomTICManagementSystem.Services
             return result;
         }
 
-        public User GetUserByUsername(string username)
+        public async Task<User> GetUserByUsernameAsync(string username)
         {
             try
             {
-                return _userRepository.GetUserByUsername(username);
+                return await _userRepository.GetUserByUsernameAsync(username);
             }
             catch (Exception ex)
             {
@@ -179,11 +181,11 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public User GetUserById(int userID)
+        public async Task<User> GetUserByIdAsync(int userID)
         {
             try
             {
-                return _userRepository.GetUserByID(userID);
+                return await _userRepository.GetUserByIDAsync(userID);
             }
             catch (Exception ex)
             {
@@ -192,14 +194,14 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public void AdminRegisterLecturer(User user, int departmentID)
+        public async Task AdminRegisterLecturerAsync(User user, int departmentID)
         {
             try
             {
-                _userRepository.RegisterUser(user);
-                var createdUser = _userRepository.GetUserByUsername(user.Username);
+                await _userRepository.RegisterUserAsync(user);
+                var createdUser = await _userRepository.GetUserByUsernameAsync(user.Username);
                 if (createdUser != null)
-                    _lecturerRepository.AddLecturer(createdUser.UserID, user.FullName, departmentID);
+                    await _lecturerRepository.AddLecturerAsync(createdUser.UserID, user.FullName, departmentID);
             }
             catch (Exception ex)
             {
@@ -208,17 +210,17 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public void AdminRegisterStaff(User user, int departmentID, int positionID)
+        public async Task AdminRegisterStaffAsync(User user, int departmentID, int positionID)
         {
             try
             {
-                var existingUser = _userRepository.GetUserByUsername(user.Username);
+                var existingUser = await _userRepository.GetUserByUsernameAsync(user.Username);
                 int userId;
 
                 if (existingUser != null)
                 {
                     userId = existingUser.UserID;
-                    if (_staffRepository.StaffExistsByUserId(userId))
+                    if (await _staffRepository.StaffExistsByUserIdAsync(userId))
                         throw new Exception("❌ Staff already exists for this user.");
                 }
                 else
@@ -228,11 +230,11 @@ namespace UnicomTICManagementSystem.Services
                     user.RegisteredDate = DateTime.Now;
                     user.IsApproved = true;
 
-                    _userRepository.RegisterUser(user);
-                    userId = _userRepository.GetUserByUsername(user.Username).UserID;
+                    await _userRepository.RegisterUserAsync(user);
+                    userId = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
                 }
 
-                _staffRepository.AddStaff(userId, user.FullName, departmentID, positionID);
+                await _staffRepository.AddStaffAsync(userId, user.FullName, departmentID, positionID);
             }
             catch (Exception ex)
             {
@@ -241,7 +243,7 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public void ValidateUser(User user)
+        public Task ValidateUserAsync(User user)
         {
             if (string.IsNullOrWhiteSpace(user.Username))
                 throw new Exception("Username is required.");
@@ -257,13 +259,16 @@ namespace UnicomTICManagementSystem.Services
 
             if (string.IsNullOrWhiteSpace(user.FullName))
                 throw new Exception("Full Name is required.");
+
+            return Task.CompletedTask;
         }
 
-        public bool IsUsernameTaken(string username)
+
+        public async Task<bool> IsUsernameTakenAsync(string username)
         {
             try
             {
-                return _userRepository.GetUserByUsername(username) != null;
+                return (await _userRepository.GetUserByUsernameAsync(username)) != null;
             }
             catch (Exception ex)
             {
@@ -272,11 +277,11 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public bool IsEmailTaken(string email)
+        public async Task<bool> IsEmailTakenAsync(string email)
         {
             try
             {
-                return _userRepository.GetUserByEmail(email) != null;
+                return (await _userRepository.GetUserByEmailAsync(email)) != null;
             }
             catch (Exception ex)
             {

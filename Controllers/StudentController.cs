@@ -19,141 +19,141 @@ namespace UnicomTICManagementSystem.Controllers
             _studentService = studentService;
         }
 
-        public void AddStudent(int userID, string name, int courseID, DateTime enrollmentDate)
+        public async Task AddStudentAsync(int userID, string name, int courseID, DateTime enrollmentDate)
         {
             try
             {
-                _studentService.AddStudent(userID, name, courseID, enrollmentDate);
+                await _studentService.AddStudentAsync(userID, name, courseID, enrollmentDate);
                 MessageBox.Show("✅ Student added successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.AddStudent");
+                ErrorLogger.Log(ex, "StudentController.AddStudentAsync");
                 MessageBox.Show("❌ Failed to add student: " + ex.Message);
             }
         }
 
-        public void UpdateStudent(Student student)
+        public async Task UpdateStudentAsync(Student student)
         {
             try
             {
-                _studentService.UpdateStudent(student);
+                await _studentService.UpdateStudentAsync(student);
                 MessageBox.Show("✅ Student updated successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.UpdateStudent");
+                ErrorLogger.Log(ex, "StudentController.UpdateStudentAsync");
                 MessageBox.Show("❌ Failed to update student: " + ex.Message);
             }
         }
 
-        public void DeleteStudent(int studentID)
+        public async Task DeleteStudentAsync(int studentID)
         {
             try
             {
-                _studentService.DeleteStudent(studentID);
+                await _studentService.DeleteStudentAsync(studentID);
                 MessageBox.Show("🗑️ Student deleted successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.DeleteStudent");
+                ErrorLogger.Log(ex, "StudentController.DeleteStudentAsync");
                 MessageBox.Show("❌ Failed to delete student: " + ex.Message);
             }
         }
 
-        public List<Student> GetAllStudents()
+        public async Task<List<Student>> GetAllStudentsAsync()
         {
             try
             {
-                return _studentService.GetAllStudents();
+                return await _studentService.GetAllStudentsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetAllStudents");
+                ErrorLogger.Log(ex, "StudentController.GetAllStudentsAsync");
                 MessageBox.Show("❌ Failed to retrieve student list.");
                 return new List<Student>();
             }
         }
 
-        public List<Student> SearchStudents(string keyword)
+        public async Task<List<Student>> SearchStudentsAsync(string keyword)
         {
             try
             {
-                return _studentService.SearchStudents(keyword);
+                return await _studentService.SearchStudentsAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.SearchStudents");
+                ErrorLogger.Log(ex, "StudentController.SearchStudentsAsync");
                 MessageBox.Show("❌ Failed to search students.");
                 return new List<Student>();
             }
         }
 
-        public Student GetStudentByID(int studentID)
+        public async Task<Student> GetStudentByIDAsync(int studentID)
         {
             try
             {
-                return _studentService.GetStudentByID(studentID);
+                return await _studentService.GetStudentByIDAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetStudentByID");
+                ErrorLogger.Log(ex, "StudentController.GetStudentByIDAsync");
                 MessageBox.Show("❌ Failed to retrieve student.");
                 return null;
             }
         }
 
-        public StudentDetails GetStudentFullDetailsByID(int studentID)
+        public async Task<StudentDetails> GetStudentFullDetailsByIDAsync(int studentID)
         {
             try
             {
-                return _studentService.GetStudentFullDetailsByID(studentID);
+                return await _studentService.GetStudentFullDetailsByIDAsync(studentID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetStudentFullDetailsByID");
+                ErrorLogger.Log(ex, "StudentController.GetStudentFullDetailsByIDAsync");
                 MessageBox.Show("❌ Failed to get full student details.");
                 return null;
             }
         }
 
-        public List<Student> GetStudentsByCourse(int courseID)
+        public async Task<List<Student>> GetStudentsByCourseAsync(int courseID)
         {
             try
             {
-                return _studentService.GetStudentsByCourse(courseID);
+                return await _studentService.GetStudentsByCourseAsync(courseID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetStudentsByCourse");
+                ErrorLogger.Log(ex, "StudentController.GetStudentsByCourseAsync");
                 MessageBox.Show("❌ Failed to get students for course.");
                 return new List<Student>();
             }
         }
 
-        public List<Student> GetStudentsBySubject(int subjectID)
+        public async Task<List<Student>> GetStudentsBySubjectAsync(int subjectID)
         {
             try
             {
-                return _studentService.GetStudentsBySubject(subjectID);
+                return await _studentService.GetStudentsBySubjectAsync(subjectID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetStudentsBySubject");
+                ErrorLogger.Log(ex, "StudentController.GetStudentsBySubjectAsync");
                 MessageBox.Show("❌ Failed to get students for subject.");
                 return new List<Student>();
             }
         }
 
-        public int GetStudentIDByUserID(int userID)
+        public async Task<int> GetStudentIDByUserIDAsync(int userID)
         {
             try
             {
-                return _studentService.GetStudentIDByUserID(userID);
+                return await _studentService.GetStudentIDByUserIDAsync(userID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentController.GetStudentIDByUserID");
+                ErrorLogger.Log(ex, "StudentController.GetStudentIDByUserIDAsync");
                 MessageBox.Show("❌ Failed to retrieve student ID.");
                 return -1;
             }

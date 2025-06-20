@@ -19,16 +19,16 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public void Register(User user, int? courseID, int? departmentID, int position)
+        public async Task RegisterAsync(User user, int? courseID, int? departmentID, int position)
         {
             try
             {
-                _userService.RegisterUser(user, courseID, departmentID, position);
+                await _userService.RegisterUserAsync(user, courseID, departmentID, position);
                 MessageBox.Show("✅ Registration successful!");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "RegistrationController.Register");
+                ErrorLogger.Log(ex, "RegistrationController.RegisterAsync");
                 MessageBox.Show("❌ Registration failed: " + ex.Message);
             }
         }

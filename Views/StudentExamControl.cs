@@ -45,7 +45,7 @@ namespace UnicomTICManagementSystem.Views
             _studentController = new StudentController(studentService);
 
             InitializeUI();
-            LoadSubjectsForStudent();
+            _ = LoadSubjectsForStudentAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -69,20 +69,20 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.AddRange(new Control[] { lblSubject, cmbSubject, dgvExams });
         }
 
-        private void LoadSubjectsForStudent()
+        private async Task LoadSubjectsForStudentAsync()
         {
             try
             {
                 cmbSubject.SelectedIndexChanged -= cmbSubject_SelectedIndexChanged; // Temporarily detach to avoid unintended triggers
 
-                Student student = _studentController.GetStudentByID(studentID);
+                Student student = await _studentController.GetStudentByIDAsync(studentID);
                 if (student == null)
                 {
                     MessageBox.Show("Student data not found.", "Error");
                     return;
                 }
 
-                var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
+                var subjects = await _subjectController.GetSubjectsByCourseAsync(student.CourseID);
                 if (subjects == null || subjects.Count == 0)
                 {
                     MessageBox.Show("No subjects found for the student's course.", "No Subjects");
@@ -105,7 +105,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void cmbSubject_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbSubject_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace UnicomTICManagementSystem.Views
                     return;
                 }
 
-                var exams = _examController.GetExamsBySubject(subjectID);
+                var exams = await _examController.GetExamsBySubjectAsync(subjectID);
                 if (exams == null || exams.Count == 0)
                 {
                     dgvExams.DataSource = null;

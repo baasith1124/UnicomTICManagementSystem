@@ -36,7 +36,7 @@ namespace UnicomTICManagementSystem.Views
             _departmentController = new DepartmentController(departmentService);
 
             InitializeUI();
-            LoadDepartments();
+            _ = LoadDepartmentsAsync();
 
             UIThemeHelper.ApplyTheme(this);
         }
@@ -89,11 +89,12 @@ namespace UnicomTICManagementSystem.Views
             this.Controls.Add(panelForm);
         }
 
-        private void LoadDepartments()
+        private async Task LoadDepartmentsAsync()
         {
             try
             {
-                dgvDepartments.DataSource = _departmentController.GetAllDepartments();
+                var departments = await _departmentController.GetAllDepartmentsAsync();
+                dgvDepartments.DataSource = departments;
                 dgvDepartments.ClearSelection();
                 selectedDepartmentID = -1;
 
@@ -106,7 +107,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
@@ -114,12 +115,12 @@ namespace UnicomTICManagementSystem.Views
 
                 if (string.IsNullOrEmpty(keyword))
                 {
-                    LoadDepartments();
+                    await LoadDepartmentsAsync();
                     return;
                 }
 
-                var filtered = _departmentController.GetAllDepartments()
-                    .FindAll(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
+                var departments = await _departmentController.GetAllDepartmentsAsync();
+                var filtered = departments.FindAll(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
 
                 dgvDepartments.DataSource = filtered;
             }
@@ -143,7 +144,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtDepartmentName.Text))
             {
@@ -160,17 +161,17 @@ namespace UnicomTICManagementSystem.Views
             {
                 if (!isUpdateMode)
                 {
-                    _departmentController.AddDepartment(dept);
+                    await _departmentController.AddDepartmentAsync(dept);
                     MessageBox.Show("Department successfully added.");
                 }
                 else
                 {
                     dept.DepartmentID = selectedDepartmentID;
-                    _departmentController.UpdateDepartment(dept);
+                    await _departmentController.UpdateDepartmentAsync(dept);
                     MessageBox.Show("Department successfully updated.");
                 }
 
-                LoadDepartments();
+                await LoadDepartmentsAsync();
                 SwitchToGrid();
             }
             catch (Exception ex)
@@ -201,7 +202,7 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             try
             {
@@ -215,9 +216,9 @@ namespace UnicomTICManagementSystem.Views
                 var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
                 if (confirm == DialogResult.Yes)
                 {
-                    _departmentController.DeleteDepartment(departmentID);
+                    await _departmentController.DeleteDepartmentAsync(departmentID);
                     MessageBox.Show("✅ Department deleted successfully.");
-                    LoadDepartments();
+                    await LoadDepartmentsAsync();
                 }
             }
             catch (Exception ex)

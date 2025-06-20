@@ -18,103 +18,103 @@ namespace UnicomTICManagementSystem.Services
             _timetableRepository = timetableRepository;
         }
 
-        public void AddTimetable(Timetable timetable)
+        public async Task AddTimetableAsync(Timetable timetable)
         {
             try
             {
-                _timetableRepository.AddTimetable(timetable);
+                await _timetableRepository.AddTimetableAsync(timetable);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.AddTimetable");
+                ErrorLogger.Log(ex, "TimetableService.AddTimetableAsync");
             }
         }
 
-        public void UpdateTimetable(Timetable timetable)
+        public async Task UpdateTimetableAsync(Timetable timetable)
         {
             try
             {
-                _timetableRepository.UpdateTimetable(timetable);
+                await _timetableRepository.UpdateTimetableAsync(timetable);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.UpdateTimetable");
+                ErrorLogger.Log(ex, "TimetableService.UpdateTimetableAsync");
             }
         }
 
-        public void DeleteTimetable(int timetableID)
+        public async Task DeleteTimetableAsync(int timetableID)
         {
             try
             {
-                _timetableRepository.DeleteTimetable(timetableID);
+                await _timetableRepository.DeleteTimetableAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.DeleteTimetable");
+                ErrorLogger.Log(ex, "TimetableService.DeleteTimetableAsync");
             }
         }
 
-        public List<Timetable> GetAllTimetables()
+        public async Task<List<Timetable>> GetAllTimetablesAsync()
         {
             try
             {
-                return _timetableRepository.GetAllTimetables();
+                return await _timetableRepository.GetAllTimetablesAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.GetAllTimetables");
+                ErrorLogger.Log(ex, "TimetableService.GetAllTimetablesAsync");
                 return new List<Timetable>();
             }
         }
 
-        public List<Timetable> SearchTimetables(string keyword)
+        public async Task<List<Timetable>> SearchTimetablesAsync(string keyword)
         {
             try
             {
-                return _timetableRepository.SearchTimetables(keyword);
+                return await _timetableRepository.SearchTimetablesAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.SearchTimetables");
+                ErrorLogger.Log(ex, "TimetableService.SearchTimetablesAsync");
                 return new List<Timetable>();
             }
         }
 
-        public Timetable GetTimetableBySubjectAndDate(int subjectID, DateTime date)
+        public async Task<Timetable> GetTimetableBySubjectAndDateAsync(int subjectID, DateTime date)
         {
             try
             {
-                return _timetableRepository.GetTimetableBySubjectAndDate(subjectID, date);
+                return await _timetableRepository.GetTimetableBySubjectAndDateAsync(subjectID, date);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.GetTimetableBySubjectAndDate");
+                ErrorLogger.Log(ex, "TimetableService.GetTimetableBySubjectAndDateAsync");
                 return null;
             }
         }
 
-        public Timetable GetTimetableByID(int timetableID)
+        public async Task<Timetable> GetTimetableByIDAsync(int timetableID)
         {
             try
             {
-                return _timetableRepository.GetTimetableByID(timetableID);
+                return await _timetableRepository.GetTimetableByIDAsync(timetableID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.GetTimetableByID");
+                ErrorLogger.Log(ex, "TimetableService.GetTimetableByIDAsync");
                 return null;
             }
         }
 
-        public List<Timetable> GetTimetablesByLecturer(int lecturerID)
+        public async Task<List<Timetable>> GetTimetablesByLecturerAsync(int lecturerID)
         {
             try
             {
-                return _timetableRepository.GetTimetablesByLecturer(lecturerID);
+                return await _timetableRepository.GetTimetablesByLecturerAsync(lecturerID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "TimetableService.GetTimetablesByLecturer");
+                ErrorLogger.Log(ex, "TimetableService.GetTimetablesByLecturerAsync");
                 return new List<Timetable>();
             }
         }

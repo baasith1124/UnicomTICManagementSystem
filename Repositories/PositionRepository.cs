@@ -13,39 +13,36 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class PositionRepository : IPositionRepository
     {
-        public List<Position> GetPositionsByDepartment(int departmentID)
+        public async Task<List<Position>> GetPositionsByDepartmentAsync(int departmentID)
         {
             var positions = new List<Position>();
-
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT PositionID, DepartmentID, PositionName 
-                                     FROM Positions 
-                                     WHERE DepartmentID = @DepartmentID";
+                string query = @"SELECT PositionID, DepartmentID, PositionName 
+                                 FROM Positions 
+                                 WHERE DepartmentID = @DepartmentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@DepartmentID", departmentID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                        using (var reader = cmd.ExecuteReader())
+                        positions.Add(new Position
                         {
-                            while (reader.Read())
-                            {
-                                positions.Add(new Position
-                                {
-                                    PositionID = Convert.ToInt32(reader["PositionID"]),
-                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                    PositionName = reader["PositionName"].ToString()
-                                });
-                            }
-                        }
+                            PositionID = Convert.ToInt32(reader["PositionID"]),
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            PositionName = reader["PositionName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "PositionRepository.GetPositionsByDepartment");
+                ErrorLogger.Log(ex, nameof(GetPositionsByDepartmentAsync));
             }
 
             return positions;

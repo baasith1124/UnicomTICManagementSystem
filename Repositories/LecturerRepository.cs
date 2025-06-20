@@ -13,282 +13,285 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class LecturerRepository : ILecturerRepository
     {
-        public void AddLecturer(int userID, string name, int departmentID)
+        public async Task AddLecturerAsync(int userID, string name, int departmentID)
         {
             try
             {
-                if (LecturerExistsByUserId(userID))
+                if (await LecturerExistsByUserIdAsync(userID))
                     throw new Exception("❌ Lecturer already exists for this user.");
 
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"INSERT INTO Lecturers 
-                                    (UserID, Name, DepartmentID)
-                                    VALUES (@UserID, @Name, @DepartmentID)";
+                string query = @"INSERT INTO Lecturers 
+                         (UserID, Name, DepartmentID) 
+                         VALUES (@UserID, @Name, @DepartmentID)";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        cmd.Parameters.AddWithValue("@Name", name);
-                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@UserID", userID },
+                    { "@Name", name },
+                    { "@DepartmentID", departmentID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.AddLecturer");
+                ErrorLogger.Log(ex, "LecturerRepository.AddLecturerAsync");
                 throw;
             }
         }
 
-        public bool LecturerExistsByUserId(int userId)
+
+        public async Task<bool> LecturerExistsByUserIdAsync(int userId)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT COUNT(1) FROM Lecturers WHERE UserID = @UserID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT COUNT(1) FROM Lecturers WHERE UserID = @UserID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@UserID", userId);
-                        return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-                    }
-                }
+                    { "@UserID", userId }
+                };
+
+                object result = await DatabaseManager.ExecuteScalarAsync(query, parameters);
+
+                return Convert.ToInt32(result) > 0;
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.LecturerExistsByUserId");
+                ErrorLogger.Log(ex, "LecturerRepository.LecturerExistsByUserIdAsync");
                 return false;
             }
         }
 
-        public void UpdateLecturer(Lecturer lecturer)
+
+        public async Task UpdateLecturerAsync(Lecturer lecturer)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"UPDATE Lecturers SET 
-                                    Name = @Name,
-                                    DepartmentID = @DepartmentID
-                                    WHERE LecturerID = @LecturerID";
+                string query = @"
+                    UPDATE Lecturers SET 
+                        Name = @Name,
+                        DepartmentID = @DepartmentID
+                    WHERE LecturerID = @LecturerID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Name", lecturer.Name);
-                        cmd.Parameters.AddWithValue("@DepartmentID", lecturer.DepartmentID);
-                        cmd.Parameters.AddWithValue("@LecturerID", lecturer.LecturerID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@Name", lecturer.Name },
+                    { "@DepartmentID", lecturer.DepartmentID },
+                    { "@LecturerID", lecturer.LecturerID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.UpdateLecturer");
+                ErrorLogger.Log(ex, "LecturerRepository.UpdateLecturerAsync");
             }
         }
 
-        public void DeleteLecturer(int lecturerID)
+
+        public async Task DeleteLecturerAsync(int lecturerID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "DELETE FROM Lecturers WHERE LecturerID = @LecturerID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "DELETE FROM Lecturers WHERE LecturerID = @LecturerID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@LecturerID", lecturerID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    { "@LecturerID", lecturerID }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.DeleteLecturer");
+                ErrorLogger.Log(ex, "LecturerRepository.DeleteLecturerAsync");
             }
         }
 
-        public List<Lecturer> GetAllLecturers()
+
+        public async Task<List<Lecturer>> GetAllLecturersAsync()
         {
             var lecturers = new List<Lecturer>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT l.LecturerID, l.UserID, l.Name, 
-                               l.DepartmentID, d.DepartmentName,
-                               u.Email, u.Phone
-                        FROM Lecturers l
-                        INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                        INNER JOIN Users u ON l.UserID = u.UserID";
+                string query = @"
+                    SELECT l.LecturerID, l.UserID, l.Name, 
+                           l.DepartmentID, d.DepartmentName,
+                           u.Email, u.Phone
+                    FROM Lecturers l
+                    INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                    INNER JOIN Users u ON l.UserID = u.UserID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
+                using (reader)
+                {
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        lecturers.Add(new Lecturer
                         {
-                            lecturers.Add(new Lecturer
-                            {
-                                LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                UserID = Convert.ToInt32(reader["UserID"]),
-                                Name = reader["Name"].ToString(),
-                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                DepartmentName = reader["DepartmentName"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                Phone = reader["Phone"].ToString()
-                            });
-                        }
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.GetAllLecturers");
+                ErrorLogger.Log(ex, "LecturerRepository.GetAllLecturersAsync");
             }
             return lecturers;
         }
 
-        public List<Lecturer> SearchLecturers(string keyword)
+
+        public async Task<List<Lecturer>> SearchLecturersAsync(string keyword)
         {
             var lecturers = new List<Lecturer>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
-                                     l.DepartmentID, d.DepartmentName
-                                     FROM Lecturers l
-                                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                                     WHERE l.Name LIKE @keyword";
+                string query = @"
+                    SELECT l.LecturerID, l.UserID, l.Name, 
+                           l.DepartmentID, d.DepartmentName
+                    FROM Lecturers l
+                    INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                    WHERE l.Name LIKE @keyword";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@keyword", $"%{keyword}%" }
+                };
+
+                var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters);
+                using (reader)
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
-                        using (var reader = cmd.ExecuteReader())
+                        lecturers.Add(new Lecturer
                         {
-                            while (reader.Read())
-                            {
-                                lecturers.Add(new Lecturer
-                                {
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    UserID = Convert.ToInt32(reader["UserID"]),
-                                    Name = reader["Name"].ToString(),
-                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                    DepartmentName = reader["DepartmentName"].ToString()
-                                });
-                            }
-                        }
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.SearchLecturers");
+                ErrorLogger.Log(ex, "LecturerRepository.SearchLecturersAsync");
             }
             return lecturers;
         }
 
-        public Lecturer GetLecturerByID(int lecturerID)
+
+        public async Task<Lecturer> GetLecturerByIDAsync(int lecturerID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
-                                     l.DepartmentID, d.DepartmentName
-                                     FROM Lecturers l
-                                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                                     WHERE l.LecturerID = @LecturerID";
+                string query = @"
+                    SELECT l.LecturerID, l.UserID, l.Name, 
+                           l.DepartmentID, d.DepartmentName
+                    FROM Lecturers l
+                    INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                    WHERE l.LecturerID = @LecturerID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@LecturerID", lecturerID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@LecturerID", lecturerID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Lecturer
                         {
-                            if (reader.Read())
-                            {
-                                return new Lecturer
-                                {
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    UserID = Convert.ToInt32(reader["UserID"]),
-                                    Name = reader["Name"].ToString(),
-                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                    DepartmentName = reader["DepartmentName"].ToString()
-                                };
-                            }
-                        }
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString()
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerByID");
+                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerByIDAsync");
             }
             return null;
         }
 
-        public Lecturer GetLecturerByUserId(int userID)
+
+        public async Task<Lecturer> GetLecturerByUserIdAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT l.LecturerID, l.UserID, l.Name, 
-                                     l.DepartmentID, d.DepartmentName
-                                     FROM Lecturers l
-                                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                                     WHERE l.UserID = @UserID";
+                string query = @"
+                    SELECT l.LecturerID, l.UserID, l.Name, 
+                           l.DepartmentID, d.DepartmentName
+                    FROM Lecturers l
+                    INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
+                    WHERE l.UserID = @UserID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@UserID", userID }
+                };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Lecturer
                         {
-                            if (reader.Read())
-                            {
-                                return new Lecturer
-                                {
-                                    LecturerID = Convert.ToInt32(reader["LecturerID"]),
-                                    UserID = Convert.ToInt32(reader["UserID"]),
-                                    Name = reader["Name"].ToString(),
-                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                    DepartmentName = reader["DepartmentName"].ToString()
-                                };
-                            }
-                        }
+                            LecturerID = Convert.ToInt32(reader["LecturerID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                            DepartmentName = reader["DepartmentName"].ToString()
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerByUserId");
+                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerByUserIdAsync");
             }
             return null;
         }
 
-        public int GetLecturerIDByUserID(int userID)
+
+        public async Task<int> GetLecturerIDByUserIDAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT LecturerID FROM Lecturers WHERE UserID = @userID";
+
+                var parameters = new Dictionary<string, object>
                 {
-                    string query = "SELECT LecturerID FROM Lecturers WHERE UserID = @userID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@userID", userID);
-                        object result = cmd.ExecuteScalar();
-                        return result != null ? Convert.ToInt32(result) : -1;
-                    }
-                }
+                    { "@userID", userID }
+                };
+
+                object result = await DatabaseManager.ExecuteScalarAsync(query, parameters);
+
+                return result != null && int.TryParse(result.ToString(), out int lecturerID)
+                    ? lecturerID
+                    : -1;
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerIDByUserID");
+                ErrorLogger.Log(ex, "LecturerRepository.GetLecturerIDByUserIDAsync");
                 return -1;
             }
         }
+
 
 
 

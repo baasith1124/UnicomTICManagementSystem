@@ -9,11 +9,11 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IExamRepository
     {
-        void AddExam(Exam exam);
-        void UpdateExam(Exam exam);
-        void DeleteExam(int examID);
-        Exam GetExamByID(int examID);
-        List<Exam> GetAllExams();
-        List<Exam> GetExamsBySubject(int subjectID);
+        Task AddExamAsync(Exam exam);
+        Task UpdateExamAsync(Exam exam);
+        Task DeleteExamAsync(int examID);
+        Task<Exam> GetExamByIDAsync(int examID);
+        Task<List<Exam>> GetAllExamsAsync();
+        Task<List<Exam>> GetExamsBySubjectAsync(int subjectID);
     }
 }

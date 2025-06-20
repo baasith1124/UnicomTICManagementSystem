@@ -13,387 +13,372 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
-        public void AddStudent(int userID, string name, int courseID, DateTime enrollmentDate)
+        public async Task AddStudentAsync(int userID, string name, int courseID, DateTime enrollmentDate)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"INSERT INTO Students 
-                                    (UserID, Name, CourseID, EnrollmentDate)
-                                    VALUES (@UserID, @Name, @CourseID, @EnrollmentDate)";
+                string query = @"INSERT INTO Students (UserID, Name, CourseID, EnrollmentDate)
+                                 VALUES (@UserID, @Name, @CourseID, @EnrollmentDate)";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        cmd.Parameters.AddWithValue("@Name", name);
-                        cmd.Parameters.AddWithValue("@CourseID", courseID);
-                        cmd.Parameters.AddWithValue("@EnrollmentDate", enrollmentDate.ToString("yyyy-MM-dd"));
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    {"@UserID", userID},
+                    {"@Name", name},
+                    {"@CourseID", courseID},
+                    {"@EnrollmentDate", enrollmentDate.ToString("yyyy-MM-dd")}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.AddStudent");
+                ErrorLogger.Log(ex, "StudentRepository.AddStudentAsync");
             }
         }
 
-        public void UpdateStudent(Student student)
+        public async Task UpdateStudentAsync(Student student)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"UPDATE Students SET 
-                                        Name = @Name,
-                                        CourseID = @CourseID,
-                                        EnrollmentDate = @EnrollmentDate
-                                    WHERE StudentID = @StudentID";
+                string query = @"UPDATE Students SET Name = @Name, CourseID = @CourseID, EnrollmentDate = @EnrollmentDate
+                                 WHERE StudentID = @StudentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Name", student.Name);
-                        cmd.Parameters.AddWithValue("@CourseID", student.CourseID);
-                        cmd.Parameters.AddWithValue("@EnrollmentDate", student.EnrollmentDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@StudentID", student.StudentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    {"@Name", student.Name},
+                    {"@CourseID", student.CourseID},
+                    {"@EnrollmentDate", student.EnrollmentDate.ToString("yyyy-MM-dd")},
+                    {"@StudentID", student.StudentID}
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.UpdateStudent");
+                ErrorLogger.Log(ex, "StudentRepository.UpdateStudentAsync");
             }
         }
 
-        public void DeleteStudent(int studentID)
+        public async Task DeleteStudentAsync(int studentID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = "DELETE FROM Students WHERE StudentID = @StudentID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@StudentID", studentID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                string query = "DELETE FROM Students WHERE StudentID = @StudentID";
+                var parameters = new Dictionary<string, object> { { "@StudentID", studentID } };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.DeleteStudent");
+                ErrorLogger.Log(ex, "StudentRepository.DeleteStudentAsync");
             }
         }
 
-        public List<Student> GetAllStudents()
+        public async Task<List<Student>> GetAllStudentsAsync()
         {
             var students = new List<Student>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                        SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
-                               c.CourseName, u.Email, u.Phone
-                        FROM Students s
-                        INNER JOIN Courses c ON s.CourseID = c.CourseID
-                        INNER JOIN Users u ON s.UserID = u.UserID";
+                string query = @"SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate,
+                                       c.CourseName, u.Email, u.Phone
+                                FROM Students s
+                                INNER JOIN Courses c ON s.CourseID = c.CourseID
+                                INNER JOIN Users u ON s.UserID = u.UserID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    using (var reader = cmd.ExecuteReader())
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        while (reader.Read())
+                        students.Add(new Student
                         {
-                            students.Add(new Student
-                            {
-                                StudentID = Convert.ToInt32(reader["StudentID"]),
-                                UserID = Convert.ToInt32(reader["UserID"]),
-                                Name = reader["Name"].ToString(),
-                                CourseID = Convert.ToInt32(reader["CourseID"]),
-                                EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                CourseName = reader["CourseName"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                Phone = reader["Phone"].ToString()
-                            });
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                            CourseName = reader["CourseName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetAllStudents");
+                ErrorLogger.Log(ex, "StudentRepository.GetAllStudentsAsync");
             }
             return students;
         }
+        //-----------
 
-
-        public List<Student> SearchStudents(string keyword)
+        public async Task<List<Student>> SearchStudentsAsync(string keyword)
         {
             var students = new List<Student>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = @"
+            SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
+                   c.CourseName, u.Email, u.Phone
+            FROM Students s
+            INNER JOIN Courses c ON s.CourseID = c.CourseID
+            INNER JOIN Users u ON s.UserID = u.UserID
+            WHERE s.Name LIKE @keyword";
+
+                var parameters = new Dictionary<string, object>
+        {
+            { "@keyword", $"%{keyword}%" }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = @"
-                        SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
-                               c.CourseName, u.Email, u.Phone
-                        FROM Students s
-                        INNER JOIN Courses c ON s.CourseID = c.CourseID
-                        INNER JOIN Users u ON s.UserID = u.UserID
-                        WHERE s.Name LIKE @keyword";
-
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
-
-                        using (var reader = cmd.ExecuteReader())
+                        students.Add(new Student
                         {
-                            while (reader.Read())
-                            {
-                                students.Add(new Student
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    UserID = Convert.ToInt32(reader["UserID"]),
-                                    Name = reader["Name"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                    CourseName = reader["CourseName"].ToString(),
-                                    Email = reader["Email"].ToString(),
-                                    Phone = reader["Phone"].ToString()
-                                });
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                            CourseName = reader["CourseName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.SearchStudents");
+                ErrorLogger.Log(ex, "StudentRepository.SearchStudentsAsync");
             }
+
             return students;
         }
 
 
-        public Student GetStudentByID(int studentID)
+
+        public async Task<Student> GetStudentByIDAsync(int studentID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate 
-                                     FROM Students s
-                                     WHERE s.StudentID = @StudentID";
+                string query = @"
+            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate 
+            FROM Students s
+            WHERE s.StudentID = @StudentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@StudentID", studentID }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@StudentID", studentID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Student
                         {
-                            if (reader.Read())
-                            {
-                                return new Student
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    Name = reader["Name"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString())
-                                };
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString())
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentByID");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentByIDAsync");
             }
+
             return null;
         }
 
-        public StudentDetails GetStudentFullDetailsByID(int studentID)
+        public async Task<StudentDetails> GetStudentFullDetailsByIDAsync(int studentID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
-                SELECT s.StudentID, s.UserID, u.Username, u.Email, u.Phone, 
-                       s.Name as FullName, s.CourseID, c.CourseName, s.EnrollmentDate
-                FROM Students s
-                INNER JOIN Users u ON s.UserID = u.UserID
-                INNER JOIN Courses c ON s.CourseID = c.CourseID
-                WHERE s.StudentID = @StudentID";
+                string query = @"
+            SELECT s.StudentID, s.UserID, u.Username, u.Email, u.Phone, 
+                   s.Name as FullName, s.CourseID, c.CourseName, s.EnrollmentDate
+            FROM Students s
+            INNER JOIN Users u ON s.UserID = u.UserID
+            INNER JOIN Courses c ON s.CourseID = c.CourseID
+            WHERE s.StudentID = @StudentID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@StudentID", studentID }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@StudentID", studentID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new StudentDetails
                         {
-                            if (reader.Read())
-                            {
-                                return new StudentDetails
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    UserID = Convert.ToInt32(reader["UserID"]),
-                                    Username = reader["Username"].ToString(),
-                                    FullName = reader["FullName"].ToString(),
-                                    Email = reader["Email"].ToString(),
-                                    Phone = reader["Phone"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    CourseName = reader["CourseName"].ToString(),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString())
-                                };
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            UserID = Convert.ToInt32(reader["UserID"]),
+                            Username = reader["Username"].ToString(),
+                            FullName = reader["FullName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            CourseName = reader["CourseName"].ToString(),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString())
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentFullDetailsByID");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentFullDetailsByIDAsync");
             }
+
             return null;
         }
 
-        public List<Student> GetStudentsByCourse(int courseID)
+
+        public async Task<List<Student>> GetStudentsByCourseAsync(int courseID)
         {
             var students = new List<Student>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
-                             FROM Students s
-                             INNER JOIN Courses c ON s.CourseID = c.CourseID
-                             WHERE s.CourseID = @CourseID";
+                string query = @"
+            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+            FROM Students s
+            INNER JOIN Courses c ON s.CourseID = c.CourseID
+            WHERE s.CourseID = @CourseID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@CourseID", courseID }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@CourseID", courseID);
-                        using (var reader = cmd.ExecuteReader())
+                        students.Add(new Student
                         {
-                            while (reader.Read())
-                            {
-                                students.Add(new Student
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    Name = reader["Name"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                    CourseName = reader["CourseName"].ToString()
-                                });
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentsByCourse");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentsByCourseAsync");
             }
+
             return students;
         }
 
-        public List<Student> GetStudentsBySubject(int subjectID)
+
+        public async Task<List<Student>> GetStudentsBySubjectAsync(int subjectID)
         {
             var students = new List<Student>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
-                             FROM Students s
-                             INNER JOIN Courses c ON s.CourseID = c.CourseID
-                             INNER JOIN Subjects subj ON s.CourseID = subj.CourseID
-                             WHERE subj.SubjectID = @SubjectID";
+                string query = @"
+            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+            FROM Students s
+            INNER JOIN Courses c ON s.CourseID = c.CourseID
+            INNER JOIN Subjects subj ON s.CourseID = subj.CourseID
+            WHERE subj.SubjectID = @SubjectID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@SubjectID", subjectID }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    while (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@SubjectID", subjectID);
-                        using (var reader = cmd.ExecuteReader())
+                        students.Add(new Student
                         {
-                            while (reader.Read())
-                            {
-                                students.Add(new Student
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    Name = reader["Name"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                    CourseName = reader["CourseName"].ToString()
-                                });
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                            CourseName = reader["CourseName"].ToString()
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentsBySubject");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentsBySubjectAsync");
             }
+
             return students;
         }
-        public Student GetStudentByUserId(int userID)
+
+        public async Task<Student> GetStudentByUserIdAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
-                             FROM Students s
-                             INNER JOIN Courses c ON s.CourseID = c.CourseID
-                             WHERE s.UserID = @UserID";
+                string query = @"
+            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+            FROM Students s
+            INNER JOIN Courses c ON s.CourseID = c.CourseID
+            WHERE s.UserID = @UserID";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
+                var parameters = new Dictionary<string, object>
+        {
+            { "@UserID", userID }
+        };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+                {
+                    if (await reader.ReadAsync())
                     {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        using (var reader = cmd.ExecuteReader())
+                        return new Student
                         {
-                            if (reader.Read())
-                            {
-                                return new Student
-                                {
-                                    StudentID = Convert.ToInt32(reader["StudentID"]),
-                                    UserID = userID,
-                                    Name = reader["Name"].ToString(),
-                                    CourseID = Convert.ToInt32(reader["CourseID"]),
-                                    EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
-                                    CourseName = reader["CourseName"].ToString()
-                                };
-                            }
-                        }
+                            StudentID = Convert.ToInt32(reader["StudentID"]),
+                            UserID = userID,
+                            Name = reader["Name"].ToString(),
+                            CourseID = Convert.ToInt32(reader["CourseID"]),
+                            EnrollmentDate = DateTime.Parse(reader["EnrollmentDate"].ToString()),
+                            CourseName = reader["CourseName"].ToString()
+                        };
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentByUserId");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentByUserIdAsync");
             }
+
             return null;
         }
-        public int GetStudentIDByUserID(int userID)
+
+        public async Task<int> GetStudentIDByUserIDAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = "SELECT StudentID FROM Students WHERE UserID = @userID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@userID", userID);
-                        var result = cmd.ExecuteScalar();
-                        return result != null ? Convert.ToInt32(result) : -1;
-                    }
-                }
+                string query = "SELECT StudentID FROM Students WHERE UserID = @userID";
+
+                var parameters = new Dictionary<string, object>
+        {
+            { "@userID", userID }
+        };
+
+                var result = await DatabaseManager.ExecuteScalarAsync(query, parameters);
+
+                return result != null ? Convert.ToInt32(result) : -1;
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StudentRepository.GetStudentIDByUserID");
+                ErrorLogger.Log(ex, "StudentRepository.GetStudentIDByUserIDAsync");
                 return -1;
             }
         }
+
 
 
 

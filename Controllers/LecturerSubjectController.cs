@@ -19,41 +19,43 @@ namespace UnicomTICManagementSystem.Controllers
             _service = service;
         }
 
-        public void AssignSubject(int lecturerID, int subjectID, DateTime assignedDate)
+        public async Task AssignSubjectAsync(int lecturerID, int subjectID, DateTime assignedDate)
         {
             try
             {
-                _service.AssignSubject(lecturerID, subjectID, assignedDate);
+                await _service.AssignSubjectAsync(lecturerID, subjectID, assignedDate);
+                MessageBox.Show("✅ Subject assigned to lecturer successfully.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerSubjectController.AssignSubject");
+                ErrorLogger.Log(ex, "LecturerSubjectController.AssignSubjectAsync");
                 MessageBox.Show("❌ Failed to assign subject to lecturer.");
             }
         }
 
-        public void RemoveAssignment(int lecturerSubjectID)
+        public async Task RemoveAssignmentAsync(int lecturerSubjectID)
         {
             try
             {
-                _service.RemoveAssignment(lecturerSubjectID);
+                await _service.RemoveAssignmentAsync(lecturerSubjectID);
+                MessageBox.Show("🗑️ Subject assignment removed.");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerSubjectController.RemoveAssignment");
+                ErrorLogger.Log(ex, "LecturerSubjectController.RemoveAssignmentAsync");
                 MessageBox.Show("❌ Failed to remove subject assignment.");
             }
         }
 
-        public List<LecturerSubject> GetAllAssignments()
+        public async Task<List<LecturerSubject>> GetAllAssignmentsAsync()
         {
             try
             {
-                return _service.GetAllAssignments();
+                return await _service.GetAllAssignmentsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "LecturerSubjectController.GetAllAssignments");
+                ErrorLogger.Log(ex, "LecturerSubjectController.GetAllAssignmentsAsync");
                 MessageBox.Show("❌ Failed to retrieve subject assignments.");
                 return new List<LecturerSubject>();
             }

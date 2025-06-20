@@ -13,162 +13,155 @@ namespace UnicomTICManagementSystem.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public User GetUserByUsername(string username)
+        public async Task<User> GetUserByUsernameAsync(string username)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Users WHERE Username = @Username";
+                var parameters = new Dictionary<string, object> { { "@Username", username } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = "SELECT * FROM Users WHERE Username = @Username";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Username", username);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                return MapReaderToUser(reader);
-                        }
-                    }
+                    if (await reader.ReadAsync())
+                        return MapReaderToUser(reader);
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.GetUserByUsername");
+                ErrorLogger.Log(ex, "UserRepository.GetUserByUsernameAsync");
             }
             return null;
         }
-        public User GetUserByEmail(string email)
+
+        public async Task<User> GetUserByEmailAsync(string email)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Users WHERE Email = @Email";
+                var parameters = new Dictionary<string, object> { { "@Email", email } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = "SELECT * FROM Users WHERE Email = @Email";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                return MapReaderToUser(reader);
-                        }
-                    }
+                    if (await reader.ReadAsync())
+                        return MapReaderToUser(reader);
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.GetUserByEmail");
+                ErrorLogger.Log(ex, "UserRepository.GetUserByEmailAsync");
             }
             return null;
         }
 
-
-        public User GetUserByID(int userID)
+        public async Task<User> GetUserByIDAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Users WHERE UserID = @UserID";
+                var parameters = new Dictionary<string, object> { { "@UserID", userID } };
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
-                    string query = "SELECT * FROM Users WHERE UserID = @UserID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                return MapReaderToUser(reader);
-                        }
-                    }
+                    if (await reader.ReadAsync())
+                        return MapReaderToUser(reader);
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.GetUserByID");
+                ErrorLogger.Log(ex, "UserRepository.GetUserByIDAsync");
             }
             return null;
         }
 
-        public void RegisterUser(User user)
+        public async Task RegisterUserAsync(User user)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = @"
+                string query = @"
                     INSERT INTO Users 
                     (Username, Password, Role, FullName, Email, Phone, RegisteredDate, IsApproved) 
                     VALUES 
                     (@Username, @Password, @Role, @FullName, @Email, @Phone, @RegisteredDate, @IsApproved)";
 
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Username", user.Username);
-                        cmd.Parameters.AddWithValue("@Password", user.Password);
-                        cmd.Parameters.AddWithValue("@Role", user.Role);
-                        cmd.Parameters.AddWithValue("@FullName", user.FullName);
-                        cmd.Parameters.AddWithValue("@Email", user.Email);
-                        cmd.Parameters.AddWithValue("@Phone", user.Phone);
-                        cmd.Parameters.AddWithValue("@RegisteredDate", user.RegisteredDate.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@IsApproved", user.IsApproved ? 1 : 0);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@Username", user.Username },
+                    { "@Password", user.Password },
+                    { "@Role", user.Role },
+                    { "@FullName", user.FullName },
+                    { "@Email", user.Email },
+                    { "@Phone", user.Phone },
+                    { "@RegisteredDate", user.RegisteredDate.ToString("yyyy-MM-dd") },
+                    { "@IsApproved", user.IsApproved ? 1 : 0 }
+                };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.RegisterUser");
+                ErrorLogger.Log(ex, "UserRepository.RegisterUserAsync");
             }
         }
 
-
-        public void ApproveUser(int userID)
+        public async Task ApproveUserAsync(int userID)
         {
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = "UPDATE Users SET IsApproved = 1 WHERE UserID = @UserID";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                string query = "UPDATE Users SET IsApproved = 1 WHERE UserID = @UserID";
+                var parameters = new Dictionary<string, object> { { "@UserID", userID } };
+
+                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.ApproveUser");
+                ErrorLogger.Log(ex, "UserRepository.ApproveUserAsync");
             }
         }
 
-        public List<User> GetPendingApprovals()
+        public async Task<List<User>> GetPendingApprovalsAsync()
         {
             var users = new List<User>();
             try
             {
-                using (var conn = DatabaseManager.GetConnection())
+                string query = "SELECT * FROM Users WHERE IsApproved = 0";
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
-                    string query = "SELECT * FROM Users WHERE IsApproved = 0";
-                    using (var cmd = new SQLiteCommand(query, conn))
+                    while (await reader.ReadAsync())
                     {
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                users.Add(MapReaderToUser(reader));
-                            }
-                        }
+                        users.Add(MapReaderToUser(reader));
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "UserRepository.GetPendingApprovals");
+                ErrorLogger.Log(ex, "UserRepository.GetPendingApprovalsAsync");
             }
             return users;
         }
 
-        
+        public async Task<List<User>> GetUsersAsync()
+        {
+            var users = new List<User>();
+            try
+            {
+                string query = "SELECT * FROM Users";
+
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        users.Add(MapReaderToUser(reader));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserRepository.GetUsersAsync");
+            }
+            return users;
+        }
+
         private User MapReaderToUser(SQLiteDataReader reader)
         {
             try
@@ -191,32 +184,6 @@ namespace UnicomTICManagementSystem.Repositories
                 ErrorLogger.Log(ex, "UserRepository.MapReaderToUser");
                 return null;
             }
-        }
-        public List<User> GetUsers()
-        {
-            var users = new List<User>();
-            try
-            {
-                using (var conn = DatabaseManager.GetConnection())
-                {
-                    string query = "SELECT * FROM Users";
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                users.Add(MapReaderToUser(reader));
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorLogger.Log(ex, "UserRepository.GetUsers");
-            }
-            return users;
         }
 
     }

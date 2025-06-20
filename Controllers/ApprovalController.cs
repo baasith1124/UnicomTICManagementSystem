@@ -18,28 +18,28 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public List<PendingUserViewModel> GetPendingApprovals()
+        public async Task<List<PendingUserViewModel>> GetPendingApprovalsAsync()
         {
             try
             {
-                return _userService.GetPendingApprovals();
+                return await _userService.GetPendingApprovalsAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ApprovalController.GetPendingApprovals");
-                return new List<PendingUserViewModel>(); // Return empty list on failure
+                ErrorLogger.Log(ex, "ApprovalController.GetPendingApprovalsAsync");
+                return new List<PendingUserViewModel>();
             }
         }
 
-        public void ApproveUser(int userID)
+        public async Task ApproveUserAsync(int userID)
         {
             try
             {
-                _userService.ApproveUser(userID);
+                await _userService.ApproveUserAsync(userID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "ApprovalController.ApproveUser");
+                ErrorLogger.Log(ex, "ApprovalController.ApproveUserAsync");
                 throw new Exception("Error approving user. Please check logs for details.");
             }
         }

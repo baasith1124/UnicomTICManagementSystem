@@ -9,18 +9,16 @@ namespace UnicomTICManagementSystem.Interfaces
 {
     public interface IStudentService
     {
-        void AddStudent(int userID, string name, int courseID, DateTime enrollmentDate);
-        void UpdateStudent(Student student);
-        void DeleteStudent(int studentID);
-        List<Student> GetAllStudents();
-        List<Student> SearchStudents(string keyword);
-        Student GetStudentByID(int studentID);
-
-        StudentDetails GetStudentFullDetailsByID(int studentID);
-
-        List<Student> GetStudentsByCourse(int courseID);
-        List<Student> GetStudentsBySubject(int subjectID);
-        int GetStudentIDByUserID(int userID);
+        Task AddStudentAsync(int userID, string name, int courseID, DateTime enrollmentDate);
+        Task UpdateStudentAsync(Student student);
+        Task DeleteStudentAsync(int studentID);
+        Task<List<Student>> GetAllStudentsAsync();
+        Task<List<Student>> SearchStudentsAsync(string keyword);
+        Task<Student> GetStudentByIDAsync(int studentID);
+        Task<StudentDetails> GetStudentFullDetailsByIDAsync(int studentID);
+        Task<List<Student>> GetStudentsByCourseAsync(int courseID);
+        Task<List<Student>> GetStudentsBySubjectAsync(int subjectID);
+        Task<int> GetStudentIDByUserIDAsync(int userID);
 
     }
 }

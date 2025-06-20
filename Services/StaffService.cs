@@ -18,90 +18,90 @@ namespace UnicomTICManagementSystem.Services
             _staffRepository = staffRepository;
         }
 
-        public void AddStaff(int userID, string name, int departmentID, int position)
+        public async Task AddStaffAsync(int userID, string name, int departmentID, int position)
         {
             try
             {
-                _staffRepository.AddStaff(userID, name, departmentID, position);
+                await _staffRepository.AddStaffAsync(userID, name, departmentID, position);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.AddStaff");
+                ErrorLogger.Log(ex, "StaffService.AddStaffAsync");
             }
         }
 
-        public void UpdateStaff(Staff staff)
+        public async Task UpdateStaffAsync(Staff staff)
         {
             try
             {
-                _staffRepository.UpdateStaff(staff);
+                await _staffRepository.UpdateStaffAsync(staff);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.UpdateStaff");
+                ErrorLogger.Log(ex, "StaffService.UpdateStaffAsync");
             }
         }
 
-        public void DeleteStaff(int staffID)
+        public async Task DeleteStaffAsync(int staffID)
         {
             try
             {
-                _staffRepository.DeleteStaff(staffID);
+                await _staffRepository.DeleteStaffAsync(staffID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.DeleteStaff");
+                ErrorLogger.Log(ex, "StaffService.DeleteStaffAsync");
             }
         }
 
-        public List<Staff> GetAllStaff()
+        public async Task<List<Staff>> GetAllStaffAsync()
         {
             try
             {
-                return _staffRepository.GetAllStaff();
+                return await _staffRepository.GetAllStaffAsync();
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.GetAllStaff");
+                ErrorLogger.Log(ex, "StaffService.GetAllStaffAsync");
                 return new List<Staff>();
             }
         }
 
-        public Staff GetStaffByID(int staffID)
+        public async Task<Staff> GetStaffByIDAsync(int staffID)
         {
             try
             {
-                return _staffRepository.GetStaffByID(staffID);
+                return await _staffRepository.GetStaffByIDAsync(staffID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.GetStaffByID");
+                ErrorLogger.Log(ex, "StaffService.GetStaffByIDAsync");
                 return null;
             }
         }
 
-        public List<Staff> SearchStaff(string keyword)
+        public async Task<List<Staff>> SearchStaffAsync(string keyword)
         {
             try
             {
-                return _staffRepository.SearchStaff(keyword);
+                return await _staffRepository.SearchStaffAsync(keyword);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.SearchStaff");
+                ErrorLogger.Log(ex, "StaffService.SearchStaffAsync");
                 return new List<Staff>();
             }
         }
 
-        public int GetUserIDByStaffID(int staffID)
+        public async Task<int> GetUserIDByStaffIDAsync(int staffID)
         {
             try
             {
-                return _staffRepository.GetUserIDByStaffID(staffID);
+                return await _staffRepository.GetUserIDByStaffIDAsync(staffID);
             }
             catch (Exception ex)
             {
-                ErrorLogger.Log(ex, "StaffService.GetUserIDByStaffID");
+                ErrorLogger.Log(ex, "StaffService.GetUserIDByStaffIDAsync");
                 return -1;
             }
         }
