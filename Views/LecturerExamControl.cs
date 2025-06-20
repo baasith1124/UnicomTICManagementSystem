@@ -27,21 +27,28 @@ namespace UnicomTICManagementSystem.Views
 
         public LecturerExamControl(int lecturerID)
         {
-            InitializeComponent();
-            this.lecturerID = lecturerID;
+            try
+            {
+                InitializeComponent();
+                this.lecturerID = lecturerID;
 
-            // Dependency Injection
-            IExamRepository examRepo = new ExamRepository();
-            ISubjectRepository subjectRepo = new SubjectRepository();
+                // Dependency Injection
+                IExamRepository examRepo = new ExamRepository();
+                ISubjectRepository subjectRepo = new SubjectRepository();
 
-            IExamService examService = new ExamService(examRepo);
-            ISubjectService subjectService = new SubjectService(subjectRepo);
+                IExamService examService = new ExamService(examRepo);
+                ISubjectService subjectService = new SubjectService(subjectRepo);
 
-            _examController = new ExamController(examService);
-            _subjectController = new SubjectController(subjectService);
+                _examController = new ExamController(examService);
+                _subjectController = new SubjectController(subjectService);
 
-            InitializeUI();
-            LoadSubjectsForLecturer();
+                InitializeUI();
+                LoadSubjectsForLecturer();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to initialize Lecturer Exam Control.\n\n" + ex.Message, "Initialization Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void InitializeUI()
@@ -70,23 +77,37 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjectsForLecturer()
         {
-            var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
-            cmbSubject.DataSource = subjects;
-            cmbSubject.DisplayMember = "SubjectName";
-            cmbSubject.ValueMember = "SubjectID";
+            try
+            {
+                var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
+                cmbSubject.DataSource = subjects;
+                cmbSubject.DisplayMember = "SubjectName";
+                cmbSubject.ValueMember = "SubjectID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load subjects.\n\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            if (cmbSubject.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select subject.");
-                return;
-            }
+                if (cmbSubject.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select subject.");
+                    return;
+                }
 
-            int subjectID = (int)cmbSubject.SelectedValue;
-            var exams = _examController.GetExamsBySubject(subjectID);
-            dgvExams.DataSource = exams;
+                int subjectID = (int)cmbSubject.SelectedValue;
+                var exams = _examController.GetExamsBySubject(subjectID);
+                dgvExams.DataSource = exams;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while searching exams.\n\n" + ex.Message, "Search Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

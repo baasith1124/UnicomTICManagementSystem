@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnicomTICManagementSystem.Data;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -14,88 +15,124 @@ namespace UnicomTICManagementSystem.Repositories
     {
         public void AddDepartment(Department department)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "INSERT INTO Departments (DepartmentName) VALUES (@DepartmentName)";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
-                    cmd.ExecuteNonQuery();
+                    string query = "INSERT INTO Departments (DepartmentName) VALUES (@DepartmentName)";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DepartmentRepository.AddDepartment");
             }
         }
 
         public void UpdateDepartment(Department department)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "UPDATE Departments SET DepartmentName = @DepartmentName WHERE DepartmentID = @DepartmentID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
-                    cmd.Parameters.AddWithValue("@DepartmentID", department.DepartmentID);
-                    cmd.ExecuteNonQuery();
+                    string query = "UPDATE Departments SET DepartmentName = @DepartmentName WHERE DepartmentID = @DepartmentID";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
+                        cmd.Parameters.AddWithValue("@DepartmentID", department.DepartmentID);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DepartmentRepository.UpdateDepartment");
             }
         }
 
         public void DeleteDepartment(int departmentID)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "DELETE FROM Departments WHERE DepartmentID = @DepartmentID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                    cmd.ExecuteNonQuery();
+                    string query = "DELETE FROM Departments WHERE DepartmentID = @DepartmentID";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DepartmentRepository.DeleteDepartment");
             }
         }
 
         public List<Department> GetAllDepartments()
         {
             var departments = new List<Department>();
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT DepartmentID, DepartmentName FROM Departments";
-                using (var cmd = new SQLiteCommand(query, conn))
-                using (var reader = cmd.ExecuteReader())
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    while (reader.Read())
+                    string query = "SELECT DepartmentID, DepartmentName FROM Departments";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        departments.Add(new Department
+                        while (reader.Read())
                         {
-                            DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                            DepartmentName = reader["DepartmentName"].ToString()
-                        });
+                            departments.Add(new Department
+                            {
+                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                                DepartmentName = reader["DepartmentName"].ToString()
+                            });
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DepartmentRepository.GetAllDepartments");
             }
             return departments;
         }
 
         public Department GetDepartmentByID(int departmentID)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT DepartmentID, DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                    using (var reader = cmd.ExecuteReader())
+                    string query = "SELECT DepartmentID, DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
+                    using (var cmd = new SQLiteCommand(query, conn))
                     {
-                        if (reader.Read())
+                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            return new Department
+                            if (reader.Read())
                             {
-                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                DepartmentName = reader["DepartmentName"].ToString()
-                            };
+                                return new Department
+                                {
+                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                                    DepartmentName = reader["DepartmentName"].ToString()
+                                };
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DepartmentRepository.GetDepartmentByID");
+            }
             return null;
         }
     }
+    
 }

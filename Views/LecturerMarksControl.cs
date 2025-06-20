@@ -79,122 +79,162 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjects()
         {
-            var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
-            cmbSubject.DataSource = null;
-            cmbSubject.DisplayMember = "SubjectName";
-            cmbSubject.ValueMember = "SubjectID";
-            cmbSubject.DataSource = subjects;
-            cmbSubject.SelectedIndex = -1;
+            try
+            {
+                var subjects = _subjectController.GetSubjectsByLecturer(lecturerID);
+                cmbSubject.DataSource = null;
+                cmbSubject.DisplayMember = "SubjectName";
+                cmbSubject.ValueMember = "SubjectID";
+                cmbSubject.DataSource = subjects;
+                cmbSubject.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load subjects.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
 
         }
 
         private void LoadExamsAndStudents()
         {
-            if (cmbSubject.SelectedValue == null || cmbSubject.SelectedValue == DBNull.Value) return;
-            int subjectID = Convert.ToInt32(cmbSubject.SelectedValue);
+            try
+            {
+                if (cmbSubject.SelectedValue == null || cmbSubject.SelectedValue == DBNull.Value) return;
+                int subjectID = Convert.ToInt32(cmbSubject.SelectedValue);
 
-            var exams = _examController.GetExamsBySubject(subjectID);
-            cmbExam.DataSource = null;
-            cmbExam.DisplayMember = "ExamName";
-            cmbExam.ValueMember = "ExamID";
-            cmbExam.DataSource = exams;
+                var exams = _examController.GetExamsBySubject(subjectID);
+                cmbExam.DataSource = null;
+                cmbExam.DisplayMember = "ExamName";
+                cmbExam.ValueMember = "ExamID";
+                cmbExam.DataSource = exams;
 
-            var students = _studentController.GetStudentsBySubject(subjectID);
-            cmbStudent.DataSource = null;
-            cmbStudent.DisplayMember = "Name";
-            cmbStudent.ValueMember = "StudentID";
-            cmbStudent.DataSource = students;
+                var students = _studentController.GetStudentsBySubject(subjectID);
+                cmbStudent.DataSource = null;
+                cmbStudent.DisplayMember = "Name";
+                cmbStudent.ValueMember = "StudentID";
+                cmbStudent.DataSource = students;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load exams or students.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
         }
 
         private void LoadMarks()
         {
-            if (cmbExam.SelectedValue == null) return;
-            int examID = Convert.ToInt32(cmbExam.SelectedValue);
-
-            var fullMarks = _marksController.GetMarksByExam(examID)
-                              .OrderByDescending(m => m.TotalMark) // Sort by marks
-                              .ToList();
-
-            dgvMarks.DataSource = fullMarks;
-
-            // Hide technical columns
-            dgvMarks.Columns["MarkID"].Visible = false;
-            dgvMarks.Columns["StudentID"].Visible = false;
-            dgvMarks.Columns["ExamID"].Visible = false;
-            dgvMarks.Columns["TimetableID"].Visible = false;
-            dgvMarks.Columns["AssignmentMark"].Visible = false;
-            dgvMarks.Columns["MidExamMark"].Visible = false;
-            dgvMarks.Columns["FinalExamMark"].Visible = false;
-
-            // Optional: Rename headers
-            dgvMarks.Columns["StudentName"].HeaderText = "Student";
-            dgvMarks.Columns["ExamName"].HeaderText = "Exam";
-            dgvMarks.Columns["TotalMark"].HeaderText = "Mark";
-            dgvMarks.Columns["LecturerName"].HeaderText = "Graded By";
-            dgvMarks.Columns["GradedDate"].HeaderText = "Date";
-
-            for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+            try
             {
-                dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
-                dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+                if (cmbExam.SelectedValue == null) return;
+                int examID = Convert.ToInt32(cmbExam.SelectedValue);
+
+                var fullMarks = _marksController.GetMarksByExam(examID)
+                                  .OrderByDescending(m => m.TotalMark)
+                                  .ToList();
+
+                dgvMarks.DataSource = fullMarks;
+
+                dgvMarks.Columns["MarkID"].Visible = false;
+                dgvMarks.Columns["StudentID"].Visible = false;
+                dgvMarks.Columns["ExamID"].Visible = false;
+                dgvMarks.Columns["TimetableID"].Visible = false;
+                dgvMarks.Columns["AssignmentMark"].Visible = false;
+                dgvMarks.Columns["MidExamMark"].Visible = false;
+                dgvMarks.Columns["FinalExamMark"].Visible = false;
+
+                dgvMarks.Columns["StudentName"].HeaderText = "Student";
+                dgvMarks.Columns["ExamName"].HeaderText = "Exam";
+                dgvMarks.Columns["TotalMark"].HeaderText = "Mark";
+                dgvMarks.Columns["LecturerName"].HeaderText = "Graded By";
+                dgvMarks.Columns["GradedDate"].HeaderText = "Date";
+
+                for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+                {
+                    dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+                    dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load marks.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (cmbStudent.SelectedValue == null || cmbExam.SelectedValue == null || !double.TryParse(txtMark.Text, out double mark))
+            try
             {
-                MessageBox.Show("Please complete all fields.");
-                return;
+                if (cmbStudent.SelectedValue == null || cmbExam.SelectedValue == null || !double.TryParse(txtMark.Text, out double mark))
+                {
+                    MessageBox.Show("Please complete all fields.");
+                    return;
+                }
+
+                var markObj = new Mark
+                {
+                    MarkID = selectedMarkID,
+                    ExamID = (int)cmbExam.SelectedValue,
+                    StudentID = (int)cmbStudent.SelectedValue,
+                    TotalMark = mark,
+                    GradedBy = lecturerID,
+                    GradedDate = DateTime.Now
+                };
+
+                if (selectedMarkID == -1)
+                    _marksController.AddMark(markObj);
+                else
+                    _marksController.UpdateMark(markObj);
+
+                MessageBox.Show("Mark saved.");
+                LoadMarks();
+                ClearForm();
             }
-
-            var markObj = new Mark
+            catch (Exception ex)
             {
-                MarkID = selectedMarkID,
-                ExamID = (int)cmbExam.SelectedValue,
-                StudentID = (int)cmbStudent.SelectedValue,
-                TotalMark = mark,
-                GradedBy = lecturerID,
-                GradedDate = DateTime.Now
-            };
-
-            if (selectedMarkID == -1)
-                _marksController.AddMark(markObj);
-            else
-                _marksController.UpdateMark(markObj);
-
-            MessageBox.Show("Mark saved.");
-            LoadMarks();
-            ClearForm();
+                MessageBox.Show("Error saving mark.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            if (selectedMarkID == -1)
+            try
             {
-                MessageBox.Show("Please select a mark to delete.");
-                return;
-            }
+                if (selectedMarkID == -1)
+                {
+                    MessageBox.Show("Please select a mark to delete.");
+                    return;
+                }
 
-            var confirm = MessageBox.Show("Are you sure you want to delete this mark?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (confirm == DialogResult.Yes)
+                var confirm = MessageBox.Show("Are you sure you want to delete this mark?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (confirm == DialogResult.Yes)
+                {
+                    _marksController.DeleteMark(selectedMarkID);
+                    MessageBox.Show("Mark deleted.");
+                    LoadMarks();
+                    ClearForm();
+                }
+            }
+            catch (Exception ex)
             {
-                _marksController.DeleteMark(selectedMarkID);
-                MessageBox.Show("Mark deleted.");
-                LoadMarks();
-                ClearForm();
+                MessageBox.Show("Failed to delete mark.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
 
         private void DgvMarks_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
-            var row = dgvMarks.Rows[e.RowIndex];
-            selectedMarkID = Convert.ToInt32(row.Cells["MarkID"].Value);
-            cmbStudent.SelectedValue = Convert.ToInt32(row.Cells["StudentID"].Value);
-            txtMark.Text = row.Cells["TotalMark"].Value.ToString();
+            try
+            {
+                if (e.RowIndex < 0) return;
+                var row = dgvMarks.Rows[e.RowIndex];
+                selectedMarkID = Convert.ToInt32(row.Cells["MarkID"].Value);
+                cmbStudent.SelectedValue = Convert.ToInt32(row.Cells["StudentID"].Value);
+                txtMark.Text = row.Cells["TotalMark"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error selecting mark.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
 
         }

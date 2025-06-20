@@ -10,12 +10,28 @@ namespace UnicomTICManagementSystem.Helpers
     {
         public static string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            try
+            {
+                return BCrypt.Net.BCrypt.HashPassword(password);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "PasswordHasher.HashPassword");
+                throw new Exception("Error occurred while hashing the password.");
+            }
         }
 
         public static bool VerifyPassword(string password, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "PasswordHasher.VerifyPassword");
+                return false; // Safe fallback – deny login if verification fails
+            }
         }
     }
 }

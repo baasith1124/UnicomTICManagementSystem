@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -19,7 +21,16 @@ namespace UnicomTICManagementSystem.Controllers
 
         public List<Position> GetPositionsByDepartment(int departmentID)
         {
-            return _positionService.GetPositionsByDepartment(departmentID);
+            try
+            {
+                return _positionService.GetPositionsByDepartment(departmentID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "PositionController.GetPositionsByDepartment");
+                MessageBox.Show("❌ Failed to retrieve positions for the department.");
+                return new List<Position>();
+            }
         }
     }
 }

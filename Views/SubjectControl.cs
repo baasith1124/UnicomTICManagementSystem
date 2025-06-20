@@ -116,21 +116,44 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadCourses()
         {
-            cmbCourse.DataSource = _courseController.GetAllCourses();
-            cmbCourse.DisplayMember = "CourseName";
-            cmbCourse.ValueMember = "CourseID";
+            try
+            {
+                var courses = _courseController.GetAllCourses();
+                if (courses == null || courses.Count == 0)
+                {
+                    MessageBox.Show("No courses found.", "Load Warning");
+                    cmbCourse.DataSource = null;
+                    return;
+                }
+
+                cmbCourse.DataSource = courses;
+                cmbCourse.DisplayMember = "CourseName";
+                cmbCourse.ValueMember = "CourseID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load courses.\n{ex.Message}", "Error");
+            }
         }
 
         private void LoadSubjects()
         {
-            dgvSubjects.DataSource = _subjectController.GetAllSubjects();
-            dgvSubjects.ClearSelection();
-            selectedSubjectID = -1;
+            try
+            {
+                var subjects = _subjectController.GetAllSubjects();
+                dgvSubjects.DataSource = subjects ?? new List<Subject>();
+                dgvSubjects.ClearSelection();
+                selectedSubjectID = -1;
 
-            if (dgvSubjects.Columns["CourseID"] != null)
-                dgvSubjects.Columns["CourseID"].Visible = false;
-            if (dgvSubjects.Columns["SubjectID"] != null)
-                dgvSubjects.Columns["SubjectID"].Visible = false;
+                if (dgvSubjects.Columns["CourseID"] != null)
+                    dgvSubjects.Columns["CourseID"].Visible = false;
+                if (dgvSubjects.Columns["SubjectID"] != null)
+                    dgvSubjects.Columns["SubjectID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load subjects.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -142,57 +165,78 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvSubjects.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a subject to update.");
-                return;
+                if (dgvSubjects.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a subject to update.");
+                    return;
+                }
+
+                selectedSubjectID = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["SubjectID"].Value);
+                txtSubjectName.Text = dgvSubjects.CurrentRow.Cells["SubjectName"].Value.ToString();
+                txtSubjectCode.Text = dgvSubjects.CurrentRow.Cells["SubjectCode"].Value.ToString();
+                cmbCourse.SelectedValue = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["CourseID"].Value);
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedSubjectID = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["SubjectID"].Value);
-            txtSubjectName.Text = dgvSubjects.CurrentRow.Cells["SubjectName"].Value.ToString();
-            txtSubjectCode.Text = dgvSubjects.CurrentRow.Cells["SubjectCode"].Value.ToString();
-            cmbCourse.SelectedValue = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["CourseID"].Value);
-
-            isUpdateMode = true;
-            SwitchToForm();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading selected subject.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvSubjects.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a subject to delete.");
-                return;
-            }
+                if (dgvSubjects.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a subject to delete.");
+                    return;
+                }
 
-            int subjectID = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["SubjectID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int subjectID = Convert.ToInt32(dgvSubjects.CurrentRow.Cells["SubjectID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    _subjectController.DeleteSubject(subjectID);
+                    MessageBox.Show("Subject deleted successfully.");
+                    LoadSubjects();
+                }
+            }
+            catch (Exception ex)
             {
-                _subjectController.DeleteSubject(subjectID);
-                MessageBox.Show("Subject deleted successfully.");
-                LoadSubjects();
+                MessageBox.Show($"Failed to delete subject.\n{ex.Message}", "Error");
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtSubjectName.Text) || string.IsNullOrWhiteSpace(txtSubjectCode.Text))
-            {
-                MessageBox.Show("Subject Name and Code are required.");
-                return;
-            }
-
-            Subject subject = new Subject
-            {
-                SubjectID = selectedSubjectID,
-                SubjectName = txtSubjectName.Text.Trim(),
-                SubjectCode = txtSubjectCode.Text.Trim(),
-                CourseID = (int)cmbCourse.SelectedValue
-            };
-
             try
             {
+                if (string.IsNullOrWhiteSpace(txtSubjectName.Text) || string.IsNullOrWhiteSpace(txtSubjectCode.Text))
+                {
+                    MessageBox.Show("Subject Name and Code are required.");
+                    return;
+                }
+
+                if (cmbCourse.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select a course.");
+                    return;
+                }
+
+                Subject subject = new Subject
+                {
+                    SubjectID = selectedSubjectID,
+                    SubjectName = txtSubjectName.Text.Trim(),
+                    SubjectCode = txtSubjectCode.Text.Trim(),
+                    CourseID = Convert.ToInt32(cmbCourse.SelectedValue)
+                };
+
                 if (!isUpdateMode)
                 {
                     _subjectController.AddSubject(subject);
@@ -209,7 +253,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Save Failed");
+                MessageBox.Show($"Failed to save subject.\n{ex.Message}", "Save Error");
             }
         }
 

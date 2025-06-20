@@ -102,76 +102,100 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadTimetables()
         {
-            var timetables = _timetableController.GetAllTimetables();
-
-            // Create Display Text
-            foreach (var t in timetables)
+            try
             {
-                t.TimeSlot = $"{t.ScheduledDate:yyyy-MM-dd} - {t.TimeSlot}";
+                var timetables = _timetableController.GetAllTimetables();
+                foreach (var t in timetables)
+                {
+                    t.TimeSlot = $"{t.ScheduledDate:yyyy-MM-dd} - {t.TimeSlot}";
+                }
+                cmbTimetable.DataSource = timetables;
+                cmbTimetable.DisplayMember = "TimeSlot";
+                cmbTimetable.ValueMember = "TimetableID";
             }
-
-            cmbTimetable.DataSource = timetables;
-            cmbTimetable.DisplayMember = "TimeSlot";
-            cmbTimetable.ValueMember = "TimetableID";
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load timetables. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            if (cmbTimetable.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select timetable.");
-                return;
-            }
+                if (cmbTimetable.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select timetable.");
+                    return;
+                }
 
-            selectedTimetableID = (int)cmbTimetable.SelectedValue;
-            dgvAttendance.DataSource = _attendanceController.GetAttendanceByTimetable(selectedTimetableID);
+                selectedTimetableID = (int)cmbTimetable.SelectedValue;
+                dgvAttendance.DataSource = _attendanceController.GetAttendanceByTimetable(selectedTimetableID);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Error fetching attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            if (cmbTimetable.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select timetable first.");
-                return;
+                if (cmbTimetable.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select timetable first.");
+                    return;
+                }
+
+                selectedTimetableID = (int)cmbTimetable.SelectedValue;
+
+                var timetable = _timetableController.GetTimetableByID(selectedTimetableID);
+                var students = _studentController.GetStudentsByCourse(timetable.CourseID);
+
+                cmbStudent.DataSource = students;
+                cmbStudent.DisplayMember = "Name";
+                cmbStudent.ValueMember = "StudentID";
+
+                panelAttendanceForm.Visible = true;
+                btnAdd.Enabled = false;
+                btnSearch.Enabled = false;
             }
-
-            selectedTimetableID = (int)cmbTimetable.SelectedValue;
-
-            // Load students by timetable course
-            var timetable = _timetableController.GetTimetableByID(selectedTimetableID);
-            var students = _studentController.GetStudentsByCourse(timetable.CourseID);
-
-            cmbStudent.DataSource = students;
-            cmbStudent.DisplayMember = "Name";
-            cmbStudent.ValueMember = "StudentID";
-
-            panelAttendanceForm.Visible = true;
-            btnAdd.Enabled = false;
-            btnSearch.Enabled = false;
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load student list. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (cmbStudent.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select student.");
-                return;
+                if (cmbStudent.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select student.");
+                    return;
+                }
+
+                Attendance attendance = new Attendance
+                {
+                    TimetableID = selectedTimetableID,
+                    StudentID = (int)cmbStudent.SelectedValue,
+                    Status = cmbStatus.SelectedItem.ToString(),
+                    MarkedBy = 1, // Admin
+                    MarkedDate = DateTime.Now
+                };
+
+                _attendanceController.AddAttendance(attendance);
+                MessageBox.Show("✅ Attendance successfully marked.");
+
+                btnCancel_Click(null, null);
+                btnSearch_Click(null, null);
             }
-
-            Attendance attendance = new Attendance
+            catch (Exception ex)
             {
-                TimetableID = selectedTimetableID,
-                StudentID = (int)cmbStudent.SelectedValue,
-                Status = cmbStatus.SelectedItem.ToString(),
-                MarkedBy = 1, // Admin
-                MarkedDate = DateTime.Now
-            };
-
-            _attendanceController.AddAttendance(attendance);
-            MessageBox.Show("Attendance successfully marked.");
-
-            btnCancel_Click(null, null);
-            btnSearch_Click(null, null);
+                MessageBox.Show("❌ Failed to mark attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

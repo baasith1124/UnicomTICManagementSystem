@@ -57,28 +57,48 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDepartments()
         {
-            IDepartmentRepository deptRepo = new DepartmentRepository();
-            var departments = deptRepo.GetAllDepartments();
-
-            cmbDepartment.DataSource = departments;
-            cmbDepartment.DisplayMember = "DepartmentName";
-            cmbDepartment.ValueMember = "DepartmentID";
+            try
+            {
+                IDepartmentRepository deptRepo = new DepartmentRepository();
+                var departments = deptRepo.GetAllDepartments();
+                cmbDepartment.DataSource = departments;
+                cmbDepartment.DisplayMember = "DepartmentName";
+                cmbDepartment.ValueMember = "DepartmentID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void LoadCourses()
         {
-            ICourseRepository courseRepo = new CourseRepository();
-            var courses = courseRepo.GetAllCourses();
-            cmbCourse.DataSource = courses;
-            cmbCourse.DisplayMember = "CourseName";
-            cmbCourse.ValueMember = "CourseID";
+            try
+            {
+                ICourseRepository courseRepo = new CourseRepository();
+                var courses = courseRepo.GetAllCourses();
+                cmbCourse.DataSource = courses;
+                cmbCourse.DisplayMember = "CourseName";
+                cmbCourse.ValueMember = "CourseID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void LoadPositions(int departmentID)
         {
-            var positions = _positionController.GetPositionsByDepartment(departmentID);
-            cmbPosition.DataSource = positions;
-            cmbPosition.DisplayMember = "PositionName";
-            cmbPosition.ValueMember = "PositionName"; // We store PositionName directly
-            cmbPosition.Visible = true;
+            try
+            {
+                var positions = _positionController.GetPositionsByDepartment(departmentID);
+                cmbPosition.DataSource = positions;
+                cmbPosition.DisplayMember = "PositionName";
+                cmbPosition.ValueMember = "PositionName"; // Stored as string
+                cmbPosition.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load positions.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
@@ -161,12 +181,15 @@ namespace UnicomTICManagementSystem.Views
                 
                 _registrationController.Register(user, selectedCourseID, selectedDepartmentID, positionID);
 
-                MessageBox.Show("Registration successful. Waiting for Admin approval.");
+                MessageBox.Show("Registration successful. Waiting for Admin approval.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
+                LoginForm loginForm = new LoginForm();
+                loginForm.ShowDialog();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Registration Failed");
+                MessageBox.Show("Registration failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ErrorLogger.Log(ex);
             }
         }
 
@@ -203,10 +226,17 @@ namespace UnicomTICManagementSystem.Views
 
         private void cmbDepartment_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbDepartment.SelectedValue != null)
+            try
             {
-                int departmentID = (int)cmbDepartment.SelectedValue;
-                LoadPositions(departmentID);
+                if (cmbDepartment.SelectedValue != null)
+                {
+                    int departmentID = (int)cmbDepartment.SelectedValue;
+                    LoadPositions(departmentID);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while updating positions.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }

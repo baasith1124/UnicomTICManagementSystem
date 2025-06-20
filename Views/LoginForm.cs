@@ -46,25 +46,40 @@ namespace UnicomTICManagementSystem
                 return;
             }
 
-            if (_loginController.Login(username, password, out User user))
+            try
             {
-                MessageBox.Show($"Login Success! Welcome {user.Role}", "Success");
+                if (_loginController.Login(username, password, out User user))
+                {
+                    MessageBox.Show($"Login Success! Welcome {user.Role}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Directly open Unified DashboardForm for all roles
-                DashboardForm dashboard = new DashboardForm(user);
-                dashboard.Show();
-                this.Hide();
+                    // Unified Dashboard
+                    DashboardForm dashboard = new DashboardForm(user);
+                    dashboard.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    MessageBox.Show("Invalid username/password or account not approved.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Invalid username/password or account not approved.", "Login Failed");
+                MessageBox.Show("Login failed due to a system error:\n" + ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            RegistrationForm registrationForm = new RegistrationForm();
-            registrationForm.Show();
+            try
+            {
+                RegistrationForm registrationForm = new RegistrationForm();
+                registrationForm.Show();
+                this.Hide();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to open registration form:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

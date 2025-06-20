@@ -105,22 +105,35 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjects()
         {
-            cmbSubject.DataSource = _subjectController.GetAllSubjects();
-            cmbSubject.DisplayMember = "SubjectName";
-            cmbSubject.ValueMember = "SubjectID";
+            try
+            {
+                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DisplayMember = "SubjectName";
+                cmbSubject.ValueMember = "SubjectID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load subjects.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadExams()
         {
-            dgvExams.DataSource = _examController.GetAllExams();
-            dgvExams.ClearSelection();
-            selectedExamID = -1;
+            try
+            {
+                dgvExams.DataSource = _examController.GetAllExams();
+                dgvExams.ClearSelection();
+                selectedExamID = -1;
 
-            if (dgvExams.Columns["SubjectID"] != null)
-                dgvExams.Columns["SubjectID"].Visible = false;
-
-            if (dgvExams.Columns["ExamID"] != null)
-                dgvExams.Columns["ExamID"].Visible = false;
+                if (dgvExams.Columns["SubjectID"] != null)
+                    dgvExams.Columns["SubjectID"].Visible = false;
+                if (dgvExams.Columns["ExamID"] != null)
+                    dgvExams.Columns["ExamID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load exams.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -131,66 +144,91 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvExams.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select exam to update.");
-                return;
+                if (dgvExams.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select an exam to update.");
+                    return;
+                }
+
+                selectedExamID = Convert.ToInt32(dgvExams.CurrentRow.Cells["ExamID"].Value);
+                txtExamName.Text = dgvExams.CurrentRow.Cells["ExamName"].Value.ToString();
+                cmbSubject.SelectedValue = Convert.ToInt32(dgvExams.CurrentRow.Cells["SubjectID"].Value);
+                dtpExamDate.Value = Convert.ToDateTime(dgvExams.CurrentRow.Cells["ExamDate"].Value);
+                nudDuration.Value = Convert.ToInt32(dgvExams.CurrentRow.Cells["Duration"].Value);
+
+                isUpdateMode = true;
             }
-
-            selectedExamID = Convert.ToInt32(dgvExams.CurrentRow.Cells["ExamID"].Value);
-            txtExamName.Text = dgvExams.CurrentRow.Cells["ExamName"].Value.ToString();
-            cmbSubject.SelectedValue = Convert.ToInt32(dgvExams.CurrentRow.Cells["SubjectID"].Value);
-            dtpExamDate.Value = Convert.ToDateTime(dgvExams.CurrentRow.Cells["ExamDate"].Value);
-            nudDuration.Value = Convert.ToInt32(dgvExams.CurrentRow.Cells["Duration"].Value);
-
-            isUpdateMode = true;
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load exam data.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvExams.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select exam to delete.");
-                return;
-            }
+                if (dgvExams.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select an exam to delete.");
+                    return;
+                }
 
-            int examID = Convert.ToInt32(dgvExams.CurrentRow.Cells["ExamID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int examID = Convert.ToInt32(dgvExams.CurrentRow.Cells["ExamID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    _examController.DeleteExam(examID);
+                    LoadExams();
+                    MessageBox.Show("✅ Exam deleted successfully.");
+                }
+            }
+            catch (Exception ex)
             {
-                _examController.DeleteExam(examID);
-                LoadExams();
+                MessageBox.Show("❌ Failed to delete exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtExamName.Text))
+            try
             {
-                MessageBox.Show("Exam name required.");
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(txtExamName.Text))
+                {
+                    MessageBox.Show("Exam name is required.");
+                    return;
+                }
 
-            Exam exam = new Exam
-            {
-                ExamID = selectedExamID,
-                ExamName = txtExamName.Text.Trim(),
-                SubjectID = (int)cmbSubject.SelectedValue,
-                ExamDate = dtpExamDate.Value,
-                Duration = (int)nudDuration.Value
-            };
+                Exam exam = new Exam
+                {
+                    ExamID = selectedExamID,
+                    ExamName = txtExamName.Text.Trim(),
+                    SubjectID = (int)cmbSubject.SelectedValue,
+                    ExamDate = dtpExamDate.Value,
+                    Duration = (int)nudDuration.Value
+                };
 
-            if (isUpdateMode)
-            {
-                _examController.UpdateExam(exam);
-            }
-            else
-            {
-                _examController.AddExam(exam);
-            }
+                if (isUpdateMode)
+                {
+                    _examController.UpdateExam(exam);
+                    MessageBox.Show("✅ Exam updated successfully.");
+                }
+                else
+                {
+                    _examController.AddExam(exam);
+                    MessageBox.Show("✅ Exam added successfully.");
+                }
 
-            LoadExams();
-            ClearForm();
+                LoadExams();
+                ClearForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to save exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

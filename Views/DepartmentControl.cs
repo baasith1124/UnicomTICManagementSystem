@@ -88,34 +88,56 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDepartments()
         {
-            dgvDepartments.DataSource = _departmentController.GetAllDepartments();
-            dgvDepartments.ClearSelection();
-            selectedDepartmentID = -1;
+            try
+            {
+                dgvDepartments.DataSource = _departmentController.GetAllDepartments();
+                dgvDepartments.ClearSelection();
+                selectedDepartmentID = -1;
 
-            if (dgvDepartments.Columns["DepartmentID"] != null)
-                dgvDepartments.Columns["DepartmentID"].Visible = false;
+                if (dgvDepartments.Columns["DepartmentID"] != null)
+                    dgvDepartments.Columns["DepartmentID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-
-            if (string.IsNullOrEmpty(keyword))
+            try
             {
-                LoadDepartments();
-                return;
-            }
-            var filtered = _departmentController.GetAllDepartments()
-                .FindAll(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
+                string keyword = txtSearch.Text.Trim();
 
-            dgvDepartments.DataSource = filtered;
+                if (string.IsNullOrEmpty(keyword))
+                {
+                    LoadDepartments();
+                    return;
+                }
+
+                var filtered = _departmentController.GetAllDepartments()
+                    .FindAll(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
+
+                dgvDepartments.DataSource = filtered;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Search failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ClearForm();
-            isUpdateMode = false;
-            SwitchToForm();
+            try
+            {
+                ClearForm();
+                isUpdateMode = false;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to initiate add operation.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -156,43 +178,64 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvDepartments.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a department to update.");
-                return;
+                if (dgvDepartments.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a department to update.");
+                    return;
+                }
+
+                selectedDepartmentID = Convert.ToInt32(dgvDepartments.CurrentRow.Cells["DepartmentID"].Value);
+                txtDepartmentName.Text = dgvDepartments.CurrentRow.Cells["DepartmentName"].Value.ToString();
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedDepartmentID = Convert.ToInt32(dgvDepartments.CurrentRow.Cells["DepartmentID"].Value);
-            txtDepartmentName.Text = dgvDepartments.CurrentRow.Cells["DepartmentName"].Value.ToString();
-
-            isUpdateMode = true;
-            SwitchToForm();
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Update failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvDepartments.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a department to delete.");
-                return;
-            }
+                if (dgvDepartments.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a department to delete.");
+                    return;
+                }
 
-            int departmentID = Convert.ToInt32(dgvDepartments.CurrentRow.Cells["DepartmentID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int departmentID = Convert.ToInt32(dgvDepartments.CurrentRow.Cells["DepartmentID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _departmentController.DeleteDepartment(departmentID);
+                    MessageBox.Show("✅ Department deleted successfully.");
+                    LoadDepartments();
+                }
+            }
+            catch (Exception ex)
             {
-                _departmentController.DeleteDepartment(departmentID);
-                MessageBox.Show("Department deleted successfully.");
-                LoadDepartments();
+                MessageBox.Show("❌ Delete failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show("Cancel current operation?", "Cancel", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
+            try
             {
-                SwitchToGrid();
+                var result = MessageBox.Show("Cancel current operation?", "Cancel", MessageBoxButtons.YesNo);
+                if (result == DialogResult.Yes)
+                {
+                    SwitchToGrid();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Cancel failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

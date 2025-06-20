@@ -94,29 +94,50 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadLecturers()
         {
-            cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
-            cmbLecturer.DisplayMember = "Name";
-            cmbLecturer.ValueMember = "LecturerID";
+            try
+            {
+                cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
+                cmbLecturer.DisplayMember = "Name";
+                cmbLecturer.ValueMember = "LecturerID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load lecturers.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadSubjects()
         {
-            cmbSubject.DataSource = _subjectController.GetAllSubjects();
-            cmbSubject.DisplayMember = "SubjectName";
-            cmbSubject.ValueMember = "SubjectID";
+            try
+            {
+                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DisplayMember = "SubjectName";
+                cmbSubject.ValueMember = "SubjectID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load subjects.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadAssignments()
         {
-            dgvAssignments.DataSource = _lecturerSubjectController.GetAllAssignments();
-            dgvAssignments.ClearSelection();
+            try
+            {
+                dgvAssignments.DataSource = _lecturerSubjectController.GetAllAssignments();
+                dgvAssignments.ClearSelection();
 
-            if (dgvAssignments.Columns["SubjectID"] != null)
-                dgvAssignments.Columns["SubjectID"].Visible = false;
-            if (dgvAssignments.Columns["LecturerID"] != null)
-                dgvAssignments.Columns["LecturerID"].Visible = false;
-            if (dgvAssignments.Columns["LecturerSubjectID"] != null)
-                dgvAssignments.Columns["LecturerSubjectID"].Visible = false;
+                if (dgvAssignments.Columns["SubjectID"] != null)
+                    dgvAssignments.Columns["SubjectID"].Visible = false;
+                if (dgvAssignments.Columns["LecturerID"] != null)
+                    dgvAssignments.Columns["LecturerID"].Visible = false;
+                if (dgvAssignments.Columns["LecturerSubjectID"] != null)
+                    dgvAssignments.Columns["LecturerSubjectID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load subject assignments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAssign_Click(object sender, EventArgs e)
@@ -139,25 +160,32 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Assignment Failed");
+                MessageBox.Show("Failed to assign subject.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvAssignments.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select an assignment to delete.");
-                return;
-            }
+                if (dgvAssignments.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select an assignment to delete.");
+                    return;
+                }
 
-            int lecturerSubjectID = Convert.ToInt32(dgvAssignments.CurrentRow.Cells["LecturerSubjectID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete this assignment?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int lecturerSubjectID = Convert.ToInt32(dgvAssignments.CurrentRow.Cells["LecturerSubjectID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete this assignment?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (confirm == DialogResult.Yes)
+                {
+                    _lecturerSubjectController.RemoveAssignment(lecturerSubjectID);
+                    MessageBox.Show("Assignment deleted.");
+                    LoadAssignments();
+                }
+            }
+            catch (Exception ex)
             {
-                _lecturerSubjectController.RemoveAssignment(lecturerSubjectID);
-                MessageBox.Show("Assignment deleted.");
-                LoadAssignments();
+                MessageBox.Show("Failed to delete assignment.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

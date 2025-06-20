@@ -191,7 +191,7 @@
             this.cmbCourse.Location = new System.Drawing.Point(693, 270);
             this.cmbCourse.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbCourse.Name = "cmbCourse";
-            this.cmbCourse.Size = new System.Drawing.Size(121, 24);
+            this.cmbCourse.Size = new System.Drawing.Size(207, 24);
             this.cmbCourse.TabIndex = 15;
             // 
             // lblCourse
@@ -209,7 +209,7 @@
             this.cmbDepartment.Location = new System.Drawing.Point(181, 327);
             this.cmbDepartment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbDepartment.Name = "cmbDepartment";
-            this.cmbDepartment.Size = new System.Drawing.Size(121, 24);
+            this.cmbDepartment.Size = new System.Drawing.Size(207, 24);
             this.cmbDepartment.TabIndex = 17;
             this.cmbDepartment.SelectedIndexChanged += new System.EventHandler(this.cmbDepartment_SelectedIndexChanged);
             // 
@@ -227,7 +227,7 @@
             this.lblPosition.AutoSize = true;
             this.lblPosition.Location = new System.Drawing.Point(557, 337);
             this.lblPosition.Name = "lblPosition";
-            this.lblPosition.Size = new System.Drawing.Size(69, 20);
+            this.lblPosition.Size = new System.Drawing.Size(55, 16);
             this.lblPosition.TabIndex = 19;
             this.lblPosition.Text = "Position";
             // 
@@ -237,7 +237,7 @@
             this.cmbPosition.Location = new System.Drawing.Point(693, 334);
             this.cmbPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbPosition.Name = "cmbPosition";
-            this.cmbPosition.Size = new System.Drawing.Size(121, 24);
+            this.cmbPosition.Size = new System.Drawing.Size(207, 24);
             this.cmbPosition.TabIndex = 20;
             // 
             // RegistrationForm

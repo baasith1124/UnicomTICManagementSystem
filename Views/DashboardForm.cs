@@ -50,66 +50,83 @@ namespace UnicomTICManagementSystem.Views
 
         private void ConfigureUIByRole()
         {
-            lblWelcome.Text = $"Welcome, {currentUser.Username} ({currentUser.Role})";
-
-            // Hide all buttons and grids by default
-            btnCourses.Visible = false;
-            btnDepartments.Visible = false;
-            btnStudents.Visible = false;
-            btnLecturers.Visible = false;
-            btnStaff.Visible = false;
-            btnAttendances.Visible = false;
-            btnMarks.Visible = false;
-            dgvPendingUsers.Visible = false;
-            btnApprove.Visible = false;
-            btnMarks.Visible = false;
-            btnExams.Visible = false;
-
-
-            if (currentUser.Role == "Admin")
+            try
             {
-                btnCourses.Visible = true;
-                btnDepartments.Visible = true;
-                btnStudents.Visible = true;
-                btnLecturers.Visible = true;
-                btnStaff.Visible = true;
-                dgvPendingUsers.Visible = true;
-                btnAttendances.Visible = true;
-                btnMarks.Visible = true;
-                btnApprove.Visible = true;
-                btnExams.Visible = true;
+                lblWelcome.Text = $"Welcome, {currentUser.FullName} ({currentUser.Role})";
 
-                LoadPendingUsers();
+                // Hide all buttons and controls by default
+                btnCourses.Visible = false;
+                btnDepartments.Visible = false;
+                btnStudents.Visible = false;
+                btnLecturers.Visible = false;
+                btnStaff.Visible = false;
+                btnAttendances.Visible = false;
+                btnMarks.Visible = false;
+                dgvPendingUsers.Visible = false;
+                btnApprove.Visible = false;
+                btnMarks.Visible = false;
+                btnExams.Visible = false;
+                btnSubjects.Visible = false;
+                btnLecturerSubject.Visible = false;
+                btnRooms.Visible = false;
+                btnTimetable.Visible = false;
+
+                if (currentUser.Role == "Admin")
+                {
+                    btnCourses.Visible = true;
+                    btnDepartments.Visible = true;
+                    btnStudents.Visible = true;
+                    btnLecturers.Visible = true;
+                    btnStaff.Visible = true;
+                    dgvPendingUsers.Visible = true;
+                    btnAttendances.Visible = true;
+                    btnMarks.Visible = true;
+                    btnApprove.Visible = true;
+                    btnExams.Visible = true;
+                    btnSubjects.Visible = true;
+                    btnLecturerSubject.Visible = true;
+                    btnRooms.Visible = true;
+                    btnTimetable.Visible = true;
+
+                    LoadPendingUsers();
+                }
+                else if (currentUser.Role == "Lecturer")
+                {
+                    btnAttendances.Visible = true;
+                    btnMarks.Visible = true;
+                    btnExams.Visible = true;
+                }
+                else if (currentUser.Role == "Staff")
+                {
+                    btnMarks.Visible = true;
+                    btnCourses.Visible = true;
+                    btnStudents.Visible = true;
+                    btnLecturers.Visible = true;
+                }
+                else if (currentUser.Role == "Student")
+                {
+                    btnMarks.Visible = true;
+                    btnExams.Visible = true;
+                }
             }
-            else if (currentUser.Role == "Lecturer")
+            catch (Exception ex)
             {
-                btnAttendances.Visible = true;
-                btnMarks.Visible = true;
-                btnMarks.Visible = true;
-                btnExams.Visible = true;
-
-            }
-            else if (currentUser.Role == "Staff")
-            {
-                btnMarks.Visible = true;
-                btnCourses.Visible = true;
-                btnStudents.Visible = true;
-                btnLecturers.Visible = true;
-                btnMarks.Visible = true;
-
-            }
-            else if (currentUser.Role == "Student")
-            {
-                btnMarks.Visible = true;
-                btnExams.Visible = true;
+                MessageBox.Show("❌ Failed to configure dashboard: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void LoadControl(UserControl control)
         {
-            panelContent.Controls.Clear();
-            control.Dock = DockStyle.Fill;
-            panelContent.Controls.Add(control);
+            try
+            {
+                panelContent.Controls.Clear();
+                control.Dock = DockStyle.Fill;
+                panelContent.Controls.Add(control);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load control: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private int GetLecturerIDFromUserID()
         {
@@ -157,19 +174,26 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnMarks_Click(object sender, EventArgs e)
         {
-            if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
+            try
             {
-                LoadControl(new AdminMarksControl());
+                if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
+                {
+                    LoadControl(new AdminMarksControl());
+                }
+                else if (currentUser.Role == "Lecturer")
+                {
+                    int lecturerID = GetLecturerIDFromUserID();
+                    LoadControl(new LecturerMarksControl(lecturerID));
+                }
+                else if (currentUser.Role == "Student")
+                {
+                    int studentID = GetStudentIDFromUserID();
+                    LoadControl(new StudentMarksControl(studentID));
+                }
             }
-            else if (currentUser.Role == "Lecturer")
+            catch (Exception ex)
             {
-                int lecturerID = GetLecturerIDFromUserID();
-                LoadControl(new LecturerMarksControl(lecturerID));
-            }
-            else if (currentUser.Role == "Student")
-            {
-                int studentID = GetStudentIDFromUserID();
-                LoadControl(new StudentMarksControl(studentID));
+                MessageBox.Show("❌ Failed to load marks module: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -180,19 +204,33 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadPendingUsers()
         {
-            List<PendingUserViewModel> pendingUsers = _approvalController.GetPendingApprovals();
-            dgvPendingUsers.DataSource = pendingUsers;
-            dgvPendingUsers.Columns["UserID"].Visible = false;
+            try
+            {
+                List<PendingUserViewModel> pendingUsers = _approvalController.GetPendingApprovals();
+                dgvPendingUsers.DataSource = pendingUsers;
+                dgvPendingUsers.Columns["UserID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load pending users: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnApprove_Click(object sender, EventArgs e)
         {
-            if (dgvPendingUsers.CurrentRow != null)
+            try
             {
-                int userID = (int)dgvPendingUsers.CurrentRow.Cells["UserID"].Value;
-                _approvalController.ApproveUser(userID);
-                MessageBox.Show("User Approved!");
-                LoadPendingUsers();
+                if (dgvPendingUsers.CurrentRow != null)
+                {
+                    int userID = (int)dgvPendingUsers.CurrentRow.Cells["UserID"].Value;
+                    _approvalController.ApproveUser(userID);
+                    MessageBox.Show("✅ User approved.");
+                    LoadPendingUsers();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to approve user: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

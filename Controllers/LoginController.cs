@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -19,7 +21,17 @@ namespace UnicomTICManagementSystem.Controllers
 
         public bool Login(string username, string password, out User user)
         {
-            return _userService.Login(username, password, out user);
+            user = null;
+            try
+            {
+                return _userService.Login(username, password, out user);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LoginController.Login");
+                MessageBox.Show("❌ An error occurred during login. Please try again.");
+                return false;
+            }
         }
     }
 }

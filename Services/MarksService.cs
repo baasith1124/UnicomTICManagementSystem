@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -17,16 +18,108 @@ namespace UnicomTICManagementSystem.Services
             _marksRepository = marksRepository;
         }
 
-        public void AddMark(Mark mark) => _marksRepository.AddMark(mark);
-        public void UpdateMark(Mark mark) => _marksRepository.UpdateMark(mark);
-        public void DeleteMark(int markID) => _marksRepository.DeleteMark(markID);
-        public Mark GetMarkByID(int markID) => _marksRepository.GetMarkByID(markID);
-        public List<Mark> GetMarksByTimetable(int timetableID) => _marksRepository.GetMarksByTimetable(timetableID);
-        public List<Mark> GetMarksByStudent(int studentID) => _marksRepository.GetMarksByStudent(studentID);
-        public List<Mark> GetAllMarks() => _marksRepository.GetAllMarks();
+        public void AddMark(Mark mark)
+        {
+            try
+            {
+                _marksRepository.AddMark(mark);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.AddMark");
+                throw;
+            }
+        }
+
+        public void UpdateMark(Mark mark)
+        {
+            try
+            {
+                _marksRepository.UpdateMark(mark);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.UpdateMark");
+                throw;
+            }
+        }
+
+        public void DeleteMark(int markID)
+        {
+            try
+            {
+                _marksRepository.DeleteMark(markID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.DeleteMark");
+                throw;
+            }
+        }
+
+        public Mark GetMarkByID(int markID)
+        {
+            try
+            {
+                return _marksRepository.GetMarkByID(markID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.GetMarkByID");
+                return null;
+            }
+        }
+
+        public List<Mark> GetMarksByTimetable(int timetableID)
+        {
+            try
+            {
+                return _marksRepository.GetMarksByTimetable(timetableID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.GetMarksByTimetable");
+                return new List<Mark>();
+            }
+        }
+
+        public List<Mark> GetMarksByStudent(int studentID)
+        {
+            try
+            {
+                return _marksRepository.GetMarksByStudent(studentID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.GetMarksByStudent");
+                return new List<Mark>();
+            }
+        }
+
+        public List<Mark> GetAllMarks()
+        {
+            try
+            {
+                return _marksRepository.GetAllMarks();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.GetAllMarks");
+                return new List<Mark>();
+            }
+        }
+
         public List<Mark> GetMarksByExam(int examId)
         {
-            return _marksRepository.GetMarksByExam(examId);
+            try
+            {
+                return _marksRepository.GetMarksByExam(examId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "MarksService.GetMarksByExam");
+                return new List<Mark>();
+            }
         }
 
     }

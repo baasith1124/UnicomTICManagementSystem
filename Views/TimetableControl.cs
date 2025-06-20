@@ -156,19 +156,26 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDropdowns()
         {
-            cmbSubject.DataSource = _subjectController.GetAllSubjects();
-            cmbSubject.DisplayMember = "SubjectName";
-            cmbSubject.ValueMember = "SubjectID";
+            try
+            {
+                cmbSubject.DataSource = _subjectController.GetAllSubjects();
+                cmbSubject.DisplayMember = "SubjectName";
+                cmbSubject.ValueMember = "SubjectID";
 
-            cmbRoom.DataSource = _roomController.GetAllRooms();
-            cmbRoom.DisplayMember = "RoomName";
-            cmbRoom.ValueMember = "RoomID";
+                cmbRoom.DataSource = _roomController.GetAllRooms();
+                cmbRoom.DisplayMember = "RoomName";
+                cmbRoom.ValueMember = "RoomID";
 
-            cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
-            cmbLecturer.DisplayMember = "Name";
-            cmbLecturer.ValueMember = "LecturerID";
+                cmbLecturer.DataSource = _lecturerController.GetAllLecturers();
+                cmbLecturer.DisplayMember = "Name";
+                cmbLecturer.ValueMember = "LecturerID";
 
-            cmbRoomType.DataSource = _roomController.GetRoomTypes(); // List<string>
+                cmbRoomType.DataSource = _roomController.GetRoomTypes(); // List<string>
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load dropdown data.\n{ex.Message}", "Error");
+            }
 
         }
 
@@ -176,26 +183,40 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadTimetables()
         {
-            dgvTimetables.DataSource = _timetableController.GetAllTimetables();
-            dgvTimetables.ClearSelection();
-            selectedTimetableID = -1;
+            try
+            {
+                dgvTimetables.DataSource = _timetableController.GetAllTimetables();
+                dgvTimetables.ClearSelection();
+                selectedTimetableID = -1;
 
-            if (dgvTimetables.Columns["SubjectID"] != null)
-                dgvTimetables.Columns["SubjectID"].Visible = false;
-            if (dgvTimetables.Columns["LecturerID"] != null)
-                dgvTimetables.Columns["LecturerID"].Visible = false;
-            if (dgvTimetables.Columns["RoomID"] != null)
-                dgvTimetables.Columns["RoomID"].Visible = false;
-            if (dgvTimetables.Columns["CourseID"] != null)
-                dgvTimetables.Columns["CourseID"].Visible = false;
-            if (dgvTimetables.Columns["TimetableID"] != null)
-                dgvTimetables.Columns["TimetableID"].Visible = false;
+                if (dgvTimetables.Columns["SubjectID"] != null)
+                    dgvTimetables.Columns["SubjectID"].Visible = false;
+                if (dgvTimetables.Columns["LecturerID"] != null)
+                    dgvTimetables.Columns["LecturerID"].Visible = false;
+                if (dgvTimetables.Columns["RoomID"] != null)
+                    dgvTimetables.Columns["RoomID"].Visible = false;
+                if (dgvTimetables.Columns["CourseID"] != null)
+                    dgvTimetables.Columns["CourseID"].Visible = false;
+                if (dgvTimetables.Columns["TimetableID"] != null)
+                    dgvTimetables.Columns["TimetableID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load timetables.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-            dgvTimetables.DataSource = _timetableController.SearchTimetables(keyword);
+            try
+            {
+                string keyword = txtSearch.Text.Trim();
+                dgvTimetables.DataSource = _timetableController.SearchTimetables(keyword);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Search failed.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -207,61 +228,76 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvTimetables.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a timetable to update.");
-                return;
+                if (dgvTimetables.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a timetable to update.");
+                    return;
+                }
+
+                selectedTimetableID = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["TimetableID"].Value);
+                cmbSubject.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["SubjectID"].Value);
+                cmbRoom.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["RoomID"].Value);
+                cmbLecturer.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["LecturerID"].Value);
+                txtTimeSlot.Text = dgvTimetables.CurrentRow.Cells["TimeSlot"].Value.ToString();
+                dtpScheduleDate.Value = Convert.ToDateTime(dgvTimetables.CurrentRow.Cells["ScheduledDate"].Value);
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedTimetableID = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["TimetableID"].Value);
-            cmbSubject.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["SubjectID"].Value);
-            cmbRoom.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["RoomID"].Value);
-            cmbLecturer.SelectedValue = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["LecturerID"].Value);
-            txtTimeSlot.Text = dgvTimetables.CurrentRow.Cells["TimeSlot"].Value.ToString();
-            dtpScheduleDate.Value = Convert.ToDateTime(dgvTimetables.CurrentRow.Cells["ScheduledDate"].Value);
-
-            isUpdateMode = true;
-            SwitchToForm();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load selected timetable.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvTimetables.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a timetable to delete.");
-                return;
-            }
+                if (dgvTimetables.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a timetable to delete.");
+                    return;
+                }
 
-            int timetableID = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["TimetableID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int timetableID = Convert.ToInt32(dgvTimetables.CurrentRow.Cells["TimetableID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    _timetableController.DeleteTimetable(timetableID);
+                    MessageBox.Show("Timetable deleted successfully.");
+                    LoadTimetables();
+                }
+            }
+            catch (Exception ex)
             {
-                _timetableController.DeleteTimetable(timetableID);
-                MessageBox.Show("Timetable deleted successfully.");
-                LoadTimetables();
+                MessageBox.Show($"Failed to delete timetable.\n{ex.Message}", "Error");
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtTimeSlot.Text))
-            {
-                MessageBox.Show("Time Slot is required.");
-                return;
-            }
-
-            Timetable timetable = new Timetable
-            {
-                TimetableID = selectedTimetableID,
-                SubjectID = (int)cmbSubject.SelectedValue,
-                RoomID = (int)cmbRoom.SelectedValue,
-                LecturerID = (int)cmbLecturer.SelectedValue,
-                TimeSlot = txtTimeSlot.Text.Trim(),
-                ScheduledDate = dtpScheduleDate.Value
-            };
-
             try
             {
+                if (string.IsNullOrWhiteSpace(txtTimeSlot.Text))
+                {
+                    MessageBox.Show("Time Slot is required.");
+                    return;
+                }
+
+                Timetable timetable = new Timetable
+                {
+                    TimetableID = selectedTimetableID,
+                    SubjectID = (int)cmbSubject.SelectedValue,
+                    RoomID = (int)cmbRoom.SelectedValue,
+                    LecturerID = (int)cmbLecturer.SelectedValue,
+                    TimeSlot = txtTimeSlot.Text.Trim(),
+                    ScheduledDate = dtpScheduleDate.Value
+                };
+
                 if (!isUpdateMode)
                 {
                     _timetableController.AddTimetable(timetable);
@@ -278,22 +314,29 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Save Failed");
+                MessageBox.Show($"Failed to save timetable.\n{ex.Message}", "Save Error");
             }
         }
         private void cmbRoomType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selectedType = cmbRoomType.SelectedItem?.ToString();
-            if (string.IsNullOrEmpty(selectedType)) return;
+            try
+            {
+                string selectedType = cmbRoomType.SelectedItem?.ToString();
+                if (string.IsNullOrEmpty(selectedType)) return;
 
-            var rooms = _roomController.GetRoomsByType(selectedType);
-            var roomIDs = rooms.Select(r => r.RoomID).ToList();
+                var rooms = _roomController.GetRoomsByType(selectedType);
+                var roomIDs = rooms.Select(r => r.RoomID).ToList();
 
-            var timetables = _timetableController.GetAllTimetables()
-                .Where(t => roomIDs.Contains(t.RoomID))
-                .ToList();
+                var timetables = _timetableController.GetAllTimetables()
+                    .Where(t => roomIDs.Contains(t.RoomID))
+                    .ToList();
 
-            dgvTimetables.DataSource = timetables;
+                dgvTimetables.DataSource = timetables;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to filter timetables by room type.\n{ex.Message}", "Filter Error");
+            }
         }
 
 

@@ -80,52 +80,91 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjects()
         {
-            var student = _studentController.GetStudentByID(studentID);
-            if (student == null) return;
-
-            var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
-            if (subjects == null || subjects.Count == 0)
+            try
             {
-                cmbSubjectFilter.Items.Clear();
-                cmbSubjectFilter.Items.Add("No subjects found");
-                cmbSubjectFilter.SelectedIndex = 0;
-                return;
-            }
+                var student = _studentController.GetStudentByID(studentID);
+                if (student == null)
+                {
+                    MessageBox.Show("Student not found.", "Error");
+                    return;
+                }
 
-            cmbSubjectFilter.DataSource = subjects;
-            cmbSubjectFilter.DisplayMember = "SubjectName";
-            cmbSubjectFilter.ValueMember = "SubjectID";
+                var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
+                if (subjects == null || subjects.Count == 0)
+                {
+                    cmbSubjectFilter.Items.Clear();
+                    cmbSubjectFilter.Items.Add("No subjects found");
+                    cmbSubjectFilter.SelectedIndex = 0;
+                    dgvMarks.DataSource = null;
+                    return;
+                }
+
+                cmbSubjectFilter.DataSource = subjects;
+                cmbSubjectFilter.DisplayMember = "SubjectName";
+                cmbSubjectFilter.ValueMember = "SubjectID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load subjects.\n{ex.Message}", "Load Error");
+            }
         }
 
         private void cmbSubjectFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbSubjectFilter.SelectedValue == null || !(cmbSubjectFilter.SelectedValue is int))
+            try
             {
-                dgvMarks.DataSource = null;
-                return;
-            }
-
-            int subjectID = Convert.ToInt32(cmbSubjectFilter.SelectedValue);
-            var allMarks = _marksController.GetMarksByStudent(studentID);
-
-            var filteredMarks = allMarks
-                .Where(m => m.SubjectID == subjectID)
-                .OrderByDescending(m => m.TotalMark)
-                .Select(m => new
+                if (cmbSubjectFilter.SelectedValue == null)
                 {
-                    m.SubjectName,
-                    m.ExamName,
-                    m.TotalMark,
-                    m.GradedDate
-                })
-                .ToList();
+                    dgvMarks.DataSource = null;
+                    return;
+                }
 
-            dgvMarks.DataSource = filteredMarks;
-            dgvMarks.Columns["GradedDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
-            for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+                if (!int.TryParse(cmbSubjectFilter.SelectedValue.ToString(), out int subjectID))
+                {
+                    MessageBox.Show("Invalid subject selected.");
+                    return;
+                }
+
+                var allMarks = _marksController.GetMarksByStudent(studentID);
+                if (allMarks == null)
+                {
+                    MessageBox.Show("No marks available for the selected student.", "No Data");
+                    dgvMarks.DataSource = null;
+                    return;
+                }
+
+                var filteredMarks = allMarks
+                    .Where(m => m.SubjectID == subjectID)
+                    .OrderByDescending(m => m.TotalMark)
+                    .Select(m => new
+                    {
+                        m.SubjectName,
+                        m.ExamName,
+                        m.TotalMark,
+                        m.GradedDate
+                    })
+                    .ToList();
+
+                if (filteredMarks.Count == 0)
+                {
+                    dgvMarks.DataSource = null;
+                    MessageBox.Show("No marks found for the selected subject.", "No Records");
+                    return;
+                }
+
+                dgvMarks.DataSource = filteredMarks;
+                dgvMarks.Columns["GradedDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
+
+                for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
+                {
+                    dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+                    dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+                }
+            }
+            catch (Exception ex)
             {
-                dgvMarks.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
-                dgvMarks.Rows[i].DefaultCellStyle.Font = new Font(dgvMarks.Font, FontStyle.Bold);
+                MessageBox.Show($"Failed to load marks.\n{ex.Message}", "Load Error");
+                dgvMarks.DataSource = null;
             }
         }
     }

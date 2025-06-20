@@ -35,28 +35,28 @@ namespace UnicomTICManagementSystem.Views
 
         public LecturerControl()
         {
-            // Manual Dependency Injection
-            ILecturerRepository lecturerRepo = new LecturerRepository();
-            ILecturerService lecturerService = new LecturerService(lecturerRepo);
-            _lecturerController = new LecturerController(lecturerService);
+            try
+            {
+                ILecturerRepository lecturerRepo = new LecturerRepository();
+                ILecturerService lecturerService = new LecturerService(lecturerRepo);
+                _lecturerController = new LecturerController(lecturerService);
 
-            IDepartmentRepository deptRepo = new DepartmentRepository();
-            IDepartmentService deptService = new DepartmentService(deptRepo);
-            _departmentController = new DepartmentController(deptService);
+                IDepartmentRepository deptRepo = new DepartmentRepository();
+                IDepartmentService deptService = new DepartmentService(deptRepo);
+                _departmentController = new DepartmentController(deptService);
 
-            var userRepo = new UserRepository();
-            var userService = new UserService(
-                userRepo,
-                new StudentRepository(),
-                new StaffRepository(),
-                new LecturerRepository()
-            );
-            _userController = new UserController(userService);
+                var userRepo = new UserRepository();
+                var userService = new UserService(userRepo, new StudentRepository(), new StaffRepository(), new LecturerRepository());
+                _userController = new UserController(userService);
 
-
-            InitializeUI();
-            LoadDepartments();
-            LoadLecturers();
+                InitializeUI();
+                LoadDepartments();
+                LoadLecturers();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Initialization failed: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void InitializeUI()
@@ -140,88 +140,115 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDepartments()
         {
-            cmbDepartment.DataSource = _departmentController.GetAllDepartments();
-            cmbDepartment.DisplayMember = "DepartmentName";
-            cmbDepartment.ValueMember = "DepartmentID";
+            try
+            {
+                cmbDepartment.DataSource = _departmentController.GetAllDepartments();
+                cmbDepartment.DisplayMember = "DepartmentName";
+                cmbDepartment.ValueMember = "DepartmentID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load departments: " + ex.Message);
+            }
         }
 
         private void LoadLecturers()
         {
-            dgvLecturers.DataSource = _lecturerController.GetAllLecturers();
-            dgvLecturers.ClearSelection();
-            selectedLecturerID = -1;
+            try
+            {
+                dgvLecturers.DataSource = _lecturerController.GetAllLecturers();
+                dgvLecturers.ClearSelection();
+                selectedLecturerID = -1;
 
-            if (dgvLecturers.Columns["LecturerID"] != null)
-                dgvLecturers.Columns["LecturerID"].Visible = false;
+                if (dgvLecturers.Columns["LecturerID"] != null)
+                    dgvLecturers.Columns["LecturerID"].Visible = false;
 
-            if (dgvLecturers.Columns["UserID"] != null)
-                dgvLecturers.Columns["UserID"].Visible = false;
+                if (dgvLecturers.Columns["UserID"] != null)
+                    dgvLecturers.Columns["UserID"].Visible = false;
 
-            if (dgvLecturers.Columns["Name"] != null)
-                dgvLecturers.Columns["Name"].HeaderText = "Lecturer Name";
+                if (dgvLecturers.Columns["Name"] != null)
+                    dgvLecturers.Columns["Name"].HeaderText = "Lecturer Name";
 
-            if (dgvLecturers.Columns["DepartmentName"] != null)
-                dgvLecturers.Columns["DepartmentName"].HeaderText = "Department";
+                if (dgvLecturers.Columns["DepartmentName"] != null)
+                    dgvLecturers.Columns["DepartmentName"].HeaderText = "Department";
 
-            if (dgvLecturers.Columns["DepartmentID"] != null)
-                dgvLecturers.Columns["DepartmentID"].Visible = false;
+                if (dgvLecturers.Columns["DepartmentID"] != null)
+                    dgvLecturers.Columns["DepartmentID"].Visible = false;
 
-            if (dgvLecturers.Columns["Email"] != null)
-                dgvLecturers.Columns["Email"].HeaderText = "Email";
+                if (dgvLecturers.Columns["Email"] != null)
+                    dgvLecturers.Columns["Email"].HeaderText = "Email";
 
-            if (dgvLecturers.Columns["Phone"] != null)
-                dgvLecturers.Columns["Phone"].HeaderText = "Phone";
+                if (dgvLecturers.Columns["Phone"] != null)
+                    dgvLecturers.Columns["Phone"].HeaderText = "Phone";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load lecturers: " + ex.Message);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-            dgvLecturers.DataSource = _lecturerController.SearchLecturers(keyword);
+            try
+            {
+                string keyword = txtSearch.Text.Trim();
+                dgvLecturers.DataSource = _lecturerController.SearchLecturers(keyword);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Search failed: " + ex.Message);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            txtUsername.Enabled = true;
-            txtPassword.Visible = true;
-            txtConfirmPassword.Visible = true;
-            txtPassword.Enabled = true;
-            txtConfirmPassword.Enabled = true;
-            ClearForm();
-            isUpdateMode = false;
-            SwitchToForm();
+            try
+            {
+                txtUsername.Enabled = true;
+                txtPassword.Visible = true;
+                txtConfirmPassword.Visible = true;
+                txtPassword.Enabled = true;
+                txtConfirmPassword.Enabled = true;
+                ClearForm();
+                isUpdateMode = false;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error switching to add form: " + ex.Message);
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            // Input validation
-            if (string.IsNullOrWhiteSpace(txtName.Text) ||
-                string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text))
-            {
-                MessageBox.Show("Please fill in all required fields.");
-                return;
-            }
-
-            if (txtPassword.Text.Length < 8)
-            {
-                MessageBox.Show("Password must be at least 8 characters.");
-                return;
-            }
-
-            if (txtPassword.Text != txtConfirmPassword.Text)
-            {
-                MessageBox.Show("Password and Confirm Password do not match.");
-                return;
-            }
-
-            string name = txtName.Text.Trim();
-            string username = txtUsername.Text.Trim();
-            int departmentID = Convert.ToInt32(cmbDepartment.SelectedValue);
-
             try
             {
+                if (string.IsNullOrWhiteSpace(txtName.Text) ||
+                    string.IsNullOrWhiteSpace(txtUsername.Text) ||
+                    string.IsNullOrWhiteSpace(txtPassword.Text) ||
+                    string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
+                    string.IsNullOrWhiteSpace(txtEmail.Text))
+                {
+                    MessageBox.Show("Please fill in all required fields.");
+                    return;
+                }
+
+                if (txtPassword.Text.Length < 8)
+                {
+                    MessageBox.Show("Password must be at least 8 characters.");
+                    return;
+                }
+
+                if (txtPassword.Text != txtConfirmPassword.Text)
+                {
+                    MessageBox.Show("Password and Confirm Password do not match.");
+                    return;
+                }
+
+                string name = txtName.Text.Trim();
+                string username = txtUsername.Text.Trim();
+                int departmentID = Convert.ToInt32(cmbDepartment.SelectedValue);
+
                 var userRepo = new UserRepository();
                 var lecturerRepo = new LecturerRepository();
                 int userID;
@@ -234,19 +261,16 @@ namespace UnicomTICManagementSystem.Views
                     {
                         userID = existingUser.UserID;
 
-                        // Check if lecturer already exists by UserID
                         if (lecturerRepo.LecturerExistsByUserId(userID))
                         {
                             MessageBox.Show("Lecturer already exists for this user.");
                             return;
                         }
 
-                        // Add lecturer only (user already exists)
                         _lecturerController.AddLecturer(userID, name, departmentID);
                     }
                     else
                     {
-                        // Create new user and lecturer together
                         User newUser = new User
                         {
                             Username = username,
@@ -266,8 +290,6 @@ namespace UnicomTICManagementSystem.Views
                             lecturerRepo);
 
                         var userController = new UserController(userService);
-
-                        // This method must handle both inserting User and Lecturer
                         userController.AdminRegisterLecturer(newUser, departmentID);
                     }
 
@@ -275,7 +297,6 @@ namespace UnicomTICManagementSystem.Views
                 }
                 else
                 {
-                    // Update logic
                     Lecturer lecturer = new Lecturer
                     {
                         LecturerID = selectedLecturerID,
@@ -299,59 +320,74 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvLecturers.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a lecturer to update.");
-                return;
+                if (dgvLecturers.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a lecturer to update.");
+                    return;
+                }
+
+                selectedLecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
+                int userID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["UserID"].Value);
+
+                Lecturer lecturer = _lecturerController.GetLecturerByID(selectedLecturerID);
+                txtName.Text = lecturer.Name;
+                cmbDepartment.SelectedValue = lecturer.DepartmentID;
+
+                var user = _userController.GetUserById(userID);
+
+                if (user != null)
+                {
+                    txtUsername.Text = user.Username;
+                    txtEmail.Text = user.Email;
+                    txtPhone.Text = user.Phone;
+                }
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedLecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
-            int userID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["UserID"].Value);
-
-            // Get lecturer data
-            Lecturer lecturer = _lecturerController.GetLecturerByID(selectedLecturerID);
-            txtName.Text = lecturer.Name;
-            cmbDepartment.SelectedValue = lecturer.DepartmentID;
-
-            // Get user via controller
-            var user = _userController.GetUserById(userID);
-
-            if (user != null)
+            catch (Exception ex)
             {
-                txtUsername.Text = user.Username;
-                txtEmail.Text = user.Email;
-                txtPhone.Text = user.Phone;
+                MessageBox.Show("Update failed: " + ex.Message);
             }
-
-            //txtUsername.Enabled = false;
-            //txtPassword.Enabled = false;
-            //txtConfirmPassword.Enabled = false;
-
-            isUpdateMode = true;
-            SwitchToForm();
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvLecturers.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a lecturer to delete.");
-                return;
-            }
+                if (dgvLecturers.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a lecturer to delete.");
+                    return;
+                }
 
-            int lecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int lecturerID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["LecturerID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _lecturerController.DeleteLecturer(lecturerID);
+                    MessageBox.Show("Lecturer deleted successfully.");
+                    LoadLecturers();
+                }
+            }
+            catch (Exception ex)
             {
-                _lecturerController.DeleteLecturer(lecturerID);
-                MessageBox.Show("Lecturer deleted successfully.");
-                LoadLecturers();
+                MessageBox.Show("Delete failed: " + ex.Message);
             }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            SwitchToGrid();
+            try
+            {
+                SwitchToGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cancel action failed: " + ex.Message);
+            }
         }
 
         private void SwitchToForm()

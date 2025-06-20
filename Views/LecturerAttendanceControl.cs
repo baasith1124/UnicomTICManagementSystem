@@ -115,67 +115,104 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadLecturerTimetables()
         {
-            var timetables = _timetableController.GetTimetablesByLecturer(lecturerID);
-            cmbTimetable.DataSource = timetables;
-            cmbTimetable.DisplayMember = "TimetableDisplay";  // Custom display property
-            cmbTimetable.ValueMember = "TimetableID";
+            try
+            {
+                var timetables = _timetableController.GetTimetablesByLecturer(lecturerID);
+                cmbTimetable.DataSource = timetables;
+                cmbTimetable.DisplayMember = "TimetableDisplay";  // Custom display property
+                cmbTimetable.ValueMember = "TimetableID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load timetables.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnLoadStudents_Click(object sender, EventArgs e)
         {
-            if (cmbTimetable.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select timetable.");
-                return;
+                if (cmbTimetable.SelectedValue == null)
+                {
+                    MessageBox.Show("Please select a timetable first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                int timetableID = (int)cmbTimetable.SelectedValue;
+                Timetable timetable = _timetableController.GetTimetableByID(timetableID);
+
+                var students = _studentController.GetStudentsByCourse(timetable.CourseID);
+                dgvStudents.Columns.Clear(); // Clear previous columns if any
+                dgvStudents.DataSource = students;
+
+                if (!dgvStudents.Columns.Contains("Status"))
+                {
+                    var statusCol = new DataGridViewComboBoxColumn
+                    {
+                        HeaderText = "Status",
+                        Name = "Status",
+                        DataSource = new string[] { "Present", "Absent", "Late", "Excused" }
+                    };
+                    dgvStudents.Columns.Add(statusCol);
+                }
+
+                foreach (DataGridViewRow row in dgvStudents.Rows)
+                {
+                    row.Cells["Status"].Value = "Present";
+                }
             }
-
-            int timetableID = (int)cmbTimetable.SelectedValue;
-            Timetable timetable = _timetableController.GetTimetableByID(timetableID);
-
-            var students = _studentController.GetStudentsByCourse(timetable.CourseID);
-
-            dgvStudents.DataSource = students;
-            dgvStudents.Columns.Add(new DataGridViewComboBoxColumn
+            catch (Exception ex)
             {
-                HeaderText = "Status",
-                Name = "Status",
-                DataSource = new string[] { "Present", "Absent", "Late", "Excused" }
-            });
-
-            foreach (DataGridViewRow row in dgvStudents.Rows)
-            {
-                row.Cells["Status"].Value = "Present"; // Default selection
+                MessageBox.Show("❌ Failed to load students.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (cmbTimetable.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Please select timetable.");
-                return;
-            }
-
-            int timetableID = (int)cmbTimetable.SelectedValue;
-
-            foreach (DataGridViewRow row in dgvStudents.Rows)
-            {
-                int studentID = Convert.ToInt32(row.Cells["StudentID"].Value);
-                string status = row.Cells["Status"].Value.ToString();
-
-                Attendance attendance = new Attendance
+                if (cmbTimetable.SelectedValue == null)
                 {
-                    TimetableID = timetableID,
-                    StudentID = studentID,
-                    Status = status,
-                    MarkedBy = lecturerID,
-                    MarkedDate = DateTime.Now
-                };
+                    MessageBox.Show("Please select a timetable first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                _attendanceController.AddAttendance(attendance);
+                if (dgvStudents.Rows.Count == 0)
+                {
+                    MessageBox.Show("No student data to save.");
+                    return;
+                }
+
+                int timetableID = (int)cmbTimetable.SelectedValue;
+                int savedCount = 0;
+
+                foreach (DataGridViewRow row in dgvStudents.Rows)
+                {
+                    if (row.Cells["StudentID"].Value == null || row.Cells["Status"].Value == null)
+                        continue;
+
+                    int studentID = Convert.ToInt32(row.Cells["StudentID"].Value);
+                    string status = row.Cells["Status"].Value.ToString();
+
+                    Attendance attendance = new Attendance
+                    {
+                        TimetableID = timetableID,
+                        StudentID = studentID,
+                        Status = status,
+                        MarkedBy = lecturerID,
+                        MarkedDate = DateTime.Now
+                    };
+
+                    _attendanceController.AddAttendance(attendance);
+                    savedCount++;
+                }
+
+                MessageBox.Show($"✅ Attendance saved for {savedCount} students.");
             }
-
-            MessageBox.Show("Attendance successfully saved.");
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to save attendance.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

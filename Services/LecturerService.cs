@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -19,42 +20,107 @@ namespace UnicomTICManagementSystem.Services
 
         public void AddLecturer(int userID, string name, int departmentID)
         {
-            _lecturerRepository.AddLecturer(userID, name, departmentID);
+            try
+            {
+                _lecturerRepository.AddLecturer(userID, name, departmentID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.AddLecturer");
+                throw;
+            }
         }
 
         public void UpdateLecturer(Lecturer lecturer)
         {
-            _lecturerRepository.UpdateLecturer(lecturer);
+            try
+            {
+                _lecturerRepository.UpdateLecturer(lecturer);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.UpdateLecturer");
+                throw;
+            }
         }
 
         public void DeleteLecturer(int lecturerID)
         {
-            _lecturerRepository.DeleteLecturer(lecturerID);
+            try
+            {
+                _lecturerRepository.DeleteLecturer(lecturerID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.DeleteLecturer");
+                throw;
+            }
         }
 
         public List<Lecturer> GetAllLecturers()
         {
-            return _lecturerRepository.GetAllLecturers();
+            try
+            {
+                return _lecturerRepository.GetAllLecturers();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.GetAllLecturers");
+                throw;
+            }
         }
 
         public List<Lecturer> SearchLecturers(string keyword)
         {
-            return _lecturerRepository.SearchLecturers(keyword);
+            try
+            {
+                return _lecturerRepository.SearchLecturers(keyword);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.SearchLecturers");
+                throw;
+            }
         }
 
         public Lecturer GetLecturerByID(int lecturerID)
         {
-            return _lecturerRepository.GetLecturerByID(lecturerID);
-        }
-        public bool LecturerExistsByUserId(int userId)
-        {
-            return _lecturerRepository.LecturerExistsByUserId(userId);
-        }
-        public int GetLecturerIDByUserID(int userID)
-        {
-            return _lecturerRepository.GetLecturerIDByUserID(userID);
+            try
+            {
+                return _lecturerRepository.GetLecturerByID(lecturerID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.GetLecturerByID");
+                throw;
+            }
         }
 
+        public bool LecturerExistsByUserId(int userId)
+        {
+            try
+            {
+                return _lecturerRepository.LecturerExistsByUserId(userId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.LecturerExistsByUserId");
+                throw;
+            }
+        }
+
+        public int GetLecturerIDByUserID(int userID)
+        {
+            try
+            {
+                return _lecturerRepository.GetLecturerIDByUserID(userID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "LecturerService.GetLecturerIDByUserID");
+                throw;
+            }
+        }
 
     }
 }

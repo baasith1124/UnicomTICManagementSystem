@@ -57,39 +57,65 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadCourses()
         {
-            cmbCourse.DataSource = _courseController.GetAllCourses();
-            cmbCourse.DisplayMember = "CourseName";
-            cmbCourse.ValueMember = "CourseID";
+            try
+            {
+                cmbCourse.DataSource = _courseController.GetAllCourses();
+                cmbCourse.DisplayMember = "CourseName";
+                cmbCourse.ValueMember = "CourseID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load courses.\n{ex.Message}", "Error");
+            }
         }
 
         private void LoadStudents()
         {
-            dgvStudents.DataSource = _studentController.GetAllStudents();
-            dgvStudents.ClearSelection();
-            selectedStudentID = -1;
+            try
+            {
+                dgvStudents.DataSource = _studentController.GetAllStudents();
+                dgvStudents.ClearSelection();
+                selectedStudentID = -1;
 
-            if (dgvStudents.Columns["StudentID"] != null)
-                dgvStudents.Columns["StudentID"].Visible = false;
-
-            if (dgvStudents.Columns["UserID"] != null)
-                dgvStudents.Columns["UserID"].Visible = false;
-
-            if (dgvStudents.Columns["CourseID"] != null)
-                dgvStudents.Columns["CourseID"].Visible = false;
+                if (dgvStudents.Columns["StudentID"] != null)
+                    dgvStudents.Columns["StudentID"].Visible = false;
+                if (dgvStudents.Columns["UserID"] != null)
+                    dgvStudents.Columns["UserID"].Visible = false;
+                if (dgvStudents.Columns["CourseID"] != null)
+                    dgvStudents.Columns["CourseID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load student data.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-            dgvStudents.DataSource = _studentController.SearchStudents(keyword);
+            try
+            {
+                string keyword = txtSearch.Text.Trim();
+                dgvStudents.DataSource = _studentController.SearchStudents(keyword);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Search failed.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            LoadCourses();
-            ClearForm();
-            isUpdateMode = false;
-            SwitchToForm();
+            try
+            {
+                LoadCourses();
+                ClearForm();
+                isUpdateMode = false;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to prepare form for adding student.\n{ex.Message}", "Error");
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -111,26 +137,25 @@ namespace UnicomTICManagementSystem.Views
             }
 
             // Build User object
-            User user = new User
-            {
-                Username = txtUsername.Text.Trim(),
-                Password = PasswordHasher.HashPassword(txtPassword.Text.Trim()),
-                FullName = txtName.Text.Trim(),
-                Role = "Student",
-                Email = txtEmail.Text.Trim(),
-                Phone = txtPhone.Text.Trim(),
-                RegisteredDate = DateTime.Now,
-                IsApproved = true
-            };
-
-            int courseID = (int)cmbCourse.SelectedValue;
-            DateTime enrollmentDate = dtpEnrollmentDate.Value;
-
             try
             {
+                User user = new User
+                {
+                    Username = txtUsername.Text.Trim(),
+                    Password = PasswordHasher.HashPassword(txtPassword.Text.Trim()),
+                    FullName = txtName.Text.Trim(),
+                    Role = "Student",
+                    Email = txtEmail.Text.Trim(),
+                    Phone = txtPhone.Text.Trim(),
+                    RegisteredDate = DateTime.Now,
+                    IsApproved = true
+                };
+
+                int courseID = (int)cmbCourse.SelectedValue;
+                DateTime enrollmentDate = dtpEnrollmentDate.Value;
+
                 if (!isUpdateMode)
                 {
-                    // Insert into User + Students table together
                     _userController.AdminRegisterStudent(user, courseID, enrollmentDate);
                     MessageBox.Show("Student successfully added.");
                 }
@@ -144,7 +169,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Registration Failed");
+                MessageBox.Show($"Student save failed.\n{ex.Message}", "Error");
             }
         }
 
@@ -156,13 +181,20 @@ namespace UnicomTICManagementSystem.Views
                 return;
             }
 
-            int studentID = Convert.ToInt32(dgvStudents.CurrentRow.Cells["StudentID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+            try
             {
-                _studentController.DeleteStudent(studentID);
-                MessageBox.Show("Student deleted successfully.");
-                LoadStudents();
+                int studentID = Convert.ToInt32(dgvStudents.CurrentRow.Cells["StudentID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _studentController.DeleteStudent(studentID);
+                    MessageBox.Show("Student deleted successfully.");
+                    LoadStudents();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Delete failed.\n{ex.Message}", "Error");
             }
         }
 
@@ -178,22 +210,25 @@ namespace UnicomTICManagementSystem.Views
                 return;
             }
 
-            selectedStudentID = Convert.ToInt32(dgvStudents.CurrentRow.Cells["StudentID"].Value);
+            try
+            {
+                selectedStudentID = Convert.ToInt32(dgvStudents.CurrentRow.Cells["StudentID"].Value);
+                var studentData = _studentController.GetStudentFullDetailsByID(selectedStudentID);
 
-            // Call backend to get full User & Student data (join)
-            var studentData = _studentController.GetStudentFullDetailsByID(selectedStudentID);
+                txtUsername.Text = studentData.Username;
+                txtName.Text = studentData.FullName;
+                txtEmail.Text = studentData.Email;
+                txtPhone.Text = studentData.Phone;
+                cmbCourse.SelectedValue = studentData.CourseID;
+                dtpEnrollmentDate.Value = studentData.EnrollmentDate;
 
-            txtUsername.Text = studentData.Username;
-            txtName.Text = studentData.FullName;
-            txtEmail.Text = studentData.Email;
-            txtPhone.Text = studentData.Phone;
-            cmbCourse.SelectedValue = studentData.CourseID;
-            dtpEnrollmentDate.Value = studentData.EnrollmentDate;
-
-            // Password not shown for security - you may add Reset Password separately.
-
-            isUpdateMode = true;
-            SwitchToForm();
+                isUpdateMode = true;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Update failed.\n{ex.Message}", "Error");
+            }
         }
 
 

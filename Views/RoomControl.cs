@@ -102,85 +102,120 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadRooms()
         {
-            dgvRooms.DataSource = _roomController.GetAllRooms();
-            dgvRooms.ClearSelection();
-            selectedRoomID = -1;
-            if (dgvRooms.Columns["RoomID"] != null)
-                dgvRooms.Columns["RoomID"].Visible = false;
+            try
+            {
+                dgvRooms.DataSource = _roomController.GetAllRooms();
+                dgvRooms.ClearSelection();
+                selectedRoomID = -1;
+                if (dgvRooms.Columns["RoomID"] != null)
+                    dgvRooms.Columns["RoomID"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load rooms.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-            dgvRooms.DataSource = _roomController.SearchRooms(keyword);
+            try
+            {
+                string keyword = txtSearch.Text.Trim();
+                dgvRooms.DataSource = _roomController.SearchRooms(keyword);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Search failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ClearForm();
-            isUpdateMode = false;
-            SwitchToForm();
+            try
+            {
+                ClearForm();
+                isUpdateMode = false;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to prepare form.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvRooms.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a room to update.");
-                return;
+                if (dgvRooms.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a room to update.");
+                    return;
+                }
+
+                selectedRoomID = Convert.ToInt32(dgvRooms.CurrentRow.Cells["RoomID"].Value);
+                txtRoomName.Text = dgvRooms.CurrentRow.Cells["RoomName"].Value.ToString();
+                cmbRoomType.SelectedItem = dgvRooms.CurrentRow.Cells["RoomType"].Value.ToString();
+                txtCapacity.Text = dgvRooms.CurrentRow.Cells["Capacity"].Value.ToString();
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedRoomID = Convert.ToInt32(dgvRooms.CurrentRow.Cells["RoomID"].Value);
-            txtRoomName.Text = dgvRooms.CurrentRow.Cells["RoomName"].Value.ToString();
-            cmbRoomType.SelectedItem = dgvRooms.CurrentRow.Cells["RoomType"].Value.ToString();
-            txtCapacity.Text = dgvRooms.CurrentRow.Cells["Capacity"].Value.ToString();
-
-            isUpdateMode = true;
-            SwitchToForm();
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load room for update.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvRooms.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a room to delete.");
-                return;
-            }
+                if (dgvRooms.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a room to delete.");
+                    return;
+                }
 
-            int roomID = Convert.ToInt32(dgvRooms.CurrentRow.Cells["RoomID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int roomID = Convert.ToInt32(dgvRooms.CurrentRow.Cells["RoomID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _roomController.DeleteRoom(roomID);
+                    MessageBox.Show("Room deleted successfully.");
+                    LoadRooms();
+                }
+            }
+            catch (Exception ex)
             {
-                _roomController.DeleteRoom(roomID);
-                MessageBox.Show("Room deleted successfully.");
-                LoadRooms();
+                MessageBox.Show("Failed to delete room.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtRoomName.Text) || string.IsNullOrWhiteSpace(txtCapacity.Text))
-            {
-                MessageBox.Show("Room Name and Capacity are required.");
-                return;
-            }
-
-            if (!int.TryParse(txtCapacity.Text, out int capacity))
-            {
-                MessageBox.Show("Capacity must be a valid integer.");
-                return;
-            }
-
-            Room room = new Room
-            {
-                RoomID = selectedRoomID,
-                RoomName = txtRoomName.Text.Trim(),
-                RoomType = cmbRoomType.SelectedItem.ToString(),
-                Capacity = capacity
-            };
-
             try
             {
+                if (string.IsNullOrWhiteSpace(txtRoomName.Text) || string.IsNullOrWhiteSpace(txtCapacity.Text))
+                {
+                    MessageBox.Show("Room Name and Capacity are required.");
+                    return;
+                }
+
+                if (!int.TryParse(txtCapacity.Text, out int capacity))
+                {
+                    MessageBox.Show("Capacity must be a valid integer.");
+                    return;
+                }
+
+                Room room = new Room
+                {
+                    RoomID = selectedRoomID,
+                    RoomName = txtRoomName.Text.Trim(),
+                    RoomType = cmbRoomType.SelectedItem.ToString(),
+                    Capacity = capacity
+                };
+
                 if (!isUpdateMode)
                 {
                     _roomController.AddRoom(room);
@@ -197,7 +232,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Save Failed");
+                MessageBox.Show("Failed to save room.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

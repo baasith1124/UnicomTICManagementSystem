@@ -127,46 +127,67 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDepartments()
         {
-            var departments = _departmentController.GetAllDepartments();
-            cmbDepartment.DataSource = departments;
-            cmbDepartment.DisplayMember = "DepartmentName";
-            cmbDepartment.ValueMember = "DepartmentID";
-
-            var deptList = new List<Department>
+            try
             {
-                new Department { DepartmentID = 0, DepartmentName = "-- All Departments --" }
-            };
-            deptList.AddRange(departments);
+                var departments = _departmentController.GetAllDepartments();
+                cmbDepartment.DataSource = departments;
+                cmbDepartment.DisplayMember = "DepartmentName";
+                cmbDepartment.ValueMember = "DepartmentID";
 
-            cmbFilterDepartment.DataSource = deptList;
-            cmbFilterDepartment.DisplayMember = "DepartmentName";
-            cmbFilterDepartment.ValueMember = "DepartmentID";
-            cmbFilterDepartment.SelectedIndex = 0;
+                var deptList = new List<Department>
+        {
+            new Department { DepartmentID = 0, DepartmentName = "-- All Departments --" }
+        };
+                deptList.AddRange(departments);
+
+                cmbFilterDepartment.DataSource = deptList;
+                cmbFilterDepartment.DisplayMember = "DepartmentName";
+                cmbFilterDepartment.ValueMember = "DepartmentID";
+                cmbFilterDepartment.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
         }
 
         private void LoadCourses()
         {
-            int deptId = (cmbFilterDepartment.SelectedItem as Department)?.DepartmentID ?? 0;
+            try
+            {
+                int deptId = (cmbFilterDepartment.SelectedItem as Department)?.DepartmentID ?? 0;
 
-            var data = deptId == 0
-                ? _courseController.GetAllCourses()
-                : _courseController.GetCoursesByDepartment(deptId);
+                var data = deptId == 0
+                    ? _courseController.GetAllCourses()
+                    : _courseController.GetCoursesByDepartment(deptId);
 
-            dgvCourses.DataSource = data;
-            dgvCourses.ClearSelection();
+                dgvCourses.DataSource = data;
+                dgvCourses.ClearSelection();
 
-            if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
-            if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
+                if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
+                if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
 
-            selectedCourseID = -1;
+                selectedCourseID = -1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string term = txtSearch.Text.Trim();
-            dgvCourses.DataSource = _courseController.SearchCoursesByName(term);
+            try
+            {
+                string term = txtSearch.Text.Trim();
+                dgvCourses.DataSource = _courseController.SearchCoursesByName(term);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to search courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void cmbFilterDepartment_SelectedIndexChanged(object sender, EventArgs e)
@@ -184,70 +205,91 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dgvCourses.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a course to update.");
-                return;
+                if (dgvCourses.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a course to update.");
+                    return;
+                }
+
+                selectedCourseID = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
+                txtCourseName.Text = dgvCourses.CurrentRow.Cells["CourseName"].Value.ToString();
+                txtDescription.Text = dgvCourses.CurrentRow.Cells["Description"].Value.ToString();
+
+                if (dgvCourses.CurrentRow.Cells["DepartmentID"].Value != DBNull.Value)
+                    cmbDepartment.SelectedValue = Convert.ToInt32(dgvCourses.CurrentRow.Cells["DepartmentID"].Value);
+
+                isUpdateMode = true;
+                SwitchToForm();
             }
-
-            selectedCourseID = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
-            txtCourseName.Text = dgvCourses.CurrentRow.Cells["CourseName"].Value.ToString();
-            txtDescription.Text = dgvCourses.CurrentRow.Cells["Description"].Value.ToString();
-
-            if (dgvCourses.CurrentRow.Cells["DepartmentID"].Value != DBNull.Value)
-                cmbDepartment.SelectedValue = Convert.ToInt32(dgvCourses.CurrentRow.Cells["DepartmentID"].Value);
-
-            isUpdateMode = true;
-            SwitchToForm();
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to prepare update form.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvCourses.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select a course to delete.");
-                return;
-            }
+                if (dgvCourses.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select a course to delete.");
+                    return;
+                }
 
-            int id = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
-            var confirm = MessageBox.Show("Confirm delete?", "Warning", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int id = Convert.ToInt32(dgvCourses.CurrentRow.Cells["CourseID"].Value);
+                var confirm = MessageBox.Show("Confirm delete?", "Warning", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _courseController.DeleteCourse(id);
+                    LoadCourses();
+                    MessageBox.Show("✅ Course deleted.");
+                }
+            }
+            catch (Exception ex)
             {
-                _courseController.DeleteCourse(id);
-                LoadCourses();
-                MessageBox.Show("Course Deleted");
+                MessageBox.Show("❌ Failed to delete course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtCourseName.Text) || cmbDepartment.SelectedValue == null)
+            try
             {
-                MessageBox.Show("Course Name and Department are required.");
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(txtCourseName.Text) || cmbDepartment.SelectedValue == null)
+                {
+                    MessageBox.Show("Course Name and Department are required.");
+                    return;
+                }
 
-            Course course = new Course
-            {
-                CourseName = txtCourseName.Text.Trim(),
-                Description = txtDescription.Text.Trim(),
-                DepartmentID = Convert.ToInt32(cmbDepartment.SelectedValue)
-            };
+                Course course = new Course
+                {
+                    CourseName = txtCourseName.Text.Trim(),
+                    Description = txtDescription.Text.Trim(),
+                    DepartmentID = Convert.ToInt32(cmbDepartment.SelectedValue)
+                };
 
-            if (isUpdateMode)
-            {
-                course.CourseID = selectedCourseID;
-                _courseController.UpdateCourse(course);
-                MessageBox.Show("Course Updated Successfully");
-            }
-            else
-            {
-                _courseController.AddCourse(course);
-                MessageBox.Show("Course Added Successfully");
-            }
+                if (isUpdateMode)
+                {
+                    course.CourseID = selectedCourseID;
+                    _courseController.UpdateCourse(course);
+                    MessageBox.Show("✅ Course updated successfully.");
+                }
+                else
+                {
+                    _courseController.AddCourse(course);
+                    MessageBox.Show("✅ Course added successfully.");
+                }
 
-            LoadCourses();
-            SwitchToGrid();
+                LoadCourses();
+                SwitchToGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to save course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

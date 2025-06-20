@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnicomTICManagementSystem.Data;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -16,29 +17,37 @@ namespace UnicomTICManagementSystem.Repositories
         {
             var positions = new List<Position>();
 
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = @"SELECT PositionID, DepartmentID, PositionName 
-                                 FROM Positions 
-                                 WHERE DepartmentID = @DepartmentID";
-
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
-                    using (var reader = cmd.ExecuteReader())
+                    string query = @"SELECT PositionID, DepartmentID, PositionName 
+                                     FROM Positions 
+                                     WHERE DepartmentID = @DepartmentID";
+
+                    using (var cmd = new SQLiteCommand(query, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@DepartmentID", departmentID);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            positions.Add(new Position
+                            while (reader.Read())
                             {
-                                PositionID = Convert.ToInt32(reader["PositionID"]),
-                                DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
-                                PositionName = reader["PositionName"].ToString()
-                            });
+                                positions.Add(new Position
+                                {
+                                    PositionID = Convert.ToInt32(reader["PositionID"]),
+                                    DepartmentID = Convert.ToInt32(reader["DepartmentID"]),
+                                    PositionName = reader["PositionName"].ToString()
+                                });
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "PositionRepository.GetPositionsByDepartment");
+            }
+
             return positions;
         }
     }

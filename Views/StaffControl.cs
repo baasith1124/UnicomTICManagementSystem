@@ -151,45 +151,64 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadDepartments()
         {
-            cmbDepartment.DataSource = _departmentController.GetAllDepartments();
-            cmbDepartment.DisplayMember = "DepartmentName";
-            cmbDepartment.ValueMember = "DepartmentID";
+            try
+            {
+                cmbDepartment.DataSource = _departmentController.GetAllDepartments();
+                cmbDepartment.DisplayMember = "DepartmentName";
+                cmbDepartment.ValueMember = "DepartmentID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load departments: " + ex.Message, "Error");
+            }
         }
 
         private void LoadPositions(int departmentID)
         {
-            cmbPosition.DataSource = _positionController.GetPositionsByDepartment(departmentID);
-            cmbPosition.DisplayMember = "PositionName";
-            cmbPosition.ValueMember = "PositionID";
+            try
+            {
+                cmbPosition.DataSource = _positionController.GetPositionsByDepartment(departmentID);
+                cmbPosition.DisplayMember = "PositionName";
+                cmbPosition.ValueMember = "PositionID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load positions: " + ex.Message, "Error");
+            }
         }
 
         private void LoadStaff()
         {
-            dgvStaff.DataSource = _staffController.GetAllStaff();
-            dgvStaff.ClearSelection();
-            selectedStaffID = -1;
+            try
+            {
+                dgvStaff.DataSource = _staffController.GetAllStaff();
+                dgvStaff.ClearSelection();
+                selectedStaffID = -1;
 
-            // Hide internal ID columns (if included)
-            if (dgvStaff.Columns.Contains("StaffID"))
-                dgvStaff.Columns["StaffID"].Visible = false;
-            if (dgvStaff.Columns.Contains("DepartmentID"))
-                dgvStaff.Columns["DepartmentID"].Visible = false;
-            if (dgvStaff.Columns.Contains("PositionID"))
-                dgvStaff.Columns["PositionID"].Visible = false;
-            if (dgvStaff.Columns.Contains("UserID"))
-                dgvStaff.Columns["UserID"].Visible = false;
+                if (dgvStaff.Columns.Contains("StaffID"))
+                    dgvStaff.Columns["StaffID"].Visible = false;
+                if (dgvStaff.Columns.Contains("DepartmentID"))
+                    dgvStaff.Columns["DepartmentID"].Visible = false;
+                if (dgvStaff.Columns.Contains("PositionID"))
+                    dgvStaff.Columns["PositionID"].Visible = false;
+                if (dgvStaff.Columns.Contains("UserID"))
+                    dgvStaff.Columns["UserID"].Visible = false;
 
-            // Rename visible headers
-            if (dgvStaff.Columns.Contains("Name"))
-                dgvStaff.Columns["Name"].HeaderText = "Full Name";
-            if (dgvStaff.Columns.Contains("DepartmentName"))
-                dgvStaff.Columns["DepartmentName"].HeaderText = "Department";
-            if (dgvStaff.Columns.Contains("PositionName"))
-                dgvStaff.Columns["PositionName"].HeaderText = "Position";
-            if (dgvStaff.Columns.Contains("Email"))
-                dgvStaff.Columns["Email"].HeaderText = "Email";
-            if (dgvStaff.Columns.Contains("Phone"))
-                dgvStaff.Columns["Phone"].HeaderText = "Phone";
+                if (dgvStaff.Columns.Contains("Name"))
+                    dgvStaff.Columns["Name"].HeaderText = "Full Name";
+                if (dgvStaff.Columns.Contains("DepartmentName"))
+                    dgvStaff.Columns["DepartmentName"].HeaderText = "Department";
+                if (dgvStaff.Columns.Contains("PositionName"))
+                    dgvStaff.Columns["PositionName"].HeaderText = "Position";
+                if (dgvStaff.Columns.Contains("Email"))
+                    dgvStaff.Columns["Email"].HeaderText = "Email";
+                if (dgvStaff.Columns.Contains("Phone"))
+                    dgvStaff.Columns["Phone"].HeaderText = "Phone";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load staff list: " + ex.Message, "Error");
+            }
 
         }
 
@@ -206,15 +225,29 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.Trim();
-            dgvStaff.DataSource = _staffController.SearchStaff(keyword);
+            try
+            {
+                string keyword = txtSearch.Text.Trim();
+                dgvStaff.DataSource = _staffController.SearchStaff(keyword);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Search failed: " + ex.Message, "Error");
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ClearForm();
-            isUpdateMode = false;
-            SwitchToForm();
+            try
+            {
+                ClearForm();
+                isUpdateMode = false;
+                SwitchToForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Add preparation failed: " + ex.Message, "Error");
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -383,19 +416,26 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dgvStaff.CurrentRow == null)
+            try
             {
-                MessageBox.Show("Please select staff to delete.");
-                return;
-            }
+                if (dgvStaff.CurrentRow == null)
+                {
+                    MessageBox.Show("Please select staff to delete.");
+                    return;
+                }
 
-            int staffID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["StaffID"].Value);
-            var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+                int staffID = Convert.ToInt32(dgvStaff.CurrentRow.Cells["StaffID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    _staffController.DeleteStaff(staffID);
+                    MessageBox.Show("Staff deleted successfully.");
+                    LoadStaff();
+                }
+            }
+            catch (Exception ex)
             {
-                _staffController.DeleteStaff(staffID);
-                MessageBox.Show("Staff deleted successfully.");
-                LoadStaff();
+                MessageBox.Show("Delete failed: " + ex.Message, "Error");
             }
         }
 

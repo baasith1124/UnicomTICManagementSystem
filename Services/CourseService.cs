@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -19,33 +20,94 @@ namespace UnicomTICManagementSystem.Services
 
         public void AddCourse(Course course)
         {
-            _courseRepository.AddCourse(course);
+            try
+            {
+                _courseRepository.AddCourse(course);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.AddCourse");
+                throw;
+            }
         }
 
         public void UpdateCourse(Course course)
         {
-            _courseRepository.UpdateCourse(course);
+            try
+            {
+                _courseRepository.UpdateCourse(course);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.UpdateCourse");
+                throw;
+            }
         }
 
         public void DeleteCourse(int courseId)
         {
-            _courseRepository.DeleteCourse(courseId);
+            try
+            {
+                _courseRepository.DeleteCourse(courseId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.DeleteCourse");
+                throw;
+            }
         }
 
         public Course GetCourseById(int courseId)
         {
-            return _courseRepository.GetCourseById(courseId);
+            try
+            {
+                return _courseRepository.GetCourseById(courseId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.GetCourseById");
+                throw;
+            }
         }
 
         public List<Course> GetAllCourses()
         {
-            return _courseRepository.GetAllCourses();
+            try
+            {
+                return _courseRepository.GetAllCourses();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.GetAllCourses");
+                throw;
+            }
         }
+
         public List<Course> SearchCoursesByName(string courseName)
         {
-            return _courseRepository.SearchCoursesByName(courseName);
+            try
+            {
+                return _courseRepository.SearchCoursesByName(courseName);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.SearchCoursesByName");
+                throw;
+            }
         }
-        public List<Course> GetCoursesByDepartment(int departmentId) => _courseRepository.GetCoursesByDepartment(departmentId);
+
+        public List<Course> GetCoursesByDepartment(int departmentId)
+        {
+            try
+            {
+                return _courseRepository.GetCoursesByDepartment(departmentId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "CourseService.GetCoursesByDepartment");
+                throw;
+            }
+        }
 
     }
 }

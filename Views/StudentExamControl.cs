@@ -68,27 +68,68 @@ namespace UnicomTICManagementSystem.Views
 
         private void LoadSubjectsForStudent()
         {
-            cmbSubject.SelectedIndexChanged -= cmbSubject_SelectedIndexChanged; // prevent firing
-
-            Student student = _studentController.GetStudentByID(studentID);
-            if (student != null)
+            try
             {
+                cmbSubject.SelectedIndexChanged -= cmbSubject_SelectedIndexChanged; // Temporarily detach to avoid unintended triggers
+
+                Student student = _studentController.GetStudentByID(studentID);
+                if (student == null)
+                {
+                    MessageBox.Show("Student data not found.", "Error");
+                    return;
+                }
+
                 var subjects = _subjectController.GetSubjectsByCourse(student.CourseID);
+                if (subjects == null || subjects.Count == 0)
+                {
+                    MessageBox.Show("No subjects found for the student's course.", "No Subjects");
+                    cmbSubject.DataSource = null;
+                    dgvExams.DataSource = null;
+                    return;
+                }
+
                 cmbSubject.DataSource = subjects;
                 cmbSubject.DisplayMember = "SubjectName";
                 cmbSubject.ValueMember = "SubjectID";
             }
-
-            cmbSubject.SelectedIndexChanged += cmbSubject_SelectedIndexChanged; // reattach after load
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load subjects.\n{ex.Message}", "Load Error");
+            }
+            finally
+            {
+                cmbSubject.SelectedIndexChanged += cmbSubject_SelectedIndexChanged; // Reattach the event
+            }
         }
 
         private void cmbSubject_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbSubject.SelectedValue == null )
-                return;
+            try
+            {
+                if (cmbSubject.SelectedValue == null)
+                    return;
 
-            int subjectID = Convert.ToInt32(cmbSubject.SelectedValue);
-            dgvExams.DataSource = _examController.GetExamsBySubject(subjectID);
+                if (!int.TryParse(cmbSubject.SelectedValue.ToString(), out int subjectID))
+                {
+                    MessageBox.Show("Invalid subject selected.");
+                    return;
+                }
+
+                var exams = _examController.GetExamsBySubject(subjectID);
+                if (exams == null || exams.Count == 0)
+                {
+                    dgvExams.DataSource = null;
+                    MessageBox.Show("No exams found for this subject.", "No Exams");
+                }
+                else
+                {
+                    dgvExams.DataSource = exams;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load exams.\n{ex.Message}", "Load Error");
+            }
         }
     }
 }

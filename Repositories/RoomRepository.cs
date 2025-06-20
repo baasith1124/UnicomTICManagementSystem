@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnicomTICManagementSystem.Data;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 
@@ -14,70 +15,98 @@ namespace UnicomTICManagementSystem.Repositories
     {
         public void AddRoom(Room room)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = @"INSERT INTO Rooms (RoomName, RoomType, Capacity) 
-                             VALUES (@RoomName, @RoomType, @Capacity)";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
-                    cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
-                    cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
-                    cmd.ExecuteNonQuery();
+                    string query = @"INSERT INTO Rooms (RoomName, RoomType, Capacity) 
+                                     VALUES (@RoomName, @RoomType, @Capacity)";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
+                        cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
+                        cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.AddRoom");
             }
         }
 
         public void UpdateRoom(Room room)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = @"UPDATE Rooms SET RoomName = @RoomName, RoomType = @RoomType, Capacity = @Capacity 
-                             WHERE RoomID = @RoomID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
-                    cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
-                    cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
-                    cmd.Parameters.AddWithValue("@RoomID", room.RoomID);
-                    cmd.ExecuteNonQuery();
+                    string query = @"UPDATE Rooms SET RoomName = @RoomName, RoomType = @RoomType, Capacity = @Capacity 
+                                     WHERE RoomID = @RoomID";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RoomName", room.RoomName);
+                        cmd.Parameters.AddWithValue("@RoomType", room.RoomType);
+                        cmd.Parameters.AddWithValue("@Capacity", room.Capacity);
+                        cmd.Parameters.AddWithValue("@RoomID", room.RoomID);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.UpdateRoom");
             }
         }
 
         public void DeleteRoom(int roomID)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "DELETE FROM Rooms WHERE RoomID = @RoomID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@RoomID", roomID);
-                    cmd.ExecuteNonQuery();
+                    string query = "DELETE FROM Rooms WHERE RoomID = @RoomID";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RoomID", roomID);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.DeleteRoom");
             }
         }
 
         public List<Room> GetAllRooms()
         {
             var rooms = new List<Room>();
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT * FROM Rooms";
-                using (var cmd = new SQLiteCommand(query, conn))
-                using (var reader = cmd.ExecuteReader())
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    while (reader.Read())
+                    string query = "SELECT * FROM Rooms";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        rooms.Add(new Room
+                        while (reader.Read())
                         {
-                            RoomID = Convert.ToInt32(reader["RoomID"]),
-                            RoomName = reader["RoomName"].ToString(),
-                            RoomType = reader["RoomType"].ToString(),
-                            Capacity = Convert.ToInt32(reader["Capacity"])
-                        });
+                            rooms.Add(new Room
+                            {
+                                RoomID = Convert.ToInt32(reader["RoomID"]),
+                                RoomName = reader["RoomName"].ToString(),
+                                RoomType = reader["RoomType"].ToString(),
+                                Capacity = Convert.ToInt32(reader["Capacity"])
+                            });
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.GetAllRooms");
             }
             return rooms;
         }
@@ -85,77 +114,100 @@ namespace UnicomTICManagementSystem.Repositories
         public List<Room> SearchRooms(string keyword)
         {
             var rooms = new List<Room>();
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomName LIKE @keyword";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
-                    using (var reader = cmd.ExecuteReader())
+                    string query = "SELECT * FROM Rooms WHERE RoomName LIKE @keyword";
+                    using (var cmd = new SQLiteCommand(query, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@keyword", $"%{keyword}%");
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            rooms.Add(new Room
+                            while (reader.Read())
                             {
-                                RoomID = Convert.ToInt32(reader["RoomID"]),
-                                RoomName = reader["RoomName"].ToString(),
-                                RoomType = reader["RoomType"].ToString(),
-                                Capacity = Convert.ToInt32(reader["Capacity"])
-                            });
+                                rooms.Add(new Room
+                                {
+                                    RoomID = Convert.ToInt32(reader["RoomID"]),
+                                    RoomName = reader["RoomName"].ToString(),
+                                    RoomType = reader["RoomType"].ToString(),
+                                    Capacity = Convert.ToInt32(reader["Capacity"])
+                                });
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.SearchRooms");
             }
             return rooms;
         }
 
         public Room GetRoomByID(int roomID)
         {
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomID = @RoomID";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@RoomID", roomID);
-                    using (var reader = cmd.ExecuteReader())
+                    string query = "SELECT * FROM Rooms WHERE RoomID = @RoomID";
+                    using (var cmd = new SQLiteCommand(query, conn))
                     {
-                        if (reader.Read())
+                        cmd.Parameters.AddWithValue("@RoomID", roomID);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            return new Room
+                            if (reader.Read())
                             {
-                                RoomID = Convert.ToInt32(reader["RoomID"]),
-                                RoomName = reader["RoomName"].ToString(),
-                                RoomType = reader["RoomType"].ToString(),
-                                Capacity = Convert.ToInt32(reader["Capacity"])
-                            };
+                                return new Room
+                                {
+                                    RoomID = Convert.ToInt32(reader["RoomID"]),
+                                    RoomName = reader["RoomName"].ToString(),
+                                    RoomType = reader["RoomType"].ToString(),
+                                    Capacity = Convert.ToInt32(reader["Capacity"])
+                                };
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.GetRoomByID");
+            }
             return null;
         }
+
         public List<Room> GetRoomsByType(string roomType)
         {
             var rooms = new List<Room>();
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
-                using (var cmd = new SQLiteCommand(query, conn))
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@RoomType", roomType);
-                    using (var reader = cmd.ExecuteReader())
+                    string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
+                    using (var cmd = new SQLiteCommand(query, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@RoomType", roomType);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            rooms.Add(new Room
+                            while (reader.Read())
                             {
-                                RoomID = Convert.ToInt32(reader["RoomID"]),
-                                RoomName = reader["RoomName"].ToString(),
-                                RoomType = reader["RoomType"].ToString()
-                            });
+                                rooms.Add(new Room
+                                {
+                                    RoomID = Convert.ToInt32(reader["RoomID"]),
+                                    RoomName = reader["RoomName"].ToString(),
+                                    RoomType = reader["RoomType"].ToString(),
+                                    Capacity = Convert.ToInt32(reader["Capacity"])
+                                });
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.GetRoomsByType");
             }
             return rooms;
         }
@@ -163,15 +215,24 @@ namespace UnicomTICManagementSystem.Repositories
         public List<string> GetDistinctRoomTypes()
         {
             var types = new List<string>();
-            using (var conn = DatabaseManager.GetConnection())
+            try
             {
-                string query = "SELECT DISTINCT RoomType FROM Rooms";
-                using (var cmd = new SQLiteCommand(query, conn))
-                using (var reader = cmd.ExecuteReader())
+                using (var conn = DatabaseManager.GetConnection())
                 {
-                    while (reader.Read())
-                        types.Add(reader["RoomType"].ToString());
+                    string query = "SELECT DISTINCT RoomType FROM Rooms";
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            types.Add(reader["RoomType"].ToString());
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "RoomRepository.GetDistinctRoomTypes");
             }
             return types;
         }
