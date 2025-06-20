@@ -55,7 +55,7 @@
             // 
             // btnApprove
             // 
-            this.btnApprove.Location = new System.Drawing.Point(433, 615);
+            this.btnApprove.Location = new System.Drawing.Point(441, 546);
             this.btnApprove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnApprove.Name = "btnApprove";
             this.btnApprove.Size = new System.Drawing.Size(124, 42);
@@ -269,7 +269,7 @@
             this.dgvPendingUsers.Name = "dgvPendingUsers";
             this.dgvPendingUsers.RowHeadersWidth = 51;
             this.dgvPendingUsers.RowTemplate.Height = 24;
-            this.dgvPendingUsers.Size = new System.Drawing.Size(1270, 587);
+            this.dgvPendingUsers.Size = new System.Drawing.Size(1250, 500);
             this.dgvPendingUsers.TabIndex = 1;
             // 
             // DashboardForm

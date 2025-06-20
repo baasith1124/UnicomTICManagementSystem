@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -43,8 +44,10 @@ namespace UnicomTICManagementSystem.Views
             _departmentController = new DepartmentController(deptService);
 
             InitializeUI();
+            
             LoadDepartments();
             LoadCourses();
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()
@@ -124,6 +127,8 @@ namespace UnicomTICManagementSystem.Views
                 btnSave, btnCancel
             });
         }
+        
+
 
         private void LoadDepartments()
         {

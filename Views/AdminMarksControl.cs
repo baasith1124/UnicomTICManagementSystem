@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -42,74 +43,130 @@ namespace UnicomTICManagementSystem.Views
 
             InitializeUI();
             LoadCourses();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()
         {
             this.Dock = DockStyle.Fill;
 
-            // === FILTER CONTROLS ===
-            Label lblCourse = new Label { Text = "Course:", Location = new Point(20, 20) };
-            cmbCourse = new ComboBox { Location = new Point(80, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            // === TOP FILTER PANEL ===
+            TableLayoutPanel topPanel = new TableLayoutPanel
+            {
+                Location = new Point(20, 20),
+                Width = 950,
+                Height = 40,
+                ColumnCount = 9,
+                RowCount = 1,
+                AutoSize = false
+            };
+
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Label Course
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));  // Combo Course
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20)); // spacer
+
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Label Subject
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));  // Combo Subject
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20)); // spacer
+
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Label Exam
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));  // Combo Exam
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Button Load
+
+            // Controls
+            Label lblCourse = new Label { Text = "Course:", Anchor = AnchorStyles.Right, TextAlign = ContentAlignment.MiddleRight };
+            cmbCourse = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbCourse.SelectedIndexChanged += CmbCourse_SelectedIndexChanged;
 
-            Label lblSubject = new Label { Text = "Subject:", Location = new Point(280, 20) };
-            cmbSubject = new ComboBox { Location = new Point(350, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblSubject = new Label { Text = "Subject:", Anchor = AnchorStyles.Right, TextAlign = ContentAlignment.MiddleRight };
+            cmbSubject = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbSubject.SelectedIndexChanged += CmbSubject_SelectedIndexChanged;
 
-            Label lblExam = new Label { Text = "Exam:", Location = new Point(550, 20) };
-            cmbExam = new ComboBox { Location = new Point(600, 15), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblExam = new Label { Text = "Exam:", Anchor = AnchorStyles.Right, TextAlign = ContentAlignment.MiddleRight };
+            cmbExam = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            btnLoad = new Button { Text = "Load", Location = new Point(800, 15), Width = 80 };
+            btnLoad = new Button { Text = "Load", Width = 80 };
             btnLoad.Click += BtnLoad_Click;
 
-            // === DATA GRID ===
+            // Add controls to top panel
+            topPanel.Controls.Add(lblCourse, 0, 0);
+            topPanel.Controls.Add(cmbCourse, 1, 0);
+            topPanel.Controls.Add(new Label(), 2, 0); // spacer
+            topPanel.Controls.Add(lblSubject, 3, 0);
+            topPanel.Controls.Add(cmbSubject, 4, 0);
+            topPanel.Controls.Add(new Label(), 5, 0); // spacer
+            topPanel.Controls.Add(lblExam, 6, 0);
+            topPanel.Controls.Add(cmbExam, 7, 0);
+            topPanel.Controls.Add(btnLoad, 8, 0);
+
+            // === MARKS GRID ===
             dgvMarks = new DataGridView
             {
-                Location = new Point(20, 60),
-                Width = 900,
+                Location = new Point(20, topPanel.Bottom + 10),
+                Width = 950,
                 Height = 300,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            
             dgvMarks.CellClick += DgvMarks_CellClick;
 
-            // === INPUT FIELDS ===
-            Label lblStudent = new Label { Text = "Student:", Location = new Point(20, 380) };
-            cmbStudent = new ComboBox { Location = new Point(90, 375), Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+            // === BOTTOM PANEL ===
+            TableLayoutPanel bottomPanel = new TableLayoutPanel
+            {
+                Location = new Point(20, dgvMarks.Bottom + 20),
+                Width = 950,
+                Height = 40,
+                ColumnCount = 10,
+                RowCount = 1,
+                AutoSize = false
+            };
 
-            Label lblTotal = new Label { Text = "Total Mark:", Location = new Point(290, 380) };
-            txtTotal = new TextBox { Location = new Point(370, 375), Width = 100 };
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Label Student
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));  // Combo Student
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20)); // spacer
 
-            // === BUTTONS ===
-            btnSave = new Button { Text = "Save", Location = new Point(490, 375), Width = 80 };
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Label Total
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15));  // TextBox Total
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20)); // spacer
+
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Button Save
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Button Clear
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));     // Button Delete
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));  // filler
+
+            Label lblStudent = new Label { Text = "Student:", Anchor = AnchorStyles.Right, TextAlign = ContentAlignment.MiddleRight };
+            cmbStudent = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
+
+            Label lblTotal = new Label { Text = "Total Mark:", Anchor = AnchorStyles.Right, TextAlign = ContentAlignment.MiddleRight };
+            txtTotal = new TextBox { Dock = DockStyle.Fill };
+
+            btnSave = new Button { Text = "Save", Width = 80 };
             btnSave.Click += BtnSave_Click;
 
-            btnClear = new Button { Text = "Clear", Location = new Point(580, 375), Width = 80 };
+            btnClear = new Button { Text = "Clear", Width = 80 };
             btnClear.Click += BtnClear_Click;
 
-            btnDelete = new Button { Text = "Delete", Location = new Point(670, 375), Width = 80 };
+            btnDelete = new Button { Text = "Delete", Width = 80 };
             btnDelete.Click += BtnDelete_Click;
 
-            // === ADD ALL CONTROLS TO FORM ===
-            this.Controls.AddRange(new Control[]
-            {
-                // Top filters
-                lblCourse, cmbCourse,
-                lblSubject, cmbSubject,
-                lblExam, cmbExam,
-                btnLoad,
+            // Add controls to bottom panel
+            bottomPanel.Controls.Add(lblStudent, 0, 0);
+            bottomPanel.Controls.Add(cmbStudent, 1, 0);
+            bottomPanel.Controls.Add(new Label(), 2, 0); // spacer
+            bottomPanel.Controls.Add(lblTotal, 3, 0);
+            bottomPanel.Controls.Add(txtTotal, 4, 0);
+            bottomPanel.Controls.Add(new Label(), 5, 0); // spacer
+            bottomPanel.Controls.Add(btnSave, 6, 0);
+            bottomPanel.Controls.Add(btnClear, 7, 0);
+            bottomPanel.Controls.Add(btnDelete, 8, 0);
 
-                // Grid
-                dgvMarks,
-
-
-                // Bottom form
-                lblStudent, cmbStudent,
-                lblTotal, txtTotal,
-                btnSave, btnClear, btnDelete
-            });
+            // === ADD ALL TO CONTROL ===
+            this.Controls.Add(topPanel);
+            this.Controls.Add(dgvMarks);
+            this.Controls.Add(bottomPanel);
         }
+
+
 
 
         private void LoadCourses()

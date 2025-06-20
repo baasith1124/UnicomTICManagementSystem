@@ -44,6 +44,8 @@ namespace UnicomTICManagementSystem.Views
             InitializeUI();
             LoadCourses();
             LoadStudents();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()

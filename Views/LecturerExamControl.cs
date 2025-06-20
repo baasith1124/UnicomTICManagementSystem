@@ -11,6 +11,7 @@ using UnicomTICManagementSystem.Controllers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -44,6 +45,8 @@ namespace UnicomTICManagementSystem.Views
 
                 InitializeUI();
                 LoadSubjectsForLecturer();
+
+                UIThemeHelper.ApplyTheme(this);
             }
             catch (Exception ex)
             {
@@ -68,7 +71,7 @@ namespace UnicomTICManagementSystem.Views
             {
                 Location = new Point(20, 70),
                 Width = 850,
-                Height = 400,
+                Height = 200,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 

@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -46,39 +47,85 @@ namespace UnicomTICManagementSystem.Views
 
             InitializeUI();
             LoadTimetables();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()
         {
             this.Dock = DockStyle.Fill;
 
-            // Header Panel
-            panelTop = new Panel { Dock = DockStyle.Top, Height = 80, Padding = new Padding(20, 20, 20, 0) };
+            // === Main Scrollable Panel ===
+            FlowLayoutPanel mainPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                Padding = new Padding(20)
+            };
+
+            // === Top Filter Panel ===
+            panelTop = new Panel
+            {
+                Height = 60,
+                Dock = DockStyle.Top,
+                Width = this.Width,
+                AutoSize = false
+            };
 
             Label lblTimetable = new Label { Text = "Timetable:", Location = new Point(10, 20), AutoSize = true };
-            cmbTimetable = new ComboBox { Location = new Point(100, 18), Width = 500, DropDownStyle = ComboBoxStyle.DropDownList };
-
-            btnSearch = new Button { Text = "Search Attendance", Location = new Point(620, 15), Width = 160, Height = 30 };
+            cmbTimetable = new ComboBox
+            {
+                Location = new Point(100, 16),
+                Width = 500,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            btnSearch = new Button
+            {
+                Text = "Search Attendance",
+                Location = new Point(620, 15),
+                Width = 160,
+                Height = 30
+            };
             btnSearch.Click += btnSearch_Click;
 
             panelTop.Controls.AddRange(new Control[] { lblTimetable, cmbTimetable, btnSearch });
 
-            // DataGrid
+            // === DataGridView for Attendance ===
             dgvAttendance = new DataGridView
             {
-                Location = new Point(20, 100),
                 Width = 900,
-                Height = 400,
+                Height = 200,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right,
+                Margin = new Padding(0, 10, 0, 10)
             };
 
-            // Add Attendance Button
-            btnAdd = new Button { Text = "Mark Attendance", Location = new Point(20, 520), Width = 150, Height = 40 };
+            // === Button Panel for Add ===
+            Panel btnPanel = new Panel
+            {
+                Height = 50,
+                Width = 900
+            };
+            btnAdd = new Button
+            {
+                Text = "Mark Attendance",
+                Width = 150,
+                Height = 40,
+                Location = new Point(0, 5)
+            };
             btnAdd.Click += btnAdd_Click;
+            btnPanel.Controls.Add(btnAdd);
 
-            // Attendance Form Panel (Hidden initially)
-            panelAttendanceForm = new Panel { Location = new Point(20, 580), Size = new Size(900, 60), Visible = false };
+            // === Attendance Entry Panel ===
+            panelAttendanceForm = new Panel
+            {
+                Width = 900,
+                Height = 60,
+                Visible = false
+            };
 
             cmbStudent = new ComboBox { Location = new Point(20, 15), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbStatus = new ComboBox
@@ -88,17 +135,24 @@ namespace UnicomTICManagementSystem.Views
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 DataSource = new string[] { "Present", "Absent", "Late", "Excused" }
             };
-
             btnSave = new Button { Text = "Save", Location = new Point(570, 15), Size = new Size(100, 30) };
-            btnSave.Click += btnSave_Click;
-
             btnCancel = new Button { Text = "Cancel", Location = new Point(680, 15), Size = new Size(100, 30) };
+
+            btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
             panelAttendanceForm.Controls.AddRange(new Control[] { cmbStudent, cmbStatus, btnSave, btnCancel });
 
-            this.Controls.AddRange(new Control[] { panelTop, dgvAttendance, btnAdd, panelAttendanceForm });
+            // === Add All to Main Panel ===
+            mainPanel.Controls.Add(panelTop);
+            mainPanel.Controls.Add(dgvAttendance);
+            mainPanel.Controls.Add(btnPanel);
+            mainPanel.Controls.Add(panelAttendanceForm);
+
+            // === Add to Control ===
+            this.Controls.Add(mainPanel);
         }
+
 
         private void LoadTimetables()
         {

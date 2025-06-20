@@ -57,6 +57,8 @@ namespace UnicomTICManagementSystem.Views
             InitializeUI();
             LoadDepartments();
             LoadStaff();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()

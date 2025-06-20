@@ -11,6 +11,7 @@ using UnicomTICManagementSystem.Controllers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -44,6 +45,8 @@ namespace UnicomTICManagementSystem.Views
             LoadLecturers();
             LoadSubjects();
             LoadAssignments();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void InitializeUI()

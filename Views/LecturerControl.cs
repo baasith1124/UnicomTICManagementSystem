@@ -52,6 +52,8 @@ namespace UnicomTICManagementSystem.Views
                 InitializeUI();
                 LoadDepartments();
                 LoadLecturers();
+
+                UIThemeHelper.ApplyTheme(this);
             }
             catch (Exception ex)
             {

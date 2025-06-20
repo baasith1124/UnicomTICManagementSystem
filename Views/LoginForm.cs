@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UnicomTICManagementSystem.Controllers;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
@@ -33,6 +34,8 @@ namespace UnicomTICManagementSystem
             IUserService userService = new UserService(userRepository, studentRepository, staffRepository, lecturerRepository);
 
             _loginController = new LoginController(userService);
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         private void btnLogin_Click(object sender, EventArgs e)

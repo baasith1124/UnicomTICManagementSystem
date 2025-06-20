@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -43,6 +44,8 @@ namespace UnicomTICManagementSystem.Views
 
             InitializeUI();
             LoadLecturerTimetables();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         #region UI Controls
@@ -90,7 +93,7 @@ namespace UnicomTICManagementSystem.Views
             {
                 Location = new Point(20, 100),
                 Width = 880,
-                Height = 400,
+                Height = 200,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };

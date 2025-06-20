@@ -88,6 +88,7 @@
     <Compile Include="Data\Migration.cs" />
     <Compile Include="Helpers\ErrorLogger.cs" />
     <Compile Include="Helpers\PasswordHasher.cs" />
+    <Compile Include="Helpers\UIThemeHelper.cs" />
     <Compile Include="Interfaces\IAttendanceRepository.cs" />
     <Compile Include="Interfaces\IAttendanceService.cs" />
     <Compile Include="Interfaces\ICourseRepository.cs" />

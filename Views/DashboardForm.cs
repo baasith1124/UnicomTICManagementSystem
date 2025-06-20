@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UnicomTICManagementSystem.Controllers;
+using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
@@ -28,7 +29,9 @@ namespace UnicomTICManagementSystem.Views
         public DashboardForm(User user)
         {
             InitializeComponent();
+            
             currentUser = user;
+            UIThemeHelper.ApplyTheme(this);
 
             // Inject dependencies
             IUserRepository userRepository = new UserRepository();
@@ -47,6 +50,9 @@ namespace UnicomTICManagementSystem.Views
 
             ConfigureUIByRole();
         }
+        
+
+
 
         private void ConfigureUIByRole()
         {

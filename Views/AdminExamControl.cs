@@ -12,6 +12,7 @@ using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
 using UnicomTICManagementSystem.Repositories;
 using UnicomTICManagementSystem.Services;
+using UnicomTICManagementSystem.Helpers;
 
 namespace UnicomTICManagementSystem.Views
 {
@@ -40,6 +41,8 @@ namespace UnicomTICManagementSystem.Views
             InitializeUI();
             LoadSubjects();
             LoadExams();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
         #region UI Controls
@@ -55,51 +58,58 @@ namespace UnicomTICManagementSystem.Views
         {
             this.Dock = DockStyle.Fill;
 
-            Label lblExamName = new Label { Text = "Exam Name:", Location = new Point(20, 20) };
-            txtExamName = new TextBox { Location = new Point(120, 20), Width = 250 };
+            // === INPUT CONTROLS (Top Section) ===
+            Label lblExamName = new Label { Text = "Exam Name:", Location = new Point(20, 20), AutoSize = true };
+            txtExamName = new TextBox { Location = new Point(120, 18), Width = 200 };
 
-            Label lblSubject = new Label { Text = "Subject:", Location = new Point(20, 60) };
-            cmbSubject = new ComboBox { Location = new Point(120, 60), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblSubject = new Label { Text = "Subject:", Location = new Point(340, 20), AutoSize = true };
+            cmbSubject = new ComboBox { Location = new Point(410, 18), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            Label lblExamDate = new Label { Text = "Exam Date:", Location = new Point(20, 100) };
-            dtpExamDate = new DateTimePicker { Location = new Point(120, 100), Format = DateTimePickerFormat.Short };
+            Label lblDate = new Label { Text = "Date:", Location = new Point(640, 20), AutoSize = true };
+            dtpExamDate = new DateTimePicker { Location = new Point(690, 18), Width = 120, Format = DateTimePickerFormat.Short };
 
-            Label lblDuration = new Label { Text = "Duration (min):", Location = new Point(20, 140) };
-            nudDuration = new NumericUpDown { Location = new Point(120, 140), Width = 100, Minimum = 1, Maximum = 300 };
+            Label lblDuration = new Label { Text = "Duration:", Location = new Point(20, 60), AutoSize = true };
+            nudDuration = new NumericUpDown { Location = new Point(90, 58), Width = 80, Minimum = 1, Maximum = 300 };
 
-            btnSave = new Button { Text = "Save", Location = new Point(120, 180) };
+            btnSave = new Button { Text = "Save", Location = new Point(200, 55), Size = new Size(80, 30) };
             btnSave.Click += btnSave_Click;
 
-            btnCancel = new Button { Text = "Cancel", Location = new Point(200, 180) };
+            btnCancel = new Button { Text = "Cancel", Location = new Point(290, 55), Size = new Size(80, 30) };
             btnCancel.Click += btnCancel_Click;
 
-            dgvExams = new DataGridView
-            {
-                Location = new Point(20, 240),
-                Width = 800,
-                Height = 300,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            };
-
-            btnAdd = new Button { Text = "Add New Exam", Location = new Point(20, 560) };
+            btnAdd = new Button { Text = "Add", Location = new Point(390, 55), Size = new Size(70, 30) };
             btnAdd.Click += btnAdd_Click;
 
-            btnUpdate = new Button { Text = "Update Selected", Location = new Point(150, 560) };
+            btnUpdate = new Button { Text = "Update", Location = new Point(470, 55), Size = new Size(80, 30) };
             btnUpdate.Click += btnUpdate_Click;
 
-            btnDelete = new Button { Text = "Delete Selected", Location = new Point(300, 560) };
+            btnDelete = new Button { Text = "Delete", Location = new Point(560, 55), Size = new Size(80, 30) };
             btnDelete.Click += btnDelete_Click;
 
-            this.Controls.AddRange(new Control[] {
+            // === DATAGRIDVIEW ===
+            dgvExams = new DataGridView
+            {
+                Location = new Point(20, 100),
+                Size = new Size(940, 260),
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false
+            };
+
+            // === ADD TO FORM ===
+            this.Controls.AddRange(new Control[]
+            {
                 lblExamName, txtExamName,
                 lblSubject, cmbSubject,
-                lblExamDate, dtpExamDate,
+                lblDate, dtpExamDate,
                 lblDuration, nudDuration,
-                btnSave, btnCancel,
-                dgvExams, btnAdd, btnUpdate, btnDelete
+                btnSave, btnCancel, btnAdd, btnUpdate, btnDelete,
+                dgvExams
             });
         }
+
+
 
         #endregion
 

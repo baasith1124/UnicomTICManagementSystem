@@ -52,6 +52,8 @@ namespace UnicomTICManagementSystem.Views
 
             LoadCourses();
             LoadDepartments();
+
+            UIThemeHelper.ApplyTheme(this);
         }
 
 
