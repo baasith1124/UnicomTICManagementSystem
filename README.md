@@ -3,7 +3,7 @@
 
 A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern themed UI, async-enabled operations, and third-party integrations.
 `When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
----
+
 ## To Run This Project Need To RE Install Some Packages
 
 ✅ Step 1: Restore NuGet Packages
