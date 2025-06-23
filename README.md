@@ -6,11 +6,11 @@ A robust, beginner-friendly C# WinForms-based academic management platform for i
 
 ## For First Run  
 - **UserName** - admin , **Password** - admin123`
---**Will Throw this error** 
+**Will Throw this error** 
 - .resx files (like LoginForm.resx, DashboardForm.resx, etc.) are **blocked** by Windows since they came from the internet. Windows adds a "Mark of the Web" (MOTW) to downloaded files, which puts them in a restricted zone.
 
 **🔧 How to Fix the "Mark of the Web" Issue**
-✅ Option 1: Unblock the Files Manually (Best for Small Projects)
+- Unblock the Files Manually (Best for Small Projects)
 Do this for each .resx file causing the issue:
 
 - Open File Explorer.
@@ -45,12 +45,12 @@ Do this for each .resx file causing the issue:
 ✅ Step 2: Clean & Rebuild the Project
   In Visual Studio:
 
-  Go to Build → Clean Solution
+  - Go to Build → Clean Solution
 
-  Then Build → Rebuild Solution
+  - Then Build → Rebuild Solution
 
 ✅ Step 5: Run the App
-  Press F5 to run the application.
+  - Press F5 to run the application.
 
 
 ---
