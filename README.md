@@ -3,7 +3,29 @@
 
 A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern themed UI, async-enabled operations, and third-party integrations.
 `When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
+---
+## To Run This Project Need To RE Install Some Packages
 
+✅ Step 1: Restore NuGet Packages
+
+- Open the solution (.sln) file in Visual Studio, then:
+
+  1. Go to the Tools menu → NuGet Package Manager → **Package Manager Console**
+
+  2. In the console, run:
+  ```
+  Update-Package -reinstall
+  ```
+✅ Step 2: Clean & Rebuild the Project
+  In Visual Studio:
+
+  - Go to Build → Clean Solution
+
+  - Then Build → Rebuild Solution
+
+✅ Step 5: Run the App
+  - Press F5 to run the application.
+---
 ## For First Run  
 - **UserName** - admin , **Password** - admin123
 
@@ -32,26 +54,7 @@ Do this for each .resx file causing the issue:
 
 *Repeat this for other .resx files (DashboardForm.resx, RegistrationForm.resx, etc.).*
 
-**To Run This Project Need To RE Install Some Packages**
-✅ Step 1: Restore NuGet Packages
 
-- Open the solution (.sln) file in Visual Studio, then:
-
-  1. Go to the Tools menu → NuGet Package Manager → **Package Manager Console**
-
-  2. In the console, run:
-  ```
-  Update-Package -reinstall
-  ```
-✅ Step 2: Clean & Rebuild the Project
-  In Visual Studio:
-
-  - Go to Build → Clean Solution
-
-  - Then Build → Rebuild Solution
-
-✅ Step 5: Run the App
-  - Press F5 to run the application.
 
 
 ---
