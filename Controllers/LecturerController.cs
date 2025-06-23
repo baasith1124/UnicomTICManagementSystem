@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _lecturerService.AddLecturerAsync(userID, name, departmentID);
-                MessageBox.Show("✅ Lecturer added successfully.");
+                MessageBox.Show(" Lecturer added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.AddLecturerAsync");
-                MessageBox.Show("❌ Failed to add lecturer.");
+                MessageBox.Show(" Failed to add lecturer.");
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _lecturerService.UpdateLecturerAsync(lecturer);
-                MessageBox.Show("✅ Lecturer updated successfully.");
+                MessageBox.Show(" Lecturer updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.UpdateLecturerAsync");
-                MessageBox.Show("❌ Failed to update lecturer.");
+                MessageBox.Show(" Failed to update lecturer.");
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _lecturerService.DeleteLecturerAsync(lecturerID);
-                MessageBox.Show("🗑️ Lecturer deleted successfully.");
+                MessageBox.Show(" Lecturer deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.DeleteLecturerAsync");
-                MessageBox.Show("❌ Failed to delete lecturer.");
+                MessageBox.Show(" Failed to delete lecturer.");
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.GetAllLecturersAsync");
-                MessageBox.Show("❌ Failed to retrieve lecturers.");
+                MessageBox.Show(" Failed to retrieve lecturers.");
                 return new List<Lecturer>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.SearchLecturersAsync");
-                MessageBox.Show("❌ Failed to search lecturers.");
+                MessageBox.Show(" Failed to search lecturers.");
                 return new List<Lecturer>();
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.GetLecturerByIDAsync");
-                MessageBox.Show("❌ Failed to get lecturer details.");
+                MessageBox.Show(" Failed to get lecturer details.");
                 return null;
             }
         }
@@ -112,7 +112,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.LecturerExistsByUserIdAsync");
-                MessageBox.Show("❌ Failed to check lecturer existence.");
+                MessageBox.Show(" Failed to check lecturer existence.");
                 return false;
             }
         }
@@ -126,7 +126,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerController.GetLecturerIDByUserIDAsync");
-                MessageBox.Show("❌ Failed to retrieve lecturer ID.");
+                MessageBox.Show(" Failed to retrieve lecturer ID.");
                 return -1;
             }
         }

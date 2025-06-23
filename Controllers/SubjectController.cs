@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _subjectService.AddSubjectAsync(subject);
-                MessageBox.Show("✅ Subject added successfully.");
+                MessageBox.Show("Subject added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.AddSubjectAsync");
-                MessageBox.Show("❌ Failed to add subject: " + ex.Message);
+                MessageBox.Show("Failed to add subject: " + ex.Message);
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _subjectService.UpdateSubjectAsync(subject);
-                MessageBox.Show("✅ Subject updated successfully.");
+                MessageBox.Show("Subject updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.UpdateSubjectAsync");
-                MessageBox.Show("❌ Failed to update subject: " + ex.Message);
+                MessageBox.Show(" Failed to update subject: " + ex.Message);
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _subjectService.DeleteSubjectAsync(subjectID);
-                MessageBox.Show("🗑️ Subject deleted successfully.");
+                MessageBox.Show(" Subject deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.DeleteSubjectAsync");
-                MessageBox.Show("❌ Failed to delete subject: " + ex.Message);
+                MessageBox.Show(" Failed to delete subject: " + ex.Message);
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.GetAllSubjectsAsync");
-                MessageBox.Show("❌ Failed to load subjects.");
+                MessageBox.Show(" Failed to load subjects.");
                 return new List<Subject>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.SearchSubjectsAsync");
-                MessageBox.Show("❌ Search failed.");
+                MessageBox.Show(" Search failed.");
                 return new List<Subject>();
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.GetSubjectByIDAsync");
-                MessageBox.Show("❌ Failed to retrieve subject.");
+                MessageBox.Show(" Failed to retrieve subject.");
                 return null;
             }
         }
@@ -109,13 +109,13 @@ namespace UnicomTICManagementSystem.Controllers
             {
                 var subjects = await _subjectService.GetSubjectsByCourseAsync(courseId);
                 if (subjects == null || subjects.Count == 0)
-                    MessageBox.Show("⚠️ No subjects found for this course.");
+                    MessageBox.Show(" No subjects found for this course.");
                 return subjects;
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.GetSubjectsByCourseAsync");
-                MessageBox.Show("❌ Failed to retrieve subjects by course.");
+                MessageBox.Show(" Failed to retrieve subjects by course.");
                 return new List<Subject>();
             }
         }
@@ -129,7 +129,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "SubjectController.GetSubjectsByLecturerAsync");
-                MessageBox.Show("❌ Failed to retrieve subjects by lecturer.");
+                MessageBox.Show(" Failed to retrieve subjects by lecturer.");
                 return new List<Subject>();
             }
         }

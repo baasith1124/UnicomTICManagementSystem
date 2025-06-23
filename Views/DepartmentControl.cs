@@ -103,7 +103,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -126,7 +126,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Search failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Search failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -140,7 +140,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to initiate add operation.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to initiate add operation.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -198,7 +198,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Update failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Update failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -217,13 +217,13 @@ namespace UnicomTICManagementSystem.Views
                 if (confirm == DialogResult.Yes)
                 {
                     await _departmentController.DeleteDepartmentAsync(departmentID);
-                    MessageBox.Show("✅ Department deleted successfully.");
+                    MessageBox.Show(" Department deleted successfully.");
                     await LoadDepartmentsAsync();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Delete failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Delete failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -239,7 +239,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Cancel failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Cancel failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

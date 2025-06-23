@@ -28,7 +28,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.AddMarkAsync");
-                MessageBox.Show("❌ Failed to add mark.");
+                MessageBox.Show(" Failed to add mark.");
             }
         }
 
@@ -41,7 +41,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.UpdateMarkAsync");
-                MessageBox.Show("❌ Failed to update mark.");
+                MessageBox.Show(" Failed to update mark.");
             }
         }
 
@@ -54,7 +54,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.DeleteMarkAsync");
-                MessageBox.Show("❌ Failed to delete mark.");
+                MessageBox.Show(" Failed to delete mark.");
             }
         }
 
@@ -67,7 +67,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.GetMarkByIDAsync");
-                MessageBox.Show("❌ Failed to retrieve mark.");
+                MessageBox.Show(" Failed to retrieve mark.");
                 return null;
             }
         }
@@ -81,7 +81,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.GetMarksByTimetableAsync");
-                MessageBox.Show("❌ Failed to retrieve marks by timetable.");
+                MessageBox.Show(" Failed to retrieve marks by timetable.");
                 return new List<Mark>();
             }
         }
@@ -95,7 +95,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.GetMarksByStudentAsync");
-                MessageBox.Show("❌ Failed to retrieve student marks.");
+                MessageBox.Show(" Failed to retrieve student marks.");
                 return new List<Mark>();
             }
         }
@@ -109,7 +109,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.GetAllMarksAsync");
-                MessageBox.Show("❌ Failed to retrieve all marks.");
+                MessageBox.Show(" Failed to retrieve all marks.");
                 return new List<Mark>();
             }
         }
@@ -123,7 +123,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "MarksController.GetMarksByExamAsync");
-                MessageBox.Show("❌ Failed to retrieve exam marks.");
+                MessageBox.Show(" Failed to retrieve exam marks.");
                 return new List<Mark>();
             }
         }

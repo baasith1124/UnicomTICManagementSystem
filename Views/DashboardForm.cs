@@ -132,7 +132,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to configure dashboard: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to configure dashboard: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -146,7 +146,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load control: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load control: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private async Task<int> GetLecturerIDFromUserIDAsync()
@@ -216,7 +216,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load marks module: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load marks module: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -236,7 +236,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load pending users: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load pending users: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -251,7 +251,7 @@ namespace UnicomTICManagementSystem.Views
                     string email = dgvPendingUsers.CurrentRow.Cells["Email"].Value.ToString();
                     string role = dgvPendingUsers.CurrentRow.Cells["Role"].Value.ToString();
                     await _approvalController.ApproveUserAsync(userID, fullName, email, role);
-                    MessageBox.Show("✅ User approved.");
+                    MessageBox.Show(" User approved.");
 
                    
                     await LoadPendingUsersAsync();
@@ -259,7 +259,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to approve user: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to approve user: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -306,7 +306,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load timetable view.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load timetable view.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

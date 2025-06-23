@@ -32,7 +32,7 @@ namespace UnicomTICManagementSystem.Controllers
                 await _userService.RegisterUserAsync(user, courseID, departmentID, position, plainPassword);
                 MessageBox.Show("Registration successful. Waiting for Admin approval.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (ValidationException vex)
+            catch (ValidationException )
             {
                 throw;
                 //MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -40,7 +40,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RegistrationController.RegisterAsync");
-                MessageBox.Show("❌ Registration failed: " + ex.Message);
+                MessageBox.Show(" Registration failed: " + ex.Message);
             }
         }
     }

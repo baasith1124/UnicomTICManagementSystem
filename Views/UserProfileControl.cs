@@ -201,7 +201,7 @@ namespace UnicomTICManagementSystem.Views
                 _loggedInUser.Phone = updatedUser.Phone;
                 _loggedInUser.Password = updatedUser.Password;
 
-                MessageBox.Show("✅ Profile updated successfully.");
+                MessageBox.Show(" Profile updated successfully.");
                 await LoadProfileAsync();
             }
             catch (ValidationException vex)
@@ -211,7 +211,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to update profile.\n" + ex.Message);
+                MessageBox.Show(" Failed to update profile.\n" + ex.Message);
             }
         }
 

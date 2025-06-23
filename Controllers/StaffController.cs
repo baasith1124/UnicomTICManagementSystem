@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _staffService.AddStaffAsync(userID, name, departmentID, position);
-                MessageBox.Show("✅ Staff added successfully.");
+                MessageBox.Show(" Staff added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.AddStaffAsync");
-                MessageBox.Show("❌ Failed to add staff: " + ex.Message);
+                MessageBox.Show(" Failed to add staff: " + ex.Message);
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _staffService.UpdateStaffAsync(staff);
-                MessageBox.Show("✅ Staff updated successfully.");
+                MessageBox.Show(" Staff updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.UpdateStaffAsync");
-                MessageBox.Show("❌ Failed to update staff: " + ex.Message);
+                MessageBox.Show(" Failed to update staff: " + ex.Message);
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _staffService.DeleteStaffAsync(staffID);
-                MessageBox.Show("🗑️ Staff deleted successfully.");
+                MessageBox.Show(" Staff deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.DeleteStaffAsync");
-                MessageBox.Show("❌ Failed to delete staff: " + ex.Message);
+                MessageBox.Show(" Failed to delete staff: " + ex.Message);
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.GetAllStaffAsync");
-                MessageBox.Show("❌ Failed to load staff list.");
+                MessageBox.Show(" Failed to load staff list.");
                 return new List<Staff>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.GetStaffByIDAsync");
-                MessageBox.Show("❌ Failed to retrieve staff.");
+                MessageBox.Show(" Failed to retrieve staff.");
                 return null;
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.SearchStaffAsync");
-                MessageBox.Show("❌ Search failed.");
+                MessageBox.Show(" Search failed.");
                 return new List<Staff>();
             }
         }
@@ -112,7 +112,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StaffController.GetUserIDByStaffIDAsync");
-                MessageBox.Show("❌ Failed to get user ID for staff.");
+                MessageBox.Show(" Failed to get user ID for staff.");
                 return -1;
             }
         }

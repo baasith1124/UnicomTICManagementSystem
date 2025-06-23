@@ -28,7 +28,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "PositionController.GetPositionsByDepartmentAsync");
-                MessageBox.Show("❌ Failed to retrieve positions for the department.");
+                MessageBox.Show(" Failed to retrieve positions for the department.");
                 return new List<Position>();
             }
         }

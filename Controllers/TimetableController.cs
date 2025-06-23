@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _timetableService.AddTimetableAsync(timetable);
-                MessageBox.Show("✅ Timetable added successfully.");
+                MessageBox.Show(" Timetable added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.AddTimetableAsync");
-                MessageBox.Show("❌ Failed to add timetable.");
+                MessageBox.Show(" Failed to add timetable.");
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _timetableService.UpdateTimetableAsync(timetable);
-                MessageBox.Show("✅ Timetable updated successfully.");
+                MessageBox.Show(" Timetable updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.UpdateTimetableAsync");
-                MessageBox.Show("❌ Failed to update timetable.");
+                MessageBox.Show(" Failed to update timetable.");
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _timetableService.DeleteTimetableAsync(timetableID);
-                MessageBox.Show("🗑️ Timetable deleted.");
+                MessageBox.Show(" Timetable deleted.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.DeleteTimetableAsync");
-                MessageBox.Show("❌ Failed to delete timetable.");
+                MessageBox.Show(" Failed to delete timetable.");
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.GetAllTimetablesAsync");
-                MessageBox.Show("❌ Failed to load timetables.");
+                MessageBox.Show(" Failed to load timetables.");
                 return new List<Timetable>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.SearchTimetablesAsync");
-                MessageBox.Show("❌ Search failed.");
+                MessageBox.Show(" Search failed.");
                 return new List<Timetable>();
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.GetTimetableBySubjectAndDateAsync");
-                MessageBox.Show("❌ Could not retrieve timetable.");
+                MessageBox.Show(" Could not retrieve timetable.");
                 return null;
             }
         }
@@ -112,7 +112,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.GetTimetableByIDAsync");
-                MessageBox.Show("❌ Failed to retrieve timetable.");
+                MessageBox.Show(" Failed to retrieve timetable.");
                 return null;
             }
         }
@@ -126,7 +126,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "TimetableController.GetTimetablesByLecturerAsync");
-                MessageBox.Show("❌ Failed to retrieve lecturer's timetable.");
+                MessageBox.Show(" Failed to retrieve lecturer's timetable.");
                 return new List<Timetable>();
             }
         }

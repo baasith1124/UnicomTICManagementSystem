@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _roomService.DeleteRoomAsync(roomID);
-                MessageBox.Show("🗑️ Room deleted successfully.");
+                MessageBox.Show(" Room deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RoomController.DeleteRoomAsync");
-                MessageBox.Show("❌ Failed to delete room: " + ex.Message);
+                MessageBox.Show(" Failed to delete room: " + ex.Message);
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RoomController.GetAllRoomsAsync");
-                MessageBox.Show("❌ Failed to load rooms.");
+                MessageBox.Show(" Failed to load rooms.");
                 return new List<Room>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RoomController.SearchRoomsAsync");
-                MessageBox.Show("❌ Failed to search rooms.");
+                MessageBox.Show(" Failed to search rooms.");
                 return new List<Room>();
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RoomController.GetRoomsByTypeAsync");
-                MessageBox.Show("❌ Failed to filter rooms.");
+                MessageBox.Show(" Failed to filter rooms.");
                 return new List<Room>();
             }
         }
@@ -112,7 +112,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "RoomController.GetRoomTypesAsync");
-                MessageBox.Show("❌ Failed to retrieve room types.");
+                MessageBox.Show(" Failed to retrieve room types.");
                 return new List<string>();
             }
         }

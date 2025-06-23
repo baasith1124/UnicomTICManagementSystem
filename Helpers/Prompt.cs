@@ -9,6 +9,7 @@ namespace UnicomTICManagementSystem.Helpers
 {
     public static class Prompt
     {
+        // For Basic Message Box Template to Get User Input
         public static string ShowDialog(string text, string caption, string defaultText = "")
         {
             Form prompt = new Form()

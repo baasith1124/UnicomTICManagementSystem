@@ -123,7 +123,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load subjects.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load subjects.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -142,7 +142,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load exams.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load exams.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -172,7 +172,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load exam data.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load exam data.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -193,12 +193,12 @@ namespace UnicomTICManagementSystem.Views
                 {
                     await _examController.DeleteExamAsync(examID);
                     await LoadExamsAsync();
-                    MessageBox.Show("✅ Exam deleted successfully.");
+                    MessageBox.Show(" Exam deleted successfully.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to delete exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to delete exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -224,12 +224,12 @@ namespace UnicomTICManagementSystem.Views
                 if (isUpdateMode)
                 {
                     await _examController.UpdateExamAsync(exam);
-                    MessageBox.Show("✅ Exam updated successfully.");
+                    MessageBox.Show(" Exam updated successfully.");
                 }
                 else
                 {
                     await _examController.AddExamAsync(exam);
-                    MessageBox.Show("✅ Exam added successfully.");
+                    MessageBox.Show(" Exam added successfully.");
                 }
 
                 await LoadExamsAsync();
@@ -237,7 +237,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to save exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to save exam.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

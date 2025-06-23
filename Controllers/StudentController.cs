@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _studentService.AddStudentAsync(userID, name, courseID, enrollmentDate);
-                MessageBox.Show("✅ Student added successfully.");
+                MessageBox.Show(" Student added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.AddStudentAsync");
-                MessageBox.Show("❌ Failed to add student: " + ex.Message);
+                MessageBox.Show(" Failed to add student: " + ex.Message);
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _studentService.UpdateStudentAsync(student);
-                MessageBox.Show("✅ Student updated successfully.");
+                MessageBox.Show("Student updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.UpdateStudentAsync");
-                MessageBox.Show("❌ Failed to update student: " + ex.Message);
+                MessageBox.Show(" Failed to update student: " + ex.Message);
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _studentService.DeleteStudentAsync(studentID);
-                MessageBox.Show("🗑️ Student deleted successfully.");
+                MessageBox.Show(" Student deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.DeleteStudentAsync");
-                MessageBox.Show("❌ Failed to delete student: " + ex.Message);
+                MessageBox.Show(" Failed to delete student: " + ex.Message);
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetAllStudentsAsync");
-                MessageBox.Show("❌ Failed to retrieve student list.");
+                MessageBox.Show(" Failed to retrieve student list.");
                 return new List<Student>();
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.SearchStudentsAsync");
-                MessageBox.Show("❌ Failed to search students.");
+                MessageBox.Show(" Failed to search students.");
                 return new List<Student>();
             }
         }
@@ -98,7 +98,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetStudentByIDAsync");
-                MessageBox.Show("❌ Failed to retrieve student.");
+                MessageBox.Show(" Failed to retrieve student.");
                 return null;
             }
         }
@@ -112,7 +112,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetStudentFullDetailsByIDAsync");
-                MessageBox.Show("❌ Failed to get full student details.");
+                MessageBox.Show(" Failed to get full student details.");
                 return null;
             }
         }
@@ -126,7 +126,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetStudentsByCourseAsync");
-                MessageBox.Show("❌ Failed to get students for course.");
+                MessageBox.Show(" Failed to get students for course.");
                 return new List<Student>();
             }
         }
@@ -140,7 +140,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetStudentsBySubjectAsync");
-                MessageBox.Show("❌ Failed to get students for subject.");
+                MessageBox.Show(" Failed to get students for subject.");
                 return new List<Student>();
             }
         }
@@ -154,7 +154,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "StudentController.GetStudentIDByUserIDAsync");
-                MessageBox.Show("❌ Failed to retrieve student ID.");
+                MessageBox.Show(" Failed to retrieve student ID.");
                 return -1;
             }
         }

@@ -44,7 +44,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserController.AdminRegisterStudentAsync");
-                MessageBox.Show($"❌ Failed to register student.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($" Failed to register student.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -66,7 +66,7 @@ namespace UnicomTICManagementSystem.Controllers
 
                 // Register the lecturer
                 await _userService.AdminRegisterLecturerAsync(user, departmentID, plainPassword);
-                MessageBox.Show("✅ Lecturer registered successfully.");
+                MessageBox.Show(" Lecturer registered successfully.");
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserController.GetUserByIdAsync");
-                MessageBox.Show("❌ Failed to retrieve user.");
+                MessageBox.Show(" Failed to retrieve user.");
                 return null;
             }
         }
@@ -99,7 +99,7 @@ namespace UnicomTICManagementSystem.Controllers
                     throw new ValidationException("Email is already registered.");
                 
                 await _userService.AdminRegisterStaffAsync(user, departmentID, positionID, plainPassword);
-                MessageBox.Show("✅ Staff registered successfully.");
+                MessageBox.Show(" Staff registered successfully.");
             }
             catch (Exception ex)
             {

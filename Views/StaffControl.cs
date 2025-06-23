@@ -372,7 +372,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ {ex.Message}", "Save Failed");
+                MessageBox.Show($" {ex.Message}", "Save Failed");
             }
         }
 

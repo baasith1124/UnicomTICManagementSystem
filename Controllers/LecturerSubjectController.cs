@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _service.AssignSubjectAsync(lecturerID, subjectID, assignedDate);
-                MessageBox.Show("✅ Subject assigned to lecturer successfully.");
+                MessageBox.Show(" Subject assigned to lecturer successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerSubjectController.AssignSubjectAsync");
-                MessageBox.Show("❌ Failed to assign subject to lecturer.");
+                MessageBox.Show(" Failed to assign subject to lecturer.");
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _service.RemoveAssignmentAsync(lecturerSubjectID);
-                MessageBox.Show("🗑️ Subject assignment removed.");
+                MessageBox.Show(" Subject assignment removed.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerSubjectController.RemoveAssignmentAsync");
-                MessageBox.Show("❌ Failed to remove subject assignment.");
+                MessageBox.Show(" Failed to remove subject assignment.");
             }
         }
 
@@ -56,7 +56,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LecturerSubjectController.GetAllAssignmentsAsync");
-                MessageBox.Show("❌ Failed to retrieve subject assignments.");
+                MessageBox.Show(" Failed to retrieve subject assignments.");
                 return new List<LecturerSubject>();
             }
         }

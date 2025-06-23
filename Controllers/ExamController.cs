@@ -24,12 +24,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _examService.AddExamAsync(exam);
-                MessageBox.Show("✅ Exam added successfully.");
+                MessageBox.Show(" Exam added successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.AddExamAsync");
-                MessageBox.Show("❌ Failed to add exam. Please try again.");
+                MessageBox.Show(" Failed to add exam. Please try again.");
             }
         }
 
@@ -38,12 +38,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _examService.UpdateExamAsync(exam);
-                MessageBox.Show("✅ Exam updated successfully.");
+                MessageBox.Show(" Exam updated successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.UpdateExamAsync");
-                MessageBox.Show("❌ Failed to update exam.");
+                MessageBox.Show(" Failed to update exam.");
             }
         }
 
@@ -52,12 +52,12 @@ namespace UnicomTICManagementSystem.Controllers
             try
             {
                 await _examService.DeleteExamAsync(examID);
-                MessageBox.Show("🗑️ Exam deleted successfully.");
+                MessageBox.Show(" Exam deleted successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.DeleteExamAsync");
-                MessageBox.Show("❌ Failed to delete exam.");
+                MessageBox.Show(" Failed to delete exam.");
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.GetExamByIDAsync");
-                MessageBox.Show("❌ Could not retrieve exam details.");
+                MessageBox.Show(" Could not retrieve exam details.");
                 return null;
             }
         }
@@ -84,7 +84,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.GetAllExamsAsync");
-                MessageBox.Show("❌ Could not retrieve exams.");
+                MessageBox.Show(" Could not retrieve exams.");
                 return new List<Exam>();
             }
         }
@@ -95,13 +95,13 @@ namespace UnicomTICManagementSystem.Controllers
             {
                 var exams = await _examService.GetExamsBySubjectAsync(subjectId);
                 if (exams == null || exams.Count == 0)
-                    MessageBox.Show("⚠️ No exams found for this subject.");
+                    MessageBox.Show(" No exams found for this subject.");
                 return exams;
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamController.GetExamsBySubjectAsync");
-                MessageBox.Show("❌ Could not fetch exams for the selected subject.");
+                MessageBox.Show(" Could not fetch exams for the selected subject.");
                 return new List<Exam>();
             }
         }

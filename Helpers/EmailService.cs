@@ -13,8 +13,8 @@ namespace UnicomTICManagementSystem.Helpers
     {
         private static readonly string smtpServer = "smtp.gmail.com";
         private static readonly int smtpPort = 587;
-        private static readonly string fromEmail = "abdulbaasith1124@gmail.com"; // your Gmail
-        private static readonly string fromPassword = "halo jfbr zpmv ghgu"; // Gmail app password
+        private static readonly string fromEmail = "abdulbaasith1124@gmail.com"; // your can change your Gmail
+        private static readonly string fromPassword = "halo jfbr zpmv ghgu"; // Gmail app password   myaccount.google.com/apppasswords  2MF
 
         public static async Task<bool> SendEmailAsync(string toEmail, string subject, string body)
         {

@@ -163,7 +163,7 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show($"SubjectID: {subjectID}, Name: {examName}, Duration: {duration}");
 
                 await _examController.AddExamAsync(newExam);
-                MessageBox.Show("✅ Exam added.");
+                MessageBox.Show(" Exam added.");
                 btnLoad_Click(null, null);
             }
             catch (Exception ex)
@@ -222,7 +222,7 @@ namespace UnicomTICManagementSystem.Views
                 };
 
                 await _examController.UpdateExamAsync(exam);
-                MessageBox.Show("✅ Exam updated.");
+                MessageBox.Show(" Exam updated.");
                 btnLoad_Click(null, null);
             }
             catch (Exception ex)
@@ -247,7 +247,7 @@ namespace UnicomTICManagementSystem.Views
                 if (confirm == DialogResult.Yes)
                 {
                     await _examController.DeleteExamAsync(examID);
-                    MessageBox.Show("✅ Exam deleted.");
+                    MessageBox.Show(" Exam deleted.");
                     btnLoad_Click(null, null);
                 }
             }

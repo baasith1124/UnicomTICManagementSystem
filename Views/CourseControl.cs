@@ -175,26 +175,26 @@ namespace UnicomTICManagementSystem.Views
             try
             {
                 if (cmbFilterDepartment.SelectedItem is Department selectedDept)
-{
-    int deptId = selectedDept.DepartmentID;
+                {
+                    int deptId = selectedDept.DepartmentID;
 
-    var data = deptId == 0
-        ? await _courseController.GetAllCoursesAsync()
-        : await _courseController.GetCoursesByDepartmentAsync(deptId);
+                    var data = deptId == 0
+                        ? await _courseController.GetAllCoursesAsync()
+                        : await _courseController.GetCoursesByDepartmentAsync(deptId);
 
-    dgvCourses.ClearSelection();
-    dgvCourses.DataSource = null;
-    dgvCourses.DataSource = data;
+                    dgvCourses.ClearSelection();
+                    dgvCourses.DataSource = null;
+                    dgvCourses.DataSource = data;
 
-    if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
-    if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
+                    if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
+                    if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
 
-    selectedCourseID = -1;
-}
+                    selectedCourseID = -1;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -208,7 +208,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to search courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to search courses.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -249,7 +249,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to prepare update form.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to prepare update form.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -269,12 +269,12 @@ namespace UnicomTICManagementSystem.Views
                 {
                     await _courseController.DeleteCourseAsync(id);
                     await LoadCoursesAsync();
-                    MessageBox.Show("✅ Course deleted.");
+                    MessageBox.Show(" Course deleted.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to delete course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to delete course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -299,12 +299,12 @@ namespace UnicomTICManagementSystem.Views
                 {
                     course.CourseID = selectedCourseID;
                     await _courseController.UpdateCourseAsync(course);
-                    MessageBox.Show("✅ Course updated successfully.");
+                    MessageBox.Show(" Course updated successfully.");
                 }
                 else
                 {
                     await _courseController.AddCourseAsync(course);
-                    MessageBox.Show("✅ Course added successfully.");
+                    MessageBox.Show(" Course added successfully.");
                 }
 
                 await LoadCoursesAsync();
@@ -312,7 +312,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to save course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to save course.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

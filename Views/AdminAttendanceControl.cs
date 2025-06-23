@@ -230,7 +230,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Error fetching attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Error fetching attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -259,7 +259,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to load student list. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to load student list. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -285,13 +285,13 @@ namespace UnicomTICManagementSystem.Views
                 if (updatingAttendanceId == null)
                 {
                     await _attendanceController.AddAttendanceAsync(attendance);
-                    MessageBox.Show("✅ Attendance successfully marked.");
+                    MessageBox.Show(" Attendance successfully marked.");
                 }
                 else
                 {
                     attendance.AttendanceID = updatingAttendanceId.Value;
                     await _attendanceController.UpdateAttendanceAsync(attendance);
-                    MessageBox.Show("✅ Attendance successfully updated.");
+                    MessageBox.Show(" Attendance successfully updated.");
                     updatingAttendanceId = null;
                     btnSave.Text = "Save";
                 }
@@ -301,7 +301,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to mark attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(" Failed to mark attendance. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -326,7 +326,7 @@ namespace UnicomTICManagementSystem.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Error preparing update form. " + ex.Message);
+                MessageBox.Show(" Error preparing update form. " + ex.Message);
             }
         }
         private async void btnDelete_Click(object sender, EventArgs e)
@@ -344,13 +344,13 @@ namespace UnicomTICManagementSystem.Views
                 if (confirm == DialogResult.Yes)
                 {
                     await _attendanceController.DeleteAttendanceAsync(attendanceId);
-                    MessageBox.Show("✅ Attendance deleted successfully.");
+                    MessageBox.Show(" Attendance deleted successfully.");
                     btnSearch_Click(null, null);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Failed to delete attendance. " + ex.Message);
+                MessageBox.Show(" Failed to delete attendance. " + ex.Message);
             }
         }
         private void btnCancel_Click(object sender, EventArgs e)

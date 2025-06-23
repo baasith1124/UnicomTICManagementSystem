@@ -27,7 +27,7 @@ namespace UnicomTICManagementSystem.Controllers
 
                 if (!result.Item1 || result.Item2 == null)
                 {
-                    MessageBox.Show("❌ Invalid username or password.");
+                    MessageBox.Show(" Invalid username or password.");
                     return new Tuple<bool, User>(false, null);
                 }
 
@@ -36,7 +36,7 @@ namespace UnicomTICManagementSystem.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "LoginController.LoginAsync");
-                MessageBox.Show("❌ An error occurred during login. Please try again.");
+                MessageBox.Show(" An error occurred during login. Please try again.");
                 return new Tuple<bool, User>(false, null);
             }
         }
