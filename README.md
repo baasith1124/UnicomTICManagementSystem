@@ -1,7 +1,9 @@
 
 # Unicom TIC Management System
 
-A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern dark-themed UI, async-enabled operations, and third-party integrations.
+A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern themed UI, async-enabled operations, and third-party integrations.
+`When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
+`For First Login  UserName - admin , Password - admin123`
 
 ---
 
