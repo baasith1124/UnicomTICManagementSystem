@@ -101,11 +101,12 @@ namespace UnicomTICManagementSystem.Views
             btnSave = new Button
             {
                 Text = "Save Attendance",
-                Height = 40,
-                Dock = DockStyle.Bottom,
+                Size = new Size(200, 40),
+                Location = new Point(20, dgvStudents.Bottom + 20),
                 BackColor = Color.Teal,
                 ForeColor = Color.White
             };
+
             btnSave.Click += btnSave_Click;
 
             this.Controls.Add(panelTop);
@@ -147,6 +148,12 @@ namespace UnicomTICManagementSystem.Views
                 var students = await _studentController.GetStudentsByCourseAsync(timetable.CourseID);
                 dgvStudents.Columns.Clear(); // Clear previous columns if any
                 dgvStudents.DataSource = students;
+                dgvStudents.Columns["StudentID"].Visible = false;
+                dgvStudents.Columns["UserID"].Visible = false;
+                dgvStudents.Columns["CourseID"].Visible = false;
+                dgvStudents.Columns["Email"].Visible = false;
+                dgvStudents.Columns["Phone"].Visible = false;
+
 
                 if (!dgvStudents.Columns.Contains("Status"))
                 {
@@ -206,11 +213,25 @@ namespace UnicomTICManagementSystem.Views
                         MarkedDate = DateTime.Now
                     };
 
-                    await _attendanceController.AddAttendanceAsync(attendance);
-                    savedCount++;
-                }
+                    var existing = await _attendanceController.GetAttendanceAsync(timetableID, studentID, DateTime.Today);
+                    if (existing != null)
+                    {
+                        if (existing.Status != status)
+                        {
+                            existing.Status = status;
+                            existing.MarkedDate = DateTime.Now;
+                            await _attendanceController.UpdateAttendanceAsync(existing);
+                        }
+                    }
+                    else
+                    {
+                        await _attendanceController.AddAttendanceAsync(attendance);
+                        savedCount++;
+                    }
 
-                MessageBox.Show($"✅ Attendance saved for {savedCount} students.");
+                    
+                }
+                MessageBox.Show($" students Attendance saved .");
             }
             catch (Exception ex)
             {

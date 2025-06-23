@@ -44,23 +44,27 @@ namespace UnicomTICManagementSystem.Data
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "DatabaseManager.ExecuteNonQueryAsync");
-                throw new Exception("❌ Failed to execute non-query.");
+                throw;
             }
         }
 
         public static async Task<SQLiteDataReader> ExecuteReaderAsync(string query, Dictionary<string, object> parameters)
         {
+            SQLiteConnection conn = null;
+            SQLiteCommand cmd = null;
             try
             {
-                var conn = await GetOpenConnectionAsync(); // Let caller close this connection
+                conn = await GetOpenConnectionAsync(); // Let caller close this connection
 
-                var cmd = new SQLiteCommand(query, conn);
+                cmd = new SQLiteCommand(query, conn);
                 AddParameters(cmd, parameters);
 
                 return (SQLiteDataReader)await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
             }
             catch (Exception ex)
             {
+                cmd?.Dispose();
+                conn?.Dispose();
                 ErrorLogger.Log(ex, "DatabaseManager.ExecuteReaderAsync");
                 throw new Exception("❌ Failed to execute reader.");
             }
@@ -94,6 +98,25 @@ namespace UnicomTICManagementSystem.Data
                 {
                     cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
                 }
+            }
+        }
+        public static async Task EnableWALModeAsync()
+        {
+            try
+            {
+                using (var conn = new SQLiteConnection("Data Source=unicomtic.db;Version=3;"))
+                {
+                    await conn.OpenAsync();
+                    using (var cmd = new SQLiteCommand("PRAGMA journal_mode=WAL;", conn))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "DatabaseManager.EnableWALModeAsync");
+                throw;
             }
         }
     }

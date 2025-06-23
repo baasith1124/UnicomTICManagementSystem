@@ -118,10 +118,10 @@ namespace UnicomTICManagementSystem.Views
             txtUsername = new TextBox { Location = new Point(150, 180), Width = 300 };
 
             Label lblPassword = new Label { Text = "Password:", Location = new Point(20, 220) };
-            txtPassword = new TextBox { Location = new Point(150, 220), Width = 300, PasswordChar = '*' };
+            txtPassword = new TextBox { Location = new Point(150, 220), Width = 300, UseSystemPasswordChar = true };
 
             Label lblConfirmPassword = new Label { Text = "Confirm Password:", Location = new Point(20, 260) };
-            txtConfirmPassword = new TextBox { Location = new Point(150, 260), Width = 300, PasswordChar = '*' };
+            txtConfirmPassword = new TextBox { Location = new Point(150, 260), Width = 300, UseSystemPasswordChar = true };
 
             Label lblEmail = new Label { Text = "Email:", Location = new Point(20, 300) };
             txtEmail = new TextBox { Location = new Point(150, 300), Width = 300 };
@@ -254,33 +254,10 @@ namespace UnicomTICManagementSystem.Views
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            // Basic validations
-            if (string.IsNullOrWhiteSpace(txtName.Text) ||
-                string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text) ||
-                string.IsNullOrWhiteSpace(txtPhone.Text))
-            {
-                MessageBox.Show("Please fill in all fields.");
-                return;
-            }
-
-            if (txtPassword.Text != txtConfirmPassword.Text)
-            {
-                MessageBox.Show("Passwords do not match.");
-                return;
-            }
-
-            if (txtPassword.Text.Length < 8)
-            {
-                MessageBox.Show("Password must be at least 8 characters.");
-                return;
-            }
-
             string name = txtName.Text.Trim();
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Text.Trim();
+            string confirmPassword = txtConfirmPassword.Text.Trim();
             string email = txtEmail.Text.Trim();
             string phone = txtPhone.Text.Trim();
             int departmentID = (int)cmbDepartment.SelectedValue;
@@ -288,23 +265,30 @@ namespace UnicomTICManagementSystem.Views
 
             try
             {
-                var userRepo = new UserRepository();
-                var staffRepo = new StaffRepository();
-
                 if (!isUpdateMode)
                 {
-                    var existingUser = await userRepo.GetUserByUsernameAsync(username);
-                    int userID;
-
-                    if (existingUser != null)
+                    // New staff: Validate all fields
+                    if (string.IsNullOrWhiteSpace(name) ||
+                        string.IsNullOrWhiteSpace(username) ||
+                        string.IsNullOrWhiteSpace(password) ||
+                        string.IsNullOrWhiteSpace(confirmPassword) ||
+                        string.IsNullOrWhiteSpace(email) ||
+                        string.IsNullOrWhiteSpace(phone))
                     {
-                        userID = existingUser.UserID;
+                        MessageBox.Show("Please fill in all fields.");
+                        return;
+                    }
 
-                        if (await staffRepo.StaffExistsByUserIdAsync(userID))
-                        {
-                            MessageBox.Show("Staff member already exists for this user.");
-                            return;
-                        }
+                    if (password != confirmPassword)
+                    {
+                        MessageBox.Show("Passwords do not match.");
+                        return;
+                    }
+
+                    if (password.Length < 8)
+                    {
+                        MessageBox.Show("Password must be at least 8 characters.");
+                        return;
                     }
 
                     var newUser = new User
@@ -312,6 +296,7 @@ namespace UnicomTICManagementSystem.Views
                         Username = username,
                         Password = PasswordHasher.HashPassword(password),
                         FullName = name,
+                        DepartmentID = departmentID,
                         Email = email,
                         Phone = phone,
                         Role = "Staff",
@@ -319,31 +304,66 @@ namespace UnicomTICManagementSystem.Views
                         IsApproved = true
                     };
 
-                    var userService = new UserService(
-                        userRepo,
-                        new StudentRepository(),
-                        staffRepo,
-                        new LecturerRepository()
-                    );
-
-                    var userController = new UserController(userService);
-                    await userController.AdminRegisterStaffAsync(newUser, departmentID, positionID);
-
-                    MessageBox.Show("✅ Staff successfully added.");
+                    try
+                    {
+                        await _userController.AdminRegisterStaffAsync(newUser, departmentID, positionID, password);
+                        
+                    }
+                    catch (ValidationException vex)
+                    {
+                        MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
                 else
                 {
-                    // Only update Staff details - username/password not changeable in update mode
-                    Staff staff = new Staff
-                    {
-                        StaffID = selectedStaffID,
-                        Name = name,
-                        DepartmentID = departmentID,
-                        PositionID = positionID
-                    };
+                    // Update staff and user info
+                    int userID = await _staffController.GetUserIDByStaffIDAsync(selectedStaffID);
+                    var existingUser = await _userController.GetUserByIdAsync(userID);
 
-                    await _staffController.UpdateStaffAsync(staff);
-                    MessageBox.Show("✅ Staff successfully updated.");
+                    string finalPassword;
+                    if (!string.IsNullOrWhiteSpace(password))
+                    {
+                        if (password.Length < 8)
+                        {
+                            MessageBox.Show("Password must be at least 8 characters.");
+                            return;
+                        }
+
+                        if (password != confirmPassword)
+                        {
+                            MessageBox.Show("Password and Confirm Password do not match.");
+                            return;
+                        }
+
+                        finalPassword = PasswordHasher.HashPassword(password);
+                    }
+                    else
+                    {
+                        finalPassword = existingUser.Password;
+                    }
+
+                    var updatedUser = new User
+                    {
+                        UserID = userID,
+                        Username = username,
+                        Password = finalPassword,
+                        FullName = name,
+                        Email = email,
+                        Phone = phone,
+                        Role = "Staff",
+                        DepartmentID = departmentID
+                    };
+                    try
+                    {
+
+                        await _userController.AdminUpdateStaffAsync(updatedUser, selectedStaffID, departmentID, positionID);
+
+                    }
+                    catch (ValidationException vex)
+                    {
+                        MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
                 }
 
                 await LoadStaffAsync();

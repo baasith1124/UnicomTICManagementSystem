@@ -15,6 +15,7 @@ namespace UnicomTICManagementSystem.Models
         public string SubjectName { get; set; }  
         public string Status { get; set; }
         public int MarkedBy { get; set; }
+        public string MarkedByName { get; set; }
         public DateTime MarkedDate { get; set; }
     }
 }

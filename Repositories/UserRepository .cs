@@ -17,7 +17,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Users WHERE Username = @Username";
+                string query = "SELECT * FROM Users WHERE Username = @Username AND Status = 'Active'";
                 var parameters = new Dictionary<string, object> { { "@Username", username } };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
@@ -37,7 +37,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Users WHERE Email = @Email";
+                string query = "SELECT * FROM Users WHERE Email = @Email AND Status = 'Active'";
                 var parameters = new Dictionary<string, object> { { "@Email", email } };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
@@ -57,7 +57,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Users WHERE UserID = @UserID";
+                string query = "SELECT * FROM Users WHERE UserID = @UserID AND Status = 'Active'";
                 var parameters = new Dictionary<string, object> { { "@UserID", userID } };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
@@ -79,9 +79,9 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"
                     INSERT INTO Users 
-                    (Username, Password, Role, FullName, Email, Phone, RegisteredDate, IsApproved) 
+                    (Username, Password, Role, FullName,departmentID, Email, Phone, RegisteredDate, IsApproved) 
                     VALUES 
-                    (@Username, @Password, @Role, @FullName, @Email, @Phone, @RegisteredDate, @IsApproved)";
+                    (@Username, @Password, @Role, @FullName,@departmentID, @Email, @Phone, @RegisteredDate, @IsApproved)";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -89,10 +89,12 @@ namespace UnicomTICManagementSystem.Repositories
                     { "@Password", user.Password },
                     { "@Role", user.Role },
                     { "@FullName", user.FullName },
+                    {"@departmentID",user.DepartmentID },
                     { "@Email", user.Email },
                     { "@Phone", user.Phone },
                     { "@RegisteredDate", user.RegisteredDate.ToString("yyyy-MM-dd") },
-                    { "@IsApproved", user.IsApproved ? 1 : 0 }
+                    { "@IsApproved", user.IsApproved ? 1 : 0 },
+                    
                 };
 
                 await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
@@ -100,6 +102,7 @@ namespace UnicomTICManagementSystem.Repositories
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserRepository.RegisterUserAsync");
+                throw;
             }
         }
 
@@ -123,7 +126,7 @@ namespace UnicomTICManagementSystem.Repositories
             var users = new List<User>();
             try
             {
-                string query = "SELECT * FROM Users WHERE IsApproved = 0";
+                string query = "SELECT * FROM Users WHERE IsApproved = 0 ";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -145,7 +148,7 @@ namespace UnicomTICManagementSystem.Repositories
             var users = new List<User>();
             try
             {
-                string query = "SELECT * FROM Users";
+                string query = "SELECT * FROM Users WHERE Status = 'Active' ";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -160,6 +163,56 @@ namespace UnicomTICManagementSystem.Repositories
                 ErrorLogger.Log(ex, "UserRepository.GetUsersAsync");
             }
             return users;
+        }
+        public async Task UpdateUserProfileAsync(User user)
+        {
+            string query = @"UPDATE Users SET
+                            Username = @Username,
+                            FullName = @FullName,
+                            Email = @Email,
+                            Phone = @Phone,
+                            Password = @Password
+                         WHERE UserID = @UserID  AND Status = 'Active'";
+
+            var parameters = new Dictionary<string, object>
+        {
+            { "@Username", user.Username },
+            { "@FullName", user.FullName },
+            { "@Email", user.Email },
+            { "@Phone", user.Phone },
+            { "@Password", user.Password },
+            { "@UserID", user.UserID }
+        };
+
+            await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+        }
+        public async Task UpdateUserAsync(User user)
+        {
+            string query = @"
+                UPDATE Users SET
+                    Username = @Username,
+                    FullName = @FullName,
+                    Email = @Email,
+                    Phone = @Phone,
+                    Password = @Password,
+                    Role = @Role,
+                    DepartmentID = @DepartmentID                                       
+                WHERE UserID = @UserID  AND Status = 'Active';
+            ";
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Username", user.Username },
+                { "@FullName", user.FullName },
+                { "@Email", user.Email },
+                { "@Phone", user.Phone },
+                { "@Password", user.Password },
+                { "@Role", user.Role },
+                { "@DepartmentID", user.DepartmentID ?? (object)DBNull.Value },                
+                { "@UserID", user.UserID }
+            };
+
+            await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
         }
 
         private User MapReaderToUser(SQLiteDataReader reader)

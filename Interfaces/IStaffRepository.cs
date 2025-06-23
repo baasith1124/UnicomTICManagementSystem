@@ -18,6 +18,8 @@ namespace UnicomTICManagementSystem.Interfaces
         Task<Staff> GetStaffByUserIdAsync(int userID);
         Task<bool> StaffExistsByUserIdAsync(int userID);
         Task<int> GetUserIDByStaffIDAsync(int staffID);
+        Task UpdateStaffNameByUserIdAsync(int userId, string newName);
+
 
 
     }

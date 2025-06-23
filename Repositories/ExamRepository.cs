@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using UnicomTICManagementSystem.Data;
 using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
@@ -17,21 +18,27 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = @"INSERT INTO Exams (ExamName, SubjectID, ExamDate, Duration) 
-                                 VALUES (@ExamName, @SubjectID, @ExamDate, @Duration)";
-                var parameters = new Dictionary<string, object>
-                {
-                    {"@ExamName", exam.ExamName},
-                    {"@SubjectID", exam.SubjectID},
-                    {"@ExamDate", exam.ExamDate.ToString("yyyy-MM-dd")},
-                    {"@Duration", exam.Duration}
-                };
+                string query = @"INSERT INTO Exams (ExamName, SubjectID, ExamDate, Duration, Status) 
+                         VALUES (@ExamName, @SubjectID, @ExamDate, @Duration, @Status)";
 
-                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+                var parameters = new Dictionary<string, object>
+        {
+            { "@ExamName", exam.ExamName },
+            { "@SubjectID", exam.SubjectID },
+            { "@ExamDate", exam.ExamDate.ToString("yyyy-MM-dd") },
+            { "@Duration", exam.Duration },
+            { "@Status",  "Active" }
+        };
+
+                int rows = await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+
+                if (rows == 0)
+                    throw new Exception("⚠️ No rows inserted. Possible SQL or constraint error.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "ExamRepository.AddExamAsync");
+                MessageBox.Show("❌ Failed to add exam.\n\n" + ex.Message);
             }
         }
 
@@ -62,7 +69,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Exams WHERE ExamID = @ExamID";
+                string query = "UPDATE  Exams SET Status = 'Inactive' WHERE ExamID = @ExamID";
                 var parameters = new Dictionary<string, object>
                 {
                     {"@ExamID", examID}
@@ -83,7 +90,7 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"SELECT e.*, s.SubjectName FROM Exams e 
                          INNER JOIN Subjects s ON e.SubjectID = s.SubjectID
-                         WHERE ExamID = @ExamID";
+                         WHERE ExamID = @ExamID AND e.Status = 'Active'";
                 var parameters = new Dictionary<string, object>
                 {
                     {"@ExamID", examID}
@@ -120,7 +127,8 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"SELECT e.*, s.SubjectName FROM Exams e 
-                                 INNER JOIN Subjects s ON e.SubjectID = s.SubjectID";
+                                 INNER JOIN Subjects s ON e.SubjectID = s.SubjectID
+                                 WHERE e.Status = 'Active'";
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
                 using (reader)
                 {
@@ -152,7 +160,7 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"SELECT e.*, s.SubjectName FROM Exams e 
                                  INNER JOIN Subjects s ON e.SubjectID = s.SubjectID
-                                 WHERE e.SubjectID = @SubjectID";
+                                 WHERE e.SubjectID = @SubjectID AND e.SubjectID = @SubjectID AND e.Status = 'Active' ";
                 var parameters = new Dictionary<string, object>
                 {
                     {"@SubjectID", subjectID}

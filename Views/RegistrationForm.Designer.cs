@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RegistrationForm));
             this.txtUsername = new System.Windows.Forms.TextBox();
             this.txtPhone = new System.Windows.Forms.TextBox();
             this.txtEmail = new System.Windows.Forms.TextBox();
@@ -49,6 +50,8 @@
             this.lblDepartment = new System.Windows.Forms.Label();
             this.lblPosition = new System.Windows.Forms.Label();
             this.cmbPosition = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.btnLogin = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtUsername
@@ -141,10 +144,10 @@
             // 
             // btnRegister
             // 
-            this.btnRegister.Location = new System.Drawing.Point(443, 444);
+            this.btnRegister.Location = new System.Drawing.Point(416, 392);
             this.btnRegister.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRegister.Name = "btnRegister";
-            this.btnRegister.Size = new System.Drawing.Size(95, 46);
+            this.btnRegister.Size = new System.Drawing.Size(95, 40);
             this.btnRegister.TabIndex = 10;
             this.btnRegister.Text = "Register";
             this.btnRegister.UseVisualStyleBackColor = true;
@@ -240,11 +243,34 @@
             this.cmbPosition.Size = new System.Drawing.Size(207, 24);
             this.cmbPosition.TabIndex = 20;
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(397, 462);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(175, 20);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "No, I have An Account!";
+            // 
+            // btnLogin
+            // 
+            this.btnLogin.Location = new System.Drawing.Point(416, 504);
+            this.btnLogin.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.Size = new System.Drawing.Size(95, 40);
+            this.btnLogin.TabIndex = 22;
+            this.btnLogin.Text = "Login";
+            this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
+            // 
             // RegistrationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1076, 592);
+            this.ClientSize = new System.Drawing.Size(1062, 567);
+            this.ControlBox = false;
+            this.Controls.Add(this.btnLogin);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.cmbPosition);
             this.Controls.Add(this.lblPosition);
             this.Controls.Add(this.lblDepartment);
@@ -266,9 +292,11 @@
             this.Controls.Add(this.txtEmail);
             this.Controls.Add(this.txtPhone);
             this.Controls.Add(this.txtUsername);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "RegistrationForm";
-            this.Text = "RegistrationForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Unicom Tic Registration";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -297,5 +325,7 @@
         private System.Windows.Forms.Label lblDepartment;
         private System.Windows.Forms.Label lblPosition;
         private System.Windows.Forms.ComboBox cmbPosition;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button btnLogin;
     }
 }

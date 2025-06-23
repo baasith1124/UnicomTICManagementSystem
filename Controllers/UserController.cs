@@ -20,17 +20,31 @@ namespace UnicomTICManagementSystem.Controllers
         }
 
         //  This method used for Admin to create Student directly
-        public async Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate)
+        public async Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate,string plainPaaword)
         {
             try
             {
-                await _userService.AdminRegisterStudentAsync(user, courseID, enrollmentDate);
-                MessageBox.Show("✅ Student registered successfully.");
+                if (await _userService.IsUsernameTakenAsync(user.Username))
+                    throw new ValidationException("Username is already taken.");
+
+                if (await _userService.IsEmailTakenAsync(user.Email))
+                    throw new ValidationException("Email is already registered.");
+
+                await _userService.AdminRegisterStudentAsync(user, courseID, enrollmentDate,plainPaaword);
+
+
+                MessageBox.Show("Student successfully added and email sent.");
+            }
+            catch (ValidationException)
+            {
+                throw;
+                // This will now catch email/username validation and show only that message
+                //MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserController.AdminRegisterStudentAsync");
-                MessageBox.Show("❌ Failed to register student.");
+                MessageBox.Show($"❌ Failed to register student.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -40,17 +54,25 @@ namespace UnicomTICManagementSystem.Controllers
         //{
         //    _userService.RegisterUser(user, courseID, departmentID, position);
         //}
-        public async Task AdminRegisterLecturerAsync(User user, int departmentID)
+        public async Task AdminRegisterLecturerAsync(User user, int departmentID,string plainPassword)
         {
             try
             {
-                await _userService.AdminRegisterLecturerAsync(user, departmentID);
+                if (await _userService.IsUsernameTakenAsync(user.Username))
+                    throw new ValidationException("Username is already taken.");
+
+                if (await _userService.IsEmailTakenAsync(user.Email))
+                    throw new ValidationException("Email is already registered.");
+
+                // Register the lecturer
+                await _userService.AdminRegisterLecturerAsync(user, departmentID, plainPassword);
                 MessageBox.Show("✅ Lecturer registered successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserController.AdminRegisterLecturerAsync");
-                MessageBox.Show("❌ Failed to register lecturer.");
+                throw;
+                
             }
         }
         public async Task<User> GetUserByIdAsync(int userID)
@@ -66,19 +88,94 @@ namespace UnicomTICManagementSystem.Controllers
                 return null;
             }
         }
-        public async Task AdminRegisterStaffAsync(User user, int departmentID, int positionID)
+        public async Task AdminRegisterStaffAsync(User user, int departmentID, int positionID,string plainPassword)
         {
             try
             {
-                await _userService.AdminRegisterStaffAsync(user, departmentID, positionID);
+                if (await _userService.IsUsernameTakenAsync(user.Username))
+                    throw new ValidationException("Username is already taken.");
+
+                if (await _userService.IsEmailTakenAsync(user.Email))
+                    throw new ValidationException("Email is already registered.");
+                
+                await _userService.AdminRegisterStaffAsync(user, departmentID, positionID, plainPassword);
                 MessageBox.Show("✅ Staff registered successfully.");
             }
             catch (Exception ex)
             {
                 ErrorLogger.Log(ex, "UserController.AdminRegisterStaffAsync");
-                MessageBox.Show("❌ Failed to register staff.");
+                throw;
             }
         }
+
+        public async Task UpdateUserProfileAsync(User updatedUser)
+        {
+            try
+            {
+                var currentUser = await _userService.GetUserByIdAsync(updatedUser.UserID);
+
+                if (!string.Equals(updatedUser.Username, currentUser.Username, StringComparison.OrdinalIgnoreCase)
+                    && await _userService.IsUsernameTakenByOtherUserAsync(updatedUser.Username, updatedUser.UserID))
+                    throw new ValidationException("Username is already taken.");
+
+                if (!string.Equals(updatedUser.Email, currentUser.Email, StringComparison.OrdinalIgnoreCase)
+                    && await _userService.IsEmailTakenByOtherUserAsync(updatedUser.Email, updatedUser.UserID))
+                    throw new ValidationException("Email is already registered.");
+
+                await _userService.UpdateUserProfileAsync(updatedUser);
+
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserController.UpdateUserProfileAsync");
+                throw;
+            }
+
+
+        }
+        public async Task AdminUpdateStudentAsync(User updatedUser, int studentID, int courseID, DateTime enrollmentDate)
+        {
+            try
+            {
+                await _userService.UpdateStudentWithUserAsync(updatedUser, studentID, courseID, enrollmentDate);
+
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserController.UpdateUserProfileAsync");
+                throw;
+            }
+
+        }
+        public async Task AdminUpdateLecturerAsync(User updatedUser, int lecturerID, int departmentID)
+        {
+            try
+            {
+                await _userService.UpdateLecturerWithUserAsync(updatedUser, lecturerID, departmentID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserController.AdminUpdateLecturerAsync");
+                throw;
+            }
+        }
+        public async Task AdminUpdateStaffAsync(User updatedUser, int staffID, int departmentID, int positionID)
+        {
+            try
+            {
+                await _userService.UpdateStaffWithUserAsync(updatedUser, staffID, departmentID, positionID);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserController.AdminUpdateStaffAsync");
+                throw;
+            }
+        }
+
+
+
+
+
 
 
 

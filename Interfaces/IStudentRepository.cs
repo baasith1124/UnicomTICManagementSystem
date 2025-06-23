@@ -23,6 +23,8 @@ namespace UnicomTICManagementSystem.Interfaces
 
         Task<Student> GetStudentByUserIdAsync(int userID);
         Task<int> GetStudentIDByUserIDAsync(int userID);
+        Task UpdateStudentNameByUserIdAsync(int userId, string newName);
+       
 
 
 

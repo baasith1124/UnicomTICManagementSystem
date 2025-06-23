@@ -105,15 +105,15 @@ namespace UnicomTICManagementSystem.Views
             txtUsername = new TextBox { Location = new Point(150, 130), Width = 250 };
 
             Label lblPassword = new Label { Text = "Password:", Location = new Point(20, 170) };
-            txtPassword = new TextBox { Location = new Point(150, 170), Width = 250 };
+            txtPassword = new TextBox { Location = new Point(150, 170), Width = 250, UseSystemPasswordChar = true };
 
-            Label lblConfirmPassword = new Label { Text = "Confirm Password:", Location = new Point(20, 290) };
-            TextBox txtConfirmPassword = new TextBox { Location = new Point(150, 290), Width = 250 };
+            Label lblConfirmPassword = new Label { Text = "Confirm Password:", Location = new Point(20, 210) };
+            TextBox txtConfirmPassword = new TextBox { Location = new Point(150, 210), Width = 250,UseSystemPasswordChar = true  };
             this.txtConfirmPassword = txtConfirmPassword; // store it in the class field
 
 
-            Label lblEmail = new Label { Text = "Email:", Location = new Point(20, 210) };
-            txtEmail = new TextBox { Location = new Point(150, 210), Width = 250 };
+            Label lblEmail = new Label { Text = "Email:", Location = new Point(20, 290) };
+            txtEmail = new TextBox { Location = new Point(150, 290), Width = 250 };
 
             Label lblPhone = new Label { Text = "Phone:", Location = new Point(20, 250) };
             txtPhone = new TextBox { Location = new Point(150, 250), Width = 250 };
@@ -227,92 +227,111 @@ namespace UnicomTICManagementSystem.Views
             {
                 if (string.IsNullOrWhiteSpace(txtName.Text) ||
                     string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                    string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                    string.IsNullOrWhiteSpace(txtConfirmPassword.Text) ||
                     string.IsNullOrWhiteSpace(txtEmail.Text))
                 {
                     MessageBox.Show("Please fill in all required fields.");
                     return;
                 }
 
-                if (txtPassword.Text.Length < 8)
-                {
-                    MessageBox.Show("Password must be at least 8 characters.");
-                    return;
-                }
-
-                if (txtPassword.Text != txtConfirmPassword.Text)
-                {
-                    MessageBox.Show("Password and Confirm Password do not match.");
-                    return;
-                }
-
+                // Get values common to both add and update
                 string name = txtName.Text.Trim();
                 string username = txtUsername.Text.Trim();
+                string password = txtPassword.Text.Trim();
+                string email = txtEmail.Text.Trim();
+                string phone = txtPhone.Text.Trim();
                 int departmentID = Convert.ToInt32(cmbDepartment.SelectedValue);
-
-                var userRepo = new UserRepository();
-                var lecturerRepo = new LecturerRepository();
-                int userID;
 
                 if (!isUpdateMode)
                 {
-                    var existingUser = await userRepo.GetUserByUsernameAsync(username);
-
-                    if (existingUser != null)
+                    if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(txtConfirmPassword.Text))
                     {
-                        userID = existingUser.UserID;
-
-                        if (await lecturerRepo.LecturerExistsByUserIdAsync(userID))
-                        {
-                            MessageBox.Show("Lecturer already exists for this user.");
-                            return;
-                        }
-
-                        await _lecturerController.AddLecturerAsync(userID, name, departmentID);
-                    }
-                    else
-                    {
-                        User newUser = new User
-                        {
-                            Username = username,
-                            Password = PasswordHasher.HashPassword(txtPassword.Text.Trim()),
-                            Role = "Lecturer",
-                            FullName = name,
-                            Email = txtEmail.Text.Trim(),
-                            Phone = txtPhone.Text.Trim(),
-                            RegisteredDate = DateTime.Now,
-                            IsApproved = true
-                        };
-
-                        var userService = new UserService(
-                            userRepo,
-                            new StudentRepository(),
-                            new StaffRepository(),
-                            lecturerRepo);
-
-                        await _userController.AdminRegisterLecturerAsync(newUser, departmentID);
+                        MessageBox.Show("Please enter and confirm password.");
+                        return;
                     }
 
-                    MessageBox.Show("Lecturer successfully added.");
+                    if (password.Length < 8)
+                    {
+                        MessageBox.Show("Password must be at least 8 characters.");
+                        return;
+                    }
+
+                    if (password != txtConfirmPassword.Text)
+                    {
+                        MessageBox.Show("Password and Confirm Password do not match.");
+                        return;
+                    }
+
+                    User newUser = new User
+                    {
+                        Username = username,
+                        Password = PasswordHasher.HashPassword(password),
+                        Role = "Lecturer",
+                        FullName = name,
+                        Email = email,
+                        Phone = phone,
+                        DepartmentID = departmentID,
+                        RegisteredDate = DateTime.Now,
+                        IsApproved = true
+                    };
+
+                    try
+                    {
+                        await _userController.AdminRegisterLecturerAsync(newUser, departmentID, password);
+                    }
+                    catch (ValidationException vex)
+                    {
+                        MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
                 }
                 else
                 {
-                    Lecturer lecturer = new Lecturer
+                    int userID = Convert.ToInt32(dgvLecturers.CurrentRow.Cells["UserID"].Value);
+                    var existingUser = await _userController.GetUserByIdAsync(userID);
+
+                    string finalPassword;
+                    if (!string.IsNullOrWhiteSpace(password))
                     {
-                        LecturerID = selectedLecturerID,
-                        Name = name,
-                        DepartmentID = departmentID
+                        if (password.Length < 8)
+                        {
+                            MessageBox.Show("Password must be at least 8 characters.");
+                            return;
+                        }
+
+                        if (password != txtConfirmPassword.Text)
+                        {
+                            MessageBox.Show("Password and Confirm Password do not match.");
+                            return;
+                        }
+
+                        finalPassword = PasswordHasher.HashPassword(password);
+                    }
+                    else
+                    {
+                        finalPassword = existingUser.Password;
+                    }
+
+                    User updatedUser = new User
+                    {
+                        UserID = userID,
+                        Username = username,
+                        FullName = name,
+                        Email = email,
+                        Phone = phone,
+                        Role = "Lecturer",
+                        Password = finalPassword
                     };
 
-                    await _lecturerController.UpdateLecturerAsync(lecturer);
-                    MessageBox.Show("Lecturer successfully updated.");
+                    await _userController.AdminUpdateLecturerAsync(updatedUser, selectedLecturerID, departmentID);
+                    MessageBox.Show("Lecturer updated successfully.");
                 }
 
                 ClearForm();
                 await LoadLecturersAsync();
                 SwitchToGrid();
             }
+
+
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Save Failed");

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
+using UnicomTICManagementSystem.Repositories;
 
 namespace UnicomTICManagementSystem.Services
 {
@@ -120,6 +121,10 @@ namespace UnicomTICManagementSystem.Services
                 ErrorLogger.Log(ex, "MarksService.GetMarksByExamAsync");
                 return new List<Mark>();
             }
+        }
+        public async Task<List<Mark>> GetMarksByStudentAndSubjectAsync(int studentID, int subjectID)
+        {
+            return await _marksRepository.GetMarksByStudentAndSubjectAsync(studentID, subjectID);
         }
 
     }

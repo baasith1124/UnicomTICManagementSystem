@@ -19,12 +19,23 @@ namespace UnicomTICManagementSystem.Controllers
             _userService = userService;
         }
 
-        public async Task RegisterAsync(User user, int? courseID, int? departmentID, int position)
+        public async Task RegisterAsync(User user, int? courseID, int? departmentID, int position,string plainPassword)
         {
             try
             {
-                await _userService.RegisterUserAsync(user, courseID, departmentID, position);
-                MessageBox.Show("✅ Registration successful!");
+                if (await _userService.IsUsernameTakenAsync(user.Username))
+                    throw new ValidationException("Username is already taken.");
+
+                if (await _userService.IsEmailTakenAsync(user.Email))
+                    throw new ValidationException("Email is already registered.");
+
+                await _userService.RegisterUserAsync(user, courseID, departmentID, position, plainPassword);
+                MessageBox.Show("Registration successful. Waiting for Admin approval.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (ValidationException vex)
+            {
+                throw;
+                //MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {

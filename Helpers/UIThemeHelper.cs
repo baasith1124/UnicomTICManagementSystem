@@ -26,8 +26,11 @@ namespace UnicomTICManagementSystem.Helpers
             // Label Styling
             if (control is Label lbl)
             {
-                lbl.ForeColor = ColorTranslator.FromHtml("#212121");
-                lbl.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                if (lbl.Tag?.ToString() != "no-style")  
+                {
+                    lbl.ForeColor = ColorTranslator.FromHtml("#212121");
+                    lbl.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                }
             }
 
             // Button Styling (Single Color, No Hover Flicker)
@@ -35,8 +38,11 @@ namespace UnicomTICManagementSystem.Helpers
             {
                 btn.FlatStyle = FlatStyle.Flat;
                 btn.FlatAppearance.BorderSize = 0;
-                btn.BackColor = ColorTranslator.FromHtml("#2196F3"); // Consistent Blue
+                btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#1976D2");
+                btn.FlatAppearance.MouseDownBackColor = ColorTranslator.FromHtml("#1565C0");
+                btn.BackColor = ColorTranslator.FromHtml("#2196F3");
                 btn.ForeColor = Color.White;
+                btn.UseVisualStyleBackColor = false; // Prevents default flickering
                 btn.Cursor = Cursors.Hand;
                 btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             }

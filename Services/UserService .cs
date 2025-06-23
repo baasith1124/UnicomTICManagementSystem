@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using UnicomTICManagementSystem.Helpers;
 using UnicomTICManagementSystem.Interfaces;
 using UnicomTICManagementSystem.Models;
@@ -28,21 +29,38 @@ namespace UnicomTICManagementSystem.Services
             _lecturerRepository = lecturerRepository;
         }
 
-        public async Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate)
+        public async Task AdminRegisterStudentAsync(User user, int courseID, DateTime enrollmentDate,string plainPassword)
         {
             try
             {
                 await ValidateUserAsync(user);
 
-                if (await IsUsernameTakenAsync(user.Username)) throw new Exception("Username already exists.");
-                if (await IsEmailTakenAsync(user.Email)) throw new Exception("Email already exists.");
+               
 
                 user.RegisteredDate = DateTime.Now;
                 user.IsApproved = true;
 
                 await _userRepository.RegisterUserAsync(user);
-                int userID = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
-                await _studentRepository.AddStudentAsync(userID, user.FullName, courseID, enrollmentDate);
+
+                var createdUser = await _userRepository.GetUserByUsernameAsync(user.Username);
+                if (createdUser == null)
+                {
+                    throw new Exception("❌ User registration failed. User not found after registration.");
+                }
+
+                await _studentRepository.AddStudentAsync(createdUser.UserID, user.FullName, courseID, enrollmentDate);
+
+                // Send email with credentials
+                string emailBody = AccountCreatedEmailTemplate.GetHtml(
+                    user.FullName,
+                    user.Username,
+                    plainPassword, // plaintext password
+                    DateTime.Now,
+                    user.Role
+                    );
+
+                await EmailService.SendEmailAsync(user.Email, "🎓 Your Student Account is Ready", emailBody);
+
             }
             catch (Exception ex)
             {
@@ -51,15 +69,13 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public async Task RegisterUserAsync(User user, int? courseID, int? departmentID, int position)
+        public async Task RegisterUserAsync(User user, int? courseID, int? departmentID, int position, string plainPassword)
         {
             try
             {
                 await ValidateUserAsync(user);
 
-                if (await IsUsernameTakenAsync(user.Username)) throw new Exception("Username already exists.");
-                if (await IsEmailTakenAsync(user.Email)) throw new Exception("Email already exists.");
-
+                
                 user.RegisteredDate = DateTime.Now;
                 user.IsApproved = false;
 
@@ -83,6 +99,11 @@ namespace UnicomTICManagementSystem.Services
                         await _lecturerRepository.AddLecturerAsync(userID, user.FullName, departmentID.Value);
                         break;
                 }
+
+                // Send registration success email
+                string htmlBody = RegistrationSubmittedTemplate.GetHtml(user.FullName, user.Role, DateTime.Now.ToString("f"));
+                await EmailService.SendEmailAsync(user.Email, "Registration Received - Unicom TIC", htmlBody);
+
             }
             catch (Exception ex)
             {
@@ -111,11 +132,16 @@ namespace UnicomTICManagementSystem.Services
         }
 
 
-        public async Task ApproveUserAsync(int userID)
+        public async Task ApproveUserAsync(int userID, string fullName, string email, string role)
         {
             try
             {
                 await _userRepository.ApproveUserAsync(userID);
+
+                //Send Welcome Email
+                string htmlBody = AccountApprovedTemplate.GetHtml(fullName, role, DateTime.Now.ToString("f"));
+                await EmailService.SendEmailAsync(email, "🎉 Your Unicom TIC Account is Approved!", htmlBody);
+
             }
             catch (Exception ex)
             {
@@ -194,14 +220,31 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public async Task AdminRegisterLecturerAsync(User user, int departmentID)
+        public async Task AdminRegisterLecturerAsync(User user, int departmentID,string plainPassword)
         {
             try
             {
+                await ValidateUserAsync(user);
+
+                user.DepartmentID = departmentID;
+
                 await _userRepository.RegisterUserAsync(user);
+
                 var createdUser = await _userRepository.GetUserByUsernameAsync(user.Username);
+
                 if (createdUser != null)
                     await _lecturerRepository.AddLecturerAsync(createdUser.UserID, user.FullName, departmentID);
+
+                string emailBody = AccountCreatedEmailTemplate.GetHtml(
+                user.FullName,
+                user.Username,
+                plainPassword,
+                DateTime.Now,
+                user.Role
+                );
+
+                await EmailService.SendEmailAsync(user.Email, "🎓 Lecturer Account Created | Unicom TIC", emailBody);
+
             }
             catch (Exception ex)
             {
@@ -210,31 +253,34 @@ namespace UnicomTICManagementSystem.Services
             }
         }
 
-        public async Task AdminRegisterStaffAsync(User user, int departmentID, int positionID)
+        public async Task AdminRegisterStaffAsync(User user, int departmentID, int positionID, string plainPassword)
         {
             try
             {
-                var existingUser = await _userRepository.GetUserByUsernameAsync(user.Username);
-                int userId;
+                await ValidateUserAsync(user);
 
-                if (existingUser != null)
-                {
-                    userId = existingUser.UserID;
-                    if (await _staffRepository.StaffExistsByUserIdAsync(userId))
-                        throw new Exception("❌ Staff already exists for this user.");
-                }
-                else
-                {
-                    user.Password = PasswordHasher.HashPassword(user.Password);
-                    user.Role = "Staff";
-                    user.RegisteredDate = DateTime.Now;
-                    user.IsApproved = true;
+                //user.Password = PasswordHasher.HashPassword(user.Password);
+                //user.Role = "Staff";
+                //user.RegisteredDate = DateTime.Now;
+                //user.IsApproved = true;
 
-                    await _userRepository.RegisterUserAsync(user);
-                    userId = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
-                }
+                await _userRepository.RegisterUserAsync(user);
+                int userId = (await _userRepository.GetUserByUsernameAsync(user.Username)).UserID;
+                
 
                 await _staffRepository.AddStaffAsync(userId, user.FullName, departmentID, positionID);
+
+                string emailBody = AccountCreatedEmailTemplate.GetHtml(
+                    user.FullName,
+                    user.Username,
+                    plainPassword,
+                    DateTime.Now,
+                    user.Role
+                );
+
+                await EmailService.SendEmailAsync(user.Email, "🎓 Staff Account Created | Unicom TIC", emailBody);
+
+
             }
             catch (Exception ex)
             {
@@ -246,19 +292,19 @@ namespace UnicomTICManagementSystem.Services
         public Task ValidateUserAsync(User user)
         {
             if (string.IsNullOrWhiteSpace(user.Username))
-                throw new Exception("Username is required.");
+                throw new ValidationException("Username is required.");
 
             if (string.IsNullOrWhiteSpace(user.Password))
-                throw new Exception("Password is required.");
+                throw new ValidationException("Password is required.");
 
             if (user.Password.Length < 8)
-                throw new Exception("Password must be at least 8 characters long.");
+                throw new ValidationException("Password must be at least 8 characters long.");
 
             if (!Regex.IsMatch(user.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                throw new Exception("Invalid email format.");
+                throw new ValidationException("Invalid email format.");
 
             if (string.IsNullOrWhiteSpace(user.FullName))
-                throw new Exception("Full Name is required.");
+                throw new ValidationException("Full Name is required.");
 
             return Task.CompletedTask;
         }
@@ -289,6 +335,117 @@ namespace UnicomTICManagementSystem.Services
                 return true;
             }
         }
+        public async Task UpdateUserProfileAsync(User user)
+        {
+            await _userRepository.UpdateUserProfileAsync(user);
+
+            switch (user.Role)
+            {
+                case "Student":
+                    await _studentRepository.UpdateStudentNameByUserIdAsync(user.UserID, user.FullName);
+                    break;
+                case "Staff":
+                    await _staffRepository.UpdateStaffNameByUserIdAsync(user.UserID, user.FullName);
+                    break;
+                case "Lecturer":
+                    await _lecturerRepository.UpdateLecturerNameByUserIdAsync(user.UserID, user.FullName);
+                    break;
+            }
+        }
+        public async Task UpdateStudentWithUserAsync(User user, int studentID, int courseID, DateTime enrollmentDate)
+        {
+            // Email & username uniqueness validation for update
+            var existingUserByUsername = await _userRepository.GetUserByUsernameAsync(user.Username);
+            if (existingUserByUsername != null && existingUserByUsername.UserID != user.UserID)
+                throw new ValidationException("Username already exists.");
+
+            var existingUserByEmail = await _userRepository.GetUserByEmailAsync(user.Email);
+            if (existingUserByEmail != null && existingUserByEmail.UserID != user.UserID)
+                throw new ValidationException("Email already exists.");
+
+            await _userRepository.UpdateUserAsync(user); // Only update core User table fields
+            Student student = new Student
+            {
+                StudentID = studentID,
+                Name = user.FullName,  // Sync FullName into student.Name
+                CourseID = courseID,
+                EnrollmentDate = enrollmentDate
+            };
+
+            await _studentRepository.UpdateStudentAsync(student);
+
+        }
+        public async Task UpdateLecturerWithUserAsync(User user, int lecturerID, int departmentID)
+        {
+            // Validate uniqueness
+            var userByUsername = await _userRepository.GetUserByUsernameAsync(user.Username);
+            if (userByUsername != null && userByUsername.UserID != user.UserID)
+                throw new ValidationException("Username already exists.");
+
+            var userByEmail = await _userRepository.GetUserByEmailAsync(user.Email);
+            if (userByEmail != null && userByEmail.UserID != user.UserID)
+                throw new ValidationException("Email already exists.");
+
+            await _userRepository.UpdateUserAsync(user); // Update Users table
+
+            Lecturer lecturer = new Lecturer
+            {
+                LecturerID = lecturerID,
+                Name = user.FullName,
+                DepartmentID = departmentID
+            };
+
+            await _lecturerRepository.UpdateLecturerAsync(lecturer); // Update Lecturers table
+        }
+        public async Task UpdateStaffWithUserAsync(User user, int staffID, int departmentID, int positionID)
+        {
+            try
+            {
+                // Check for unique username/email
+                var existingUserByUsername = await _userRepository.GetUserByUsernameAsync(user.Username);
+                if (existingUserByUsername != null && existingUserByUsername.UserID != user.UserID)
+                    throw new ValidationException("Username already exists.");
+
+                var existingUserByEmail = await _userRepository.GetUserByEmailAsync(user.Email);
+                if (existingUserByEmail != null && existingUserByEmail.UserID != user.UserID)
+                    throw new ValidationException("Email already exists.");
+
+                await _userRepository.UpdateUserAsync(user);
+
+                Staff staff = new Staff
+                {
+                    StaffID = staffID,
+                    Name = user.FullName,
+                    DepartmentID = departmentID,
+                    PositionID = positionID
+                };
+
+                await _staffRepository.UpdateStaffAsync(staff);
+                MessageBox.Show(" Staff successfully updated.");
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Log(ex, "UserService.UpdateStaffWithUserAsync");
+                throw;
+                
+            }
+        }
+
+
+
+        public async Task<bool> IsUsernameTakenByOtherUserAsync(string username, int currentUserId)
+        {
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            return user != null && user.UserID != currentUserId;
+        }
+
+        public async Task<bool> IsEmailTakenByOtherUserAsync(string email, int currentUserId)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(email);
+            return user != null && user.UserID != currentUserId;
+        }
+
+
 
 
 

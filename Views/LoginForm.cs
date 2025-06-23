@@ -35,6 +35,7 @@ namespace UnicomTICManagementSystem
 
             _loginController = new LoginController(userService);
 
+            lblTitle.Tag = "no-style";
             UIThemeHelper.ApplyTheme(this);
         }
 
@@ -54,6 +55,10 @@ namespace UnicomTICManagementSystem
                 var (isSuccess, user) = await _loginController.LoginAsync(username, password);
                 if (isSuccess && user != null)
                 {
+                    // Log successful login Email Api Calling
+                    string loginHtml = LoginSuccessTemplate.GetHtml(user.FullName, DateTime.Now.ToString("f"), user.Role);
+                    await EmailService.SendEmailAsync(user.Email, "Login Successful - Unicom TIC", loginHtml);
+
                     MessageBox.Show($"Login Success! Welcome {user.Role}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Unified Dashboard
@@ -84,6 +89,20 @@ namespace UnicomTICManagementSystem
             {
                 MessageBox.Show("Unable to open registration form:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Do you really want to exit?", "Exit",MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+            {
+                e.Cancel = true; 
+                return;
+            }
+
+            
+
         }
     }
 }

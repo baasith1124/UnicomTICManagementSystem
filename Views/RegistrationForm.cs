@@ -20,6 +20,7 @@ namespace UnicomTICManagementSystem.Views
     {
         private readonly RegistrationController _registrationController;
         private readonly PositionController _positionController;
+        private readonly LoginForm loginForm;
 
 
 
@@ -44,6 +45,8 @@ namespace UnicomTICManagementSystem.Views
             PositionController positionController = new PositionController(positionService);
 
             _positionController = new PositionController(positionService);
+
+            loginForm = new LoginForm();
 
 
             cmbRole.Items.AddRange(new string[] { "Student", "Lecturer", "Staff" });
@@ -132,6 +135,7 @@ namespace UnicomTICManagementSystem.Views
             int? selectedCourseID = null;
             int? selectedDepartmentID = null;
             int positionID = 0;
+            string password = txtPassword.Text.Trim();
 
             if (cmbRole.SelectedItem.ToString() == "Student")
             {
@@ -163,7 +167,7 @@ namespace UnicomTICManagementSystem.Views
             }
 
             // Hash password before sending to service
-            string hashedPassword = PasswordHasher.HashPassword(txtPassword.Text.Trim());
+            string hashedPassword = PasswordHasher.HashPassword(password);
 
             User user = new User
             {
@@ -178,21 +182,29 @@ namespace UnicomTICManagementSystem.Views
                 DepartmentID = selectedDepartmentID
             };
 
+            
             try
             {
 
-                await _registrationController.RegisterAsync(user, selectedCourseID, selectedDepartmentID, positionID);
-
-                MessageBox.Show("Registration successful. Waiting for Admin approval.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.Close();
-                LoginForm loginForm = new LoginForm();
-                loginForm.ShowDialog();
+                await _registrationController.RegisterAsync(user, selectedCourseID, selectedDepartmentID, positionID, password);
+                
+               
+                
+            }
+            catch (ValidationException vex)
+            {
+               
+                MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Registration failed.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ErrorLogger.Log(ex);
             }
+    
+            this.Close();            
+            loginForm.ShowDialog();
+            
         }
 
         private void cmbRole_SelectedIndexChanged(object sender, EventArgs e)
@@ -241,6 +253,12 @@ namespace UnicomTICManagementSystem.Views
                 MessageBox.Show("Error while updating positions.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            this.Close();
+            loginForm.ShowDialog();
         }
     }
 }

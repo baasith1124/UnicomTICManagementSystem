@@ -108,6 +108,11 @@ namespace UnicomTICManagementSystem.Services
                 throw;
             }
         }
+        public async Task<Attendance> GetAttendanceByStudentAndDateAsync(int timetableID, int studentID, DateTime date)
+        {
+            return await _attendanceRepository.GetAttendanceByStudentAndDateAsync(timetableID, studentID, date);
+        }
+
 
     }
 }

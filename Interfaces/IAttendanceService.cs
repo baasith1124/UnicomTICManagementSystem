@@ -16,6 +16,8 @@ namespace UnicomTICManagementSystem.Interfaces
         Task DeleteAttendanceAsync(int attendanceID);
         Task<List<Attendance>> GetFullAttendanceAsync();
         Task<List<Attendance>> SearchAttendanceAsync(int subjectID, string date);
+        Task<Attendance> GetAttendanceByStudentAndDateAsync(int timetableID, int studentID, DateTime date);
+
 
     }
 }

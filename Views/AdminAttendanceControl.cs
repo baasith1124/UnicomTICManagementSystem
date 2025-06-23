@@ -25,8 +25,9 @@ namespace UnicomTICManagementSystem.Views
         private Panel panelTop, panelAttendanceForm;
         private ComboBox cmbTimetable, cmbStudent, cmbStatus;
         private DataGridView dgvAttendance;
-        private Button btnSearch, btnAdd, btnSave, btnCancel;
+        private Button btnSearch, btnAdd, btnSave, btnCancel, btnUpdate, btnDelete;
         private int selectedTimetableID = -1;
+        private int? updatingAttendanceId = null;
 
         public AdminAttendanceControl()
         {
@@ -118,6 +119,26 @@ namespace UnicomTICManagementSystem.Views
             };
             btnAdd.Click += btnAdd_Click;
             btnPanel.Controls.Add(btnAdd);
+            btnUpdate = new Button
+            {
+                Text = "Update Attendance",
+                Width = 150,
+                Height = 40,
+                Location = new Point(160, 5)
+            };
+            btnUpdate.Click += btnUpdate_Click;
+            btnPanel.Controls.Add(btnUpdate);
+
+            btnDelete = new Button
+            {
+                Text = "Delete Attendance",
+                Width = 150,
+                Height = 40,
+                Location = new Point(320, 5)
+            };
+            btnDelete.Click += btnDelete_Click;
+            btnPanel.Controls.Add(btnDelete);
+
 
             // === Attendance Entry Panel ===
             panelAttendanceForm = new Panel
@@ -186,6 +207,26 @@ namespace UnicomTICManagementSystem.Views
                 selectedTimetableID = (int)cmbTimetable.SelectedValue;
                 var attendanceList = await _attendanceController.GetAttendanceByTimetableAsync(selectedTimetableID);
                 dgvAttendance.DataSource = attendanceList;
+
+                dgvAttendance.Columns["StudentName"].HeaderText = "Student";
+                dgvAttendance.Columns["SubjectName"].HeaderText = "Subject";
+                dgvAttendance.Columns["Status"].HeaderText = "Attendance";
+                dgvAttendance.Columns["MarkedByName"].HeaderText = "Marked By";
+                dgvAttendance.Columns["MarkedDate"].HeaderText = "Marked Date";
+
+                if (dgvAttendance.Columns.Contains("AttendanceID"))
+                    dgvAttendance.Columns["AttendanceID"].Visible = false;
+                if (dgvAttendance.Columns.Contains("TimetableID"))
+                    dgvAttendance.Columns["TimetableID"].Visible = false;
+                if (dgvAttendance.Columns.Contains("StudentID"))
+                    dgvAttendance.Columns["StudentID"].Visible = false;
+                if (dgvAttendance.Columns.Contains("MarkedBy"))
+                    dgvAttendance.Columns["MarkedBy"].Visible = false;
+
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -241,8 +282,19 @@ namespace UnicomTICManagementSystem.Views
                     MarkedDate = DateTime.Now
                 };
 
-                await _attendanceController.AddAttendanceAsync(attendance);
-                MessageBox.Show("✅ Attendance successfully marked.");
+                if (updatingAttendanceId == null)
+                {
+                    await _attendanceController.AddAttendanceAsync(attendance);
+                    MessageBox.Show("✅ Attendance successfully marked.");
+                }
+                else
+                {
+                    attendance.AttendanceID = updatingAttendanceId.Value;
+                    await _attendanceController.UpdateAttendanceAsync(attendance);
+                    MessageBox.Show("✅ Attendance successfully updated.");
+                    updatingAttendanceId = null;
+                    btnSave.Text = "Save";
+                }
 
                 btnCancel_Click(null, null);
                 btnSearch_Click(null, null);
@@ -253,6 +305,54 @@ namespace UnicomTICManagementSystem.Views
             }
         }
 
+        private async void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvAttendance.CurrentRow == null)
+            {
+                MessageBox.Show("Please select a record to update.");
+                return;
+            }
+
+            try
+            {
+                cmbStudent.Text = dgvAttendance.CurrentRow.Cells["StudentName"].Value.ToString();
+                cmbStatus.SelectedItem = dgvAttendance.CurrentRow.Cells["Status"].Value.ToString();
+                updatingAttendanceId = Convert.ToInt32(dgvAttendance.CurrentRow.Cells["AttendanceID"].Value);
+                btnSave.Text = "Update";
+
+                panelAttendanceForm.Visible = true;
+                btnAdd.Enabled = false;
+                btnSearch.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Error preparing update form. " + ex.Message);
+            }
+        }
+        private async void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvAttendance.CurrentRow == null)
+            {
+                MessageBox.Show("Please select a record to delete.");
+                return;
+            }
+
+            try
+            {
+                int attendanceId = Convert.ToInt32(dgvAttendance.CurrentRow.Cells["AttendanceID"].Value);
+                var confirm = MessageBox.Show("Are you sure to delete this attendance?", "Confirm", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    await _attendanceController.DeleteAttendanceAsync(attendanceId);
+                    MessageBox.Show("✅ Attendance deleted successfully.");
+                    btnSearch_Click(null, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to delete attendance. " + ex.Message);
+            }
+        }
         private void btnCancel_Click(object sender, EventArgs e)
         {
             panelAttendanceForm.Visible = false;

@@ -63,10 +63,24 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Students WHERE StudentID = @StudentID";
-                var parameters = new Dictionary<string, object> { { "@StudentID", studentID } };
+                // First get UserID linked to this student
+                string getUserQuery = "SELECT UserID FROM Students WHERE StudentID = @StudentID";
+                var getParams = new Dictionary<string, object> { { "@StudentID", studentID } };
+                object userIdObj = await DatabaseManager.ExecuteScalarAsync(getUserQuery, getParams);
 
-                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+                if (userIdObj != null)
+                {
+                    int userID = Convert.ToInt32(userIdObj);
+
+                    // Delete from Students table
+                    string deleteStudentQuery = "UPDATE Students SET Status = 'Inactive' WHERE StudentID = @StudentID";
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteStudentQuery, getParams);
+
+                    // Delete from Users table
+                    string deleteUserQuery = "UPDATE Users SET Status = 'Inactive' WHERE UserID = @UserID";
+                    var deleteUserParams = new Dictionary<string, object> { { "@UserID", userID } };
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteUserQuery, deleteUserParams);
+                }
             }
             catch (Exception ex)
             {
@@ -83,7 +97,8 @@ namespace UnicomTICManagementSystem.Repositories
                                        c.CourseName, u.Email, u.Phone
                                 FROM Students s
                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                INNER JOIN Users u ON s.UserID = u.UserID";
+                                INNER JOIN Users u ON s.UserID = u.UserID
+                                WHERE s.Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -117,12 +132,12 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
-                   c.CourseName, u.Email, u.Phone
-            FROM Students s
-            INNER JOIN Courses c ON s.CourseID = c.CourseID
-            INNER JOIN Users u ON s.UserID = u.UserID
-            WHERE s.Name LIKE @keyword";
+                    SELECT s.StudentID, s.UserID, s.Name, s.CourseID, s.EnrollmentDate, 
+                           c.CourseName, u.Email, u.Phone
+                    FROM Students s
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    INNER JOIN Users u ON s.UserID = u.UserID
+                    WHERE s.Status = 'Active' AND s.Name LIKE @keyword";
 
                 var parameters = new Dictionary<string, object>
         {
@@ -162,14 +177,14 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate 
-            FROM Students s
-            WHERE s.StudentID = @StudentID";
+                    SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate 
+                    FROM Students s
+                    WHERE s.Status = 'Active' AND s.StudentID = @StudentID";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@StudentID", studentID }
-        };
+                {
+                    { "@StudentID", studentID }
+                };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
@@ -198,17 +213,17 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            SELECT s.StudentID, s.UserID, u.Username, u.Email, u.Phone, 
-                   s.Name as FullName, s.CourseID, c.CourseName, s.EnrollmentDate
-            FROM Students s
-            INNER JOIN Users u ON s.UserID = u.UserID
-            INNER JOIN Courses c ON s.CourseID = c.CourseID
-            WHERE s.StudentID = @StudentID";
+                    SELECT s.StudentID, s.UserID, u.Username, u.Email, u.Phone, 
+                           s.Name as FullName, s.CourseID, c.CourseName, s.EnrollmentDate
+                    FROM Students s
+                    INNER JOIN Users u ON s.UserID = u.UserID
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    WHERE s.Status = 'Active' AND s.StudentID = @StudentID";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@StudentID", studentID }
-        };
+                {
+                    { "@StudentID", studentID }
+                };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
@@ -244,15 +259,15 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
-            FROM Students s
-            INNER JOIN Courses c ON s.CourseID = c.CourseID
-            WHERE s.CourseID = @CourseID";
+                    SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
+                    FROM Students s
+                    INNER JOIN Courses c ON s.CourseID = c.CourseID
+                    WHERE s.Status = 'Active' AND s.CourseID = @CourseID";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@CourseID", courseID }
-        };
+                {
+                    { "@CourseID", courseID }
+                };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
@@ -288,12 +303,12 @@ namespace UnicomTICManagementSystem.Repositories
             FROM Students s
             INNER JOIN Courses c ON s.CourseID = c.CourseID
             INNER JOIN Subjects subj ON s.CourseID = subj.CourseID
-            WHERE subj.SubjectID = @SubjectID";
+            WHERE s.Status = 'Active' AND subj.SubjectID = @SubjectID";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@SubjectID", subjectID }
-        };
+                {
+                    { "@SubjectID", subjectID }
+                };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
@@ -326,7 +341,7 @@ namespace UnicomTICManagementSystem.Repositories
             SELECT s.StudentID, s.Name, s.CourseID, s.EnrollmentDate, c.CourseName
             FROM Students s
             INNER JOIN Courses c ON s.CourseID = c.CourseID
-            WHERE s.UserID = @UserID";
+            WHERE s.Status = 'Active' AND s.UserID = @UserID";
 
                 var parameters = new Dictionary<string, object>
         {
@@ -361,12 +376,12 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT StudentID FROM Students WHERE UserID = @userID";
+                string query = "SELECT StudentID FROM Students WHERE  UserID = @userID AND Status = 'Active'";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@userID", userID }
-        };
+                {
+                    { "@userID", userID }
+                };
 
                 var result = await DatabaseManager.ExecuteScalarAsync(query, parameters);
 
@@ -378,9 +393,18 @@ namespace UnicomTICManagementSystem.Repositories
                 return -1;
             }
         }
+        public async Task UpdateStudentNameByUserIdAsync(int userId, string newName)
+        {
+            string query = "UPDATE Students SET Name = @Name WHERE UserID = @UserID";
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Name", newName },
+                { "@UserID", userId }
+            };
 
-
-
+            await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+        }
+        
 
 
     }

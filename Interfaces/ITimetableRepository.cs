@@ -18,5 +18,7 @@ namespace UnicomTICManagementSystem.Interfaces
         Task<Timetable> GetTimetableBySubjectAndDateAsync(int subjectID, DateTime date);
         Task<Timetable> GetTimetableByIDAsync(int timetableID);
         Task<List<Timetable>> GetTimetablesByLecturerAsync(int lecturerID);
+        Task<List<Timetable>> GetTimetablesByCourseAsync(int courseID);
+
     }
 }

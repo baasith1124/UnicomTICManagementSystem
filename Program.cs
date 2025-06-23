@@ -17,6 +17,16 @@ namespace UnicomTICManagementSystem
         {
             try
             {
+                // Set WAL mode before any other connection is made
+                Task.Run(async () => await DatabaseManager.EnableWALModeAsync()).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to initialize DB WAL mode:\n" + ex.Message);
+                return;
+            }
+            try
+            {
                 Migration.InitializeAsync().GetAwaiter().GetResult();
             }
             catch (Exception ex)
@@ -24,6 +34,8 @@ namespace UnicomTICManagementSystem
                 MessageBox.Show("❌ Initialization failed: " + ex.Message, "Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
+            
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

@@ -62,7 +62,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Rooms WHERE RoomID = @RoomID";
+                string query = "UPDATE  Rooms SET Status = 'Inactive' WHERE RoomID = @RoomID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -82,7 +82,7 @@ namespace UnicomTICManagementSystem.Repositories
             var rooms = new List<Room>();
             try
             {
-                string query = "SELECT * FROM Rooms";
+                string query = "SELECT * FROM Rooms WHERE Status = 'Active'";
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
 
                 while (await reader.ReadAsync())
@@ -109,7 +109,7 @@ namespace UnicomTICManagementSystem.Repositories
             var rooms = new List<Room>();
             try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomName LIKE @keyword";
+                string query = "SELECT * FROM Rooms WHERE Status = 'Active' AND RoomName LIKE @keyword";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -141,7 +141,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomID = @RoomID";
+                string query = "SELECT * FROM Rooms WHERE Status = 'Active' AND RoomID = @RoomID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -176,7 +176,7 @@ namespace UnicomTICManagementSystem.Repositories
             var rooms = new List<Room>();
             try
             {
-                string query = "SELECT * FROM Rooms WHERE RoomType = @RoomType";
+                string query = "SELECT * FROM Rooms WHERE Status = 'Active' AND RoomType = @RoomType";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -209,7 +209,7 @@ namespace UnicomTICManagementSystem.Repositories
             var types = new List<string>();
             try
             {
-                string query = "SELECT DISTINCT RoomType FROM Rooms";
+                string query = "SELECT DISTINCT RoomType FROM Rooms WHERE Status = 'Active'";
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
 
                 while (await reader.ReadAsync())

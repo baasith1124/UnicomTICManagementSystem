@@ -130,6 +130,11 @@ namespace UnicomTICManagementSystem.Controllers
                 return new List<Timetable>();
             }
         }
+        public async Task<List<Timetable>> GetTimetablesByCourseAsync(int courseID)
+        {
+            return await _timetableService.GetTimetablesByCourseAsync(courseID);
+        }
+
 
     }
 

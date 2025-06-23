@@ -21,8 +21,10 @@ namespace UnicomTICManagementSystem.Views
         private readonly CourseController _courseController;
         private DepartmentController _departmentController;
 
+
         private int selectedCourseID = -1;
         private bool isUpdateMode = false;
+        private bool _isLoadingDepartments = false;
 
         private Label lblCourseName, lblDescription, lblDepartment;
         private TextBox txtCourseName, txtDescription, txtSearch;
@@ -134,6 +136,8 @@ namespace UnicomTICManagementSystem.Views
         {
             try
             {
+                _isLoadingDepartments = true;
+
                 var departments = await _departmentController.GetAllDepartmentsAsync();
                 cmbDepartment.DataSource = departments;
                 cmbDepartment.DisplayMember = "DepartmentName";
@@ -148,11 +152,20 @@ namespace UnicomTICManagementSystem.Views
                 cmbFilterDepartment.DataSource = deptList;
                 cmbFilterDepartment.DisplayMember = "DepartmentName";
                 cmbFilterDepartment.ValueMember = "DepartmentID";
-                cmbFilterDepartment.SelectedIndex = 0;
+                cmbFilterDepartment.SelectedValue = 0; // Default to "All Departments"
+
+
+
+
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show("❌ Failed to load departments.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _isLoadingDepartments = false;
             }
 
         }
@@ -161,19 +174,23 @@ namespace UnicomTICManagementSystem.Views
         {
             try
             {
-                int deptId = (cmbFilterDepartment.SelectedItem as Department)?.DepartmentID ?? 0;
+                if (cmbFilterDepartment.SelectedItem is Department selectedDept)
+{
+    int deptId = selectedDept.DepartmentID;
 
-                var data = deptId == 0
-                    ? await _courseController.GetAllCoursesAsync()
-                    : await _courseController.GetCoursesByDepartmentAsync(deptId);
+    var data = deptId == 0
+        ? await _courseController.GetAllCoursesAsync()
+        : await _courseController.GetCoursesByDepartmentAsync(deptId);
 
-                dgvCourses.DataSource = data;
-                dgvCourses.ClearSelection();
+    dgvCourses.ClearSelection();
+    dgvCourses.DataSource = null;
+    dgvCourses.DataSource = data;
 
-                if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
-                if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
+    if (dgvCourses.Columns.Contains("CourseID")) dgvCourses.Columns["CourseID"].Visible = false;
+    if (dgvCourses.Columns.Contains("DepartmentID")) dgvCourses.Columns["DepartmentID"].Visible = false;
 
-                selectedCourseID = -1;
+    selectedCourseID = -1;
+}
             }
             catch (Exception ex)
             {
@@ -197,6 +214,7 @@ namespace UnicomTICManagementSystem.Views
 
         private async void cmbFilterDepartment_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_isLoadingDepartments) return;
             await LoadCoursesAsync();
         
         }

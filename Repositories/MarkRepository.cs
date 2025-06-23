@@ -83,7 +83,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Marks WHERE MarkID = @MarkID";
+                string query = "UPDATE Marks SET Status = 'Inactive' WHERE MarkID = @MarkID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -103,7 +103,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Marks WHERE MarkID = @MarkID";
+                string query = "SELECT * FROM Marks WHERE Status = 'Active' AND MarkID = @MarkID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -145,7 +145,7 @@ namespace UnicomTICManagementSystem.Repositories
 
             try
             {
-                string query = "SELECT * FROM Marks WHERE TimetableID = @TimetableID";
+                string query = "SELECT * FROM Marks WHERE Status = 'Active' AND TimetableID = @TimetableID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -196,7 +196,7 @@ namespace UnicomTICManagementSystem.Repositories
             JOIN Subjects s ON t.SubjectID = s.SubjectID
             JOIN Exams e ON m.ExamID = e.ExamID
             JOIN Users u ON m.GradedBy = u.UserID
-            WHERE m.StudentID = @StudentID";
+            WHERE m.Status = 'Active' AND m.StudentID = @StudentID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -239,7 +239,7 @@ namespace UnicomTICManagementSystem.Repositories
 
             try
             {
-                string query = "SELECT * FROM Marks";
+                string query = "SELECT * FROM Marks WHERE Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -277,20 +277,22 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            SELECT 
-                m.MarkID, m.TimetableID, m.StudentID, m.AssignmentMark, m.MidExamMark, m.FinalExamMark,
-                m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
-                s.Name AS StudentName, e.ExamName, u.FullName AS LecturerName
-            FROM Marks m
-            JOIN Students s ON m.StudentID = s.StudentID
-            JOIN Exams e ON m.ExamID = e.ExamID
-            JOIN Users u ON m.GradedBy = u.UserID
-            WHERE m.ExamID = @examId";
+                    SELECT 
+                        m.MarkID, m.TimetableID, m.StudentID, m.AssignmentMark, m.MidExamMark, m.FinalExamMark,
+                        m.TotalMark, m.GradedBy, m.GradedDate, m.ExamID,
+                        s.Name AS StudentName, e.ExamName, l.Name AS LecturerName,
+                        sub.SubjectName
+                    FROM Marks m
+                    JOIN Students s ON m.StudentID = s.StudentID
+                    JOIN Exams e ON m.ExamID = e.ExamID
+                    JOIN Subjects sub ON e.SubjectID = sub.SubjectID
+                    JOIN Lecturers l ON m.GradedBy = l.LecturerID
+                    WHERE m.Status = 'Active' AND m.ExamID = @examId";
 
                 var parameters = new Dictionary<string, object>
-        {
-            { "@examId", examId }
-        };
+                {
+                    { "@examId", examId }
+                };
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
                 {
@@ -310,7 +312,9 @@ namespace UnicomTICManagementSystem.Repositories
                             ExamID = reader["ExamID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["ExamID"]) : null,
                             StudentName = reader["StudentName"].ToString(),
                             ExamName = reader["ExamName"].ToString(),
-                            LecturerName = reader["LecturerName"].ToString()
+                            LecturerName = reader["LecturerName"].ToString(),
+                            SubjectName = reader["SubjectName"].ToString()
+
                         });
                     }
                 }
@@ -322,6 +326,40 @@ namespace UnicomTICManagementSystem.Repositories
 
             return marks;
         }
+        public async Task<List<Mark>> GetMarksByStudentAndSubjectAsync(int studentID, int subjectID)
+        {
+            var marks = new List<Mark>();
+
+            string query = @"
+                SELECT m.TotalMark, m.GradedDate, e.ExamName, s.SubjectName
+                FROM Marks m
+                INNER JOIN Exams e ON m.ExamID = e.ExamID
+                INNER JOIN Subjects s ON e.SubjectID = s.SubjectID
+                WHERE m.StudentID = @StudentID AND s.SubjectID = @SubjectID AND m.Status = 'Active'";
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@StudentID", studentID },
+                { "@SubjectID", subjectID }
+            };
+
+            using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+            {
+                while (await reader.ReadAsync())
+                {
+                    marks.Add(new Mark
+                    {
+                        SubjectName = reader["SubjectName"].ToString(),
+                        ExamName = reader["ExamName"].ToString(),
+                        TotalMark = Convert.ToInt32(reader["TotalMark"]),
+                        GradedDate = Convert.ToDateTime(reader["GradedDate"])
+                    });
+                }
+            }
+
+            return marks;
+        }
+
 
 
 

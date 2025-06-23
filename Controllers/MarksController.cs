@@ -127,6 +127,11 @@ namespace UnicomTICManagementSystem.Controllers
                 return new List<Mark>();
             }
         }
+        public async Task<List<Mark>> GetMarksByStudentAndSubjectAsync(int studentID, int subjectID)
+        {
+            return await _marksService.GetMarksByStudentAndSubjectAsync(studentID, subjectID);
+        }
+
     }
 
 }

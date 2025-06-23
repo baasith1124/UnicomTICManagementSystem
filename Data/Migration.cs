@@ -32,6 +32,9 @@ namespace UnicomTICManagementSystem.Data
                 await InsertDefaultDepartments(connection);
                 await InsertDefaultPositions(connection);
                 await InsertDefaultAdmin(connection);
+                await InsertSampleCourses(connection);
+                await InsertSampleSubjects(connection);
+                await InsertSampleRooms(connection);
             }
         }
 
@@ -40,7 +43,8 @@ namespace UnicomTICManagementSystem.Data
             string query = @"
                 CREATE TABLE IF NOT EXISTS Departments (
                     DepartmentID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    DepartmentName TEXT UNIQUE NOT NULL
+                    DepartmentName TEXT UNIQUE NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active'
                 );";
             await DatabaseManager.ExecuteNonQueryAsync(query, null);
         }
@@ -52,6 +56,7 @@ namespace UnicomTICManagementSystem.Data
                     PositionID INTEGER PRIMARY KEY AUTOINCREMENT,
                     DepartmentID INTEGER NOT NULL,
                     PositionName TEXT UNIQUE NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
                 );";
             await DatabaseManager.ExecuteNonQueryAsync(query, null);
@@ -59,7 +64,7 @@ namespace UnicomTICManagementSystem.Data
 
         private static async Task InsertDefaultDepartments(SQLiteConnection conn)
         {
-            string[] departments = { "IT", "Math", "Physics", "Business", "Engineering", "Management" };
+            string[] departments = { "IT", "Physics", "Business", "Engineering", "Management" };
             foreach (var dept in departments)
             {
                 string checkQuery = "SELECT COUNT(*) FROM Departments WHERE DepartmentName = @name";
@@ -81,9 +86,8 @@ namespace UnicomTICManagementSystem.Data
                 { "IT", new[] { "Lab Instructor", "Admin Assistant", "Technician" } },
                 { "Business", new[] { "HR Assistant", "Accountant", "Office Coordinator" } },
                 { "Engineering", new[] { "Workshop Manager", "Safety Officer", "Lab Assistant" } },
-                { "Math", new[] { "Tutor", "Exam Coordinator", "Research Assistant" } },
                 { "Physics", new[] { "Lab Technician", "Physics Assistant" } },
-                { "Management", new[] { "Director", "Secretary" } }
+                { "Management", new[] { "Secretary" } }
             };
 
             foreach (var dept in seedPositions)
@@ -172,6 +176,7 @@ namespace UnicomTICManagementSystem.Data
                     Phone TEXT,
                     RegisteredDate TEXT NOT NULL,
                     IsApproved INTEGER DEFAULT 0 CHECK (IsApproved IN (0, 1)),
+                    Status TEXT DEFAULT 'Active',
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
                 );", null);
 
@@ -181,6 +186,7 @@ namespace UnicomTICManagementSystem.Data
                     CourseName TEXT UNIQUE NOT NULL,
                     Description TEXT,
                     DepartmentID INTEGER NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
                 );", null);
 
@@ -190,6 +196,8 @@ namespace UnicomTICManagementSystem.Data
                     SubjectName TEXT NOT NULL,
                     SubjectCode TEXT UNIQUE NOT NULL,
                     CourseID INTEGER NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active',
+                    
                     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
                 );", null);
 
@@ -199,6 +207,7 @@ namespace UnicomTICManagementSystem.Data
                     UserID INTEGER UNIQUE NOT NULL,
                     Name TEXT NOT NULL,
                     DepartmentID INTEGER,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID) ON DELETE SET NULL
                 );", null);
@@ -209,6 +218,7 @@ namespace UnicomTICManagementSystem.Data
                     LecturerID INTEGER NOT NULL,
                     SubjectID INTEGER NOT NULL,
                     AssignedDate TEXT,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (LecturerID) REFERENCES Lecturers(LecturerID),
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
                     UNIQUE (LecturerID, SubjectID)
@@ -221,6 +231,7 @@ namespace UnicomTICManagementSystem.Data
                     Name TEXT NOT NULL,
                     CourseID INTEGER NOT NULL,
                     EnrollmentDate TEXT,
+                    Status TEXT DEFAULT 'Active',
                     FOREIGN KEY (UserID) REFERENCES Users(UserID),
                     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
                 );", null);
@@ -232,6 +243,7 @@ namespace UnicomTICManagementSystem.Data
                     Name TEXT NOT NULL,
                     DepartmentID INTEGER,
                     PositionID INTEGER,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (UserID) REFERENCES Users(UserID),
                     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
                     FOREIGN KEY (PositionID) REFERENCES Positions(PositionID)
@@ -244,6 +256,7 @@ namespace UnicomTICManagementSystem.Data
                     SubjectID INTEGER NOT NULL,
                     ExamDate TEXT NOT NULL,
                     Duration INTEGER,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID)
                 );", null);
 
@@ -259,6 +272,7 @@ namespace UnicomTICManagementSystem.Data
                     GradedBy INTEGER,
                     GradedDate TEXT,
                     ExamID INTEGER,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
                     FOREIGN KEY (GradedBy) REFERENCES Lecturers(LecturerID),
@@ -271,7 +285,8 @@ namespace UnicomTICManagementSystem.Data
                     RoomID INTEGER PRIMARY KEY AUTOINCREMENT,
                     RoomName TEXT UNIQUE NOT NULL,
                     RoomType TEXT NOT NULL CHECK (RoomType IN ('Lab', 'Hall')),
-                    Capacity INTEGER DEFAULT 0
+                    Capacity INTEGER DEFAULT 0,
+                    Status TEXT NOT NULL DEFAULT 'Active'
                 );", null);
 
         private static async Task CreateTimetablesTable(SQLiteConnection conn) => await DatabaseManager.ExecuteNonQueryAsync(@"
@@ -282,6 +297,7 @@ namespace UnicomTICManagementSystem.Data
                     LecturerID INTEGER NOT NULL,
                     ScheduledDate TEXT NOT NULL,
                     TimeSlot TEXT NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active',  
                     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
                     FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
                     FOREIGN KEY (LecturerID) REFERENCES Lecturers(LecturerID),
@@ -293,13 +309,116 @@ namespace UnicomTICManagementSystem.Data
                     AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
                     TimetableID INTEGER NOT NULL,
                     StudentID INTEGER NOT NULL,
-                    Status TEXT NOT NULL CHECK (Status IN ('Present','Absent','Late','Excused')),
+                    AttendanceStatus TEXT NOT NULL CHECK (AttendanceStatus IN ('Present','Absent','Late','Excused')),
                     MarkedBy INTEGER NOT NULL,
                     MarkedDate TEXT NOT NULL,
+                    Status TEXT NOT NULL DEFAULT 'Active',
                     FOREIGN KEY (TimetableID) REFERENCES Timetables(TimetableID),
                     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
                     FOREIGN KEY (MarkedBy) REFERENCES Lecturers(LecturerID),
                     UNIQUE (TimetableID, StudentID)
                 );", null);
+
+        private static async Task InsertSampleSubjects(SQLiteConnection conn)
+        {
+            var subjectSamples = new[]
+            {
+                new { Name = "Data Structures", Code = "SE1001", Course = "Software Engineering" },
+                new { Name = "Organizational Behavior", Code = "BM1001", Course = "Business Management" },
+                new { Name = "Thermodynamics", Code = "ME1001", Course = "Mechanical Engineering" }
+            };
+
+            foreach (var sub in subjectSamples)
+            {
+                string courseQuery = "SELECT CourseID FROM Courses WHERE CourseName = @name";
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@name", sub.Course }
+                };
+                int courseID = Convert.ToInt32(await DatabaseManager.ExecuteScalarAsync(courseQuery, parameters));
+
+                string check = "SELECT COUNT(*) FROM Subjects WHERE SubjectCode = @code";
+                var checkParams = new Dictionary<string, object>
+                {
+                    { "@code", sub.Code }
+                };
+                long count = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(check, checkParams));
+
+                if (count == 0)
+                {
+                    string insert = "INSERT INTO Subjects (SubjectName, SubjectCode, CourseID) VALUES (@name, @code, @cid)";
+                    var insertParams = new Dictionary<string, object>
+                    {
+                        { "@name", sub.Name },
+                        { "@code", sub.Code },
+                        { "@cid", courseID }
+                    };
+                    await DatabaseManager.ExecuteNonQueryAsync(insert, insertParams);
+                }
+            }
+        }
+
+        private static async Task InsertSampleCourses(SQLiteConnection conn)
+        {
+            var courseSamples = new[]
+            {
+                new { Name = "Software Engineering", Desc = "Focused on building scalable applications", Dept = "IT" },
+                new { Name = "Business Management", Desc = "Management fundamentals", Dept = "Business" },
+                new { Name = "Mechanical Engineering", Desc = "Machine and system design", Dept = "Engineering" }
+            };
+
+            foreach (var course in courseSamples)
+            {
+                int deptId = await GetDepartmentIDAsync(course.Dept);
+                string checkQuery = "SELECT COUNT(*) FROM Courses WHERE CourseName = @name";
+                var parameters = new Dictionary<string, object> { { "@name", course.Name } };
+                long exists = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(checkQuery, parameters));
+
+                if (exists == 0)
+                {
+                    string insert = "INSERT INTO Courses (CourseName, Description, DepartmentID) VALUES (@name, @desc, @deptID)";
+                    var insertParams = new Dictionary<string, object>
+                    {
+                        { "@name", course.Name },
+                        { "@desc", course.Desc },
+                        { "@deptID", deptId }
+                    };
+                    await DatabaseManager.ExecuteNonQueryAsync(insert, insertParams);
+                }
+            }
+        }
+        private static async Task InsertSampleRooms(SQLiteConnection conn)
+        {
+            var rooms = new[]
+            {
+                new { Name = "Lab main", Type = "Lab", Capacity = 30 },
+                new { Name = "Hall A", Type = "Hall", Capacity = 100 }
+            };
+
+            foreach (var room in rooms)
+            {
+                string check = "SELECT COUNT(*) FROM Rooms WHERE RoomName = @name";
+                var parameters = new Dictionary<string, object> { { "@name", room.Name } };
+                long exists = Convert.ToInt64(await DatabaseManager.ExecuteScalarAsync(check, parameters));
+
+                if (exists == 0)
+                {
+                    string insert = "INSERT INTO Rooms (RoomName, RoomType, Capacity) VALUES (@name, @type, @cap)";
+                    var insertParams = new Dictionary<string, object>
+                    {
+                        { "@name", room.Name },
+                        { "@type", room.Type },
+                        { "@cap", room.Capacity }
+                    };
+                    await DatabaseManager.ExecuteNonQueryAsync(insert, insertParams);
+                }
+            }
+        }
+
+
+
+
     }
+
+
 }

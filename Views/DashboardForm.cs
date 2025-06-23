@@ -22,6 +22,7 @@ namespace UnicomTICManagementSystem.Views
         private readonly User currentUser;
         private readonly LecturerController _lecturerController;
         private readonly StudentController _studentController;
+        private readonly LoginForm loginForm;
 
 
 
@@ -47,6 +48,8 @@ namespace UnicomTICManagementSystem.Views
 
             IUserService userService = new UserService(userRepository, studentRepo, staffRepository, lecturerRepo);
             _approvalController = new ApprovalController(userService);
+
+            loginForm = new LoginForm();
 
             ConfigureUIByRole();
         }
@@ -76,6 +79,8 @@ namespace UnicomTICManagementSystem.Views
                 btnLecturerSubject.Visible = false;
                 btnRooms.Visible = false;
                 btnTimetable.Visible = false;
+                btnAskAssistant.Visible = false;
+                btnUserProfile.Visible = false; 
 
                 if (currentUser.Role == "Admin")
                 {
@@ -93,6 +98,8 @@ namespace UnicomTICManagementSystem.Views
                     btnLecturerSubject.Visible = true;
                     btnRooms.Visible = true;
                     btnTimetable.Visible = true;
+                    btnUserProfile.Visible = true;
+                    btnAskAssistant.Visible = true;
 
                     await LoadPendingUsersAsync();
                 }
@@ -101,18 +108,26 @@ namespace UnicomTICManagementSystem.Views
                     btnAttendances.Visible = true;
                     btnMarks.Visible = true;
                     btnExams.Visible = true;
+                    btnUserProfile.Visible = true;
+                    btnAskAssistant.Visible = true;
+                    btnTimetable.Visible=true;
+
                 }
                 else if (currentUser.Role == "Staff")
                 {
                     btnMarks.Visible = true;
-                    btnCourses.Visible = true;
-                    btnStudents.Visible = true;
-                    btnLecturers.Visible = true;
+                    btnExams.Visible = true;
+                    btnTimetable.Visible = true;
+                    btnUserProfile.Visible = true;
+                    btnAskAssistant.Visible = true;
                 }
                 else if (currentUser.Role == "Student")
                 {
                     btnMarks.Visible = true;
                     btnExams.Visible = true;
+                    btnAskAssistant.Visible = true;
+                    btnUserProfile.Visible = true;
+                    btnTimetable.Visible = true;
                 }
             }
             catch (Exception ex)
@@ -195,7 +210,7 @@ namespace UnicomTICManagementSystem.Views
                 }
                 else if (currentUser.Role == "Student")
                 {
-                    int studentID = await GetLecturerIDFromUserIDAsync();
+                    int studentID = await GetStudentIDFromUserIDAsync();
                     LoadControl(new StudentMarksControl(studentID));
                 }
             }
@@ -207,7 +222,8 @@ namespace UnicomTICManagementSystem.Views
 
         private void btnLogout_Click(object sender, EventArgs e)
         {
-            Application.Restart();
+            this.Close();
+            loginForm.ShowDialog();
         }
 
         private async Task LoadPendingUsersAsync()
@@ -231,8 +247,13 @@ namespace UnicomTICManagementSystem.Views
                 if (dgvPendingUsers.CurrentRow != null)
                 {
                     int userID = (int)dgvPendingUsers.CurrentRow.Cells["UserID"].Value;
-                    await _approvalController.ApproveUserAsync(userID);
+                    string fullName = dgvPendingUsers.CurrentRow.Cells["FullName"].Value.ToString();
+                    string email = dgvPendingUsers.CurrentRow.Cells["Email"].Value.ToString();
+                    string role = dgvPendingUsers.CurrentRow.Cells["Role"].Value.ToString();
+                    await _approvalController.ApproveUserAsync(userID, fullName, email, role);
                     MessageBox.Show("✅ User approved.");
+
+                   
                     await LoadPendingUsersAsync();
                 }
             }
@@ -263,14 +284,35 @@ namespace UnicomTICManagementSystem.Views
             LoadControl(new RoomControl());
         }
 
-        private void btnTimetable_Click(object sender, EventArgs e)
+        private async void btnTimetable_Click(object sender, EventArgs e)
         {
-            LoadControl(new TimetableControl());
+            try
+            {
+                if (currentUser.Role == "Admin"||currentUser.Role == "Staff")
+                {
+                    LoadControl(new TimetableControl());
+                }
+                else if (currentUser.Role == "Lecturer")
+                {
+                    int lecturerID = await GetLecturerIDFromUserIDAsync();
+                    LoadControl(new LecturerTimetableControl(lecturerID));
+                }
+                else if (currentUser.Role == "Student")
+                {
+                    int studentID = await GetStudentIDFromUserIDAsync();
+                    var student = await _studentController.GetStudentByIDAsync(studentID);
+                    LoadControl(new StudentTimetableControl(student.CourseID));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Failed to load timetable view.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void btnExams_Click(object sender, EventArgs e)
         {
-            if (currentUser.Role == "Admin")
+            if (currentUser.Role == "Admin" || currentUser.Role == "Staff")
             {
                 LoadControl(new AdminExamControl());
             }
@@ -281,10 +323,21 @@ namespace UnicomTICManagementSystem.Views
             }
             else if (currentUser.Role == "Student")
             {
-                int studentID = await GetLecturerIDFromUserIDAsync();
+                int studentID = await GetStudentIDFromUserIDAsync();
                 LoadControl(new StudentExamControl(studentID));
             }
 
+        }
+
+        private void btnAskAssistant_Click(object sender, EventArgs e)
+        {
+            LoadControl(new AssistantControl());
+
+        }
+
+        private void btnUserProfile_Click(object sender, EventArgs e)
+        {
+            LoadControl(new UserProfileControl(currentUser));
         }
     }
 }

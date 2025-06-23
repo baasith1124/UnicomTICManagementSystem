@@ -60,13 +60,64 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Courses WHERE CourseID = @CourseID";
-                var parameters = new Dictionary<string, object>
-                {
-                    { "@CourseID", courseId }
-                };
+                // 1. Soft delete course
+                string updateCourseQuery = "UPDATE Courses SET Status = 'Inactive' WHERE CourseID = @CourseID";
+                var parameters = new Dictionary<string, object> { { "@CourseID", courseId } };
+                await DatabaseManager.ExecuteNonQueryAsync(updateCourseQuery, parameters);
 
-                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+                // 2. Soft delete subjects
+                string updateSubjectsQuery = "UPDATE Subjects SET Status = 'Inactive' WHERE CourseID = @CourseID";
+                await DatabaseManager.ExecuteNonQueryAsync(updateSubjectsQuery, parameters);
+
+                // 3. Soft delete students
+                string updateStudentsQuery = "UPDATE Students SET Status = 'Inactive' WHERE CourseID = @CourseID";
+                await DatabaseManager.ExecuteNonQueryAsync(updateStudentsQuery, parameters);
+
+                // 3a. Soft delete related Users
+                string getStudentUserIDs = "SELECT UserID FROM Students WHERE CourseID = @CourseID AND Status = 'Inactive'";
+                using (var reader = await DatabaseManager.ExecuteReaderAsync(getStudentUserIDs, parameters))
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        int userID = reader.GetInt32(0);
+                        string updateUserQuery = "UPDATE Users SET Status = 'Inactive' WHERE UserID = @UserID";
+                        await DatabaseManager.ExecuteNonQueryAsync(updateUserQuery, new Dictionary<string, object> { { "@UserID", userID } });
+                    }
+                }
+
+                // 4. Soft delete assigned subjects
+                string updateAssignedSubjects = @"
+                    UPDATE LecturerSubjects SET Status = 'Inactive'
+                    WHERE SubjectID IN (SELECT SubjectID FROM Subjects WHERE CourseID = @CourseID)";
+                await DatabaseManager.ExecuteNonQueryAsync(updateAssignedSubjects, parameters);
+
+                // 5. Soft delete timetables
+                string updateTimetables = @"
+                    UPDATE Timetables SET Status = 'Inactive'
+                    WHERE SubjectID IN (SELECT SubjectID FROM Subjects WHERE CourseID = @CourseID)";
+                await DatabaseManager.ExecuteNonQueryAsync(updateTimetables, parameters);
+
+                // 6. Soft delete exams
+                string updateExams = @"
+                    UPDATE Exams SET Status = 'Inactive'
+                    WHERE SubjectID IN (SELECT SubjectID FROM Subjects WHERE CourseID = @CourseID)";
+                await DatabaseManager.ExecuteNonQueryAsync(updateExams, parameters);
+
+                // 7. Soft delete marks
+                string updateMarks = @"
+                    UPDATE Marks SET Status = 'Inactive'
+                    WHERE ExamID IN (SELECT ExamID FROM Exams WHERE SubjectID IN (
+                SELECT SubjectID FROM Subjects WHERE CourseID = @CourseID))";
+                await DatabaseManager.ExecuteNonQueryAsync(updateMarks, parameters);
+
+                // 8. Soft delete attendance
+                string updateAttendance = @"
+                    UPDATE Attendance SET Status = 'Inactive'
+                    WHERE TimetableID IN (
+                        SELECT TimetableID FROM Timetables WHERE SubjectID IN (
+                            SELECT SubjectID FROM Subjects WHERE CourseID = @CourseID))";
+                await DatabaseManager.ExecuteNonQueryAsync(updateAttendance, parameters);
+
             }
             catch (Exception ex)
             {
@@ -79,7 +130,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Courses WHERE CourseID = @CourseID";
+                string query = "SELECT * FROM Courses WHERE Status = 'Active' AND CourseID = @CourseID";
                 var parameters = new Dictionary<string, object>
                 {
                     { "@CourseID", courseId }
@@ -108,7 +159,8 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"SELECT c.*, d.DepartmentName 
                          FROM Courses c 
-                         LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID";
+                         LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
+                         WHERE c.Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -136,7 +188,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"SELECT c.*, d.DepartmentName 
                          FROM Courses c 
                          LEFT JOIN Departments d ON c.DepartmentID = d.DepartmentID
-                         WHERE c.CourseName LIKE @CourseName";
+                         WHERE c.Status = 'Active' AND c.CourseName LIKE @CourseName";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -166,7 +218,11 @@ namespace UnicomTICManagementSystem.Repositories
             var courses = new List<Course>();
             try
             {
-                string query = "SELECT * FROM Courses WHERE DepartmentID = @DepartmentID";
+                string query = @"
+                    SELECT c.*, d.DepartmentName
+                    FROM Courses c
+                    JOIN Departments d ON c.DepartmentID = d.DepartmentID
+                    WHERE c.DepartmentID = @DepartmentID AND Status = 'Active'";
                 var parameters = new Dictionary<string, object>
                 {
                     { "@DepartmentID", departmentId }

@@ -145,12 +145,16 @@ namespace UnicomTICManagementSystem.Views
                 dgvMarks.Columns["AssignmentMark"].Visible = false;
                 dgvMarks.Columns["MidExamMark"].Visible = false;
                 dgvMarks.Columns["FinalExamMark"].Visible = false;
+                dgvMarks.Columns["GradedBy"].Visible = false;
+                dgvMarks.Columns["SubjectID"].Visible = false;
 
                 dgvMarks.Columns["StudentName"].HeaderText = "Student";
                 dgvMarks.Columns["ExamName"].HeaderText = "Exam";
                 dgvMarks.Columns["TotalMark"].HeaderText = "Mark";
                 dgvMarks.Columns["LecturerName"].HeaderText = "Graded By";
                 dgvMarks.Columns["GradedDate"].HeaderText = "Date";
+                dgvMarks.Columns["SubjectName"].HeaderText = "Subject";
+
 
                 for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)
                 {

@@ -63,7 +63,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Subjects WHERE SubjectID = @SubjectID";
+                string query = "UPDATE Subjects SET Status = 'Inactive' WHERE SubjectID = @SubjectID";
                 var parameters = new Dictionary<string, object> { { "@SubjectID", subjectID } };
                 await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
             }
@@ -80,7 +80,8 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
                                  FROM Subjects s
-                                 INNER JOIN Courses c ON s.CourseID = c.CourseID";
+                                 INNER JOIN Courses c ON s.CourseID = c.CourseID
+                                 WHERE s.Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -112,7 +113,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
                                  FROM Subjects s
                                  INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                 WHERE s.SubjectName LIKE @keyword";
+                                 WHERE WHERE s.Status = 'Active' AND s.SubjectName LIKE @keyword";
 
                 var parameters = new Dictionary<string, object> { { "@keyword", "%" + keyword + "%" } };
 
@@ -145,7 +146,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
                                  FROM Subjects s
                                  INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                 WHERE s.SubjectID = @SubjectID";
+                                 WHERE s.Status = 'Active' AND s.SubjectID = @SubjectID";
 
                 var parameters = new Dictionary<string, object> { { "@SubjectID", subjectID } };
 
@@ -179,7 +180,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"SELECT s.SubjectID, s.SubjectName, s.SubjectCode, s.CourseID, c.CourseName
                                  FROM Subjects s
                                  INNER JOIN Courses c ON s.CourseID = c.CourseID
-                                 WHERE s.CourseID = @CourseID";
+                                 WHERE s.Status = 'Active' AND s.CourseID = @CourseID";
 
                 var parameters = new Dictionary<string, object> { { "@CourseID", courseID } };
 
@@ -215,7 +216,7 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM LecturerSubjects ls
                     INNER JOIN Subjects s ON ls.SubjectID = s.SubjectID
                     INNER JOIN Courses c ON s.CourseID = c.CourseID
-                    WHERE ls.LecturerID = @LecturerID";
+                    WHERE s.Status = 'Active' AND ls.LecturerID = @LecturerID";
 
                 var parameters = new Dictionary<string, object> { { "@LecturerID", lecturerID } };
 

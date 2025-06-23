@@ -69,7 +69,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Timetables WHERE TimetableID = @TimetableID";
+                string query = "UPDATE Timetables SET Status = 'Inactive' WHERE TimetableID = @TimetableID";
                 var parameters = new Dictionary<string, object> { { "@TimetableID", timetableID } };
 
                 await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
@@ -91,7 +91,8 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Timetables t
                     INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
                     INNER JOIN Rooms r ON t.RoomID = r.RoomID
-                    INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID";
+                    INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID
+                    WHERE t.Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -131,7 +132,7 @@ namespace UnicomTICManagementSystem.Repositories
                     INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
                     INNER JOIN Rooms r ON t.RoomID = r.RoomID
                     INNER JOIN Lecturers l ON t.LecturerID = l.LecturerID
-                    WHERE s.SubjectName LIKE @keyword OR l.Name LIKE @keyword OR r.RoomName LIKE @keyword";
+                    WHERE t.Status = 'Active' AND  (s.SubjectName LIKE @keyword OR l.Name LIKE @keyword OR r.RoomName LIKE @keyword)";
 
                 var parameters = new Dictionary<string, object> { { "@keyword", "%" + keyword + "%" } };
 
@@ -165,7 +166,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT * FROM Timetables WHERE SubjectID = @SubjectID AND ScheduledDate = @Date";
+                string query = "SELECT * FROM Timetables WHERE SubjectID = @SubjectID AND ScheduledDate = @Date AND Status = 'Active'";
                 var parameters = new Dictionary<string, object>
                 {
                     {"@SubjectID", subjectID},
@@ -202,7 +203,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"SELECT t.*, s.SubjectName, s.CourseID
                                  FROM Timetables t
                                  INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                                 WHERE t.TimetableID = @TimetableID";
+                                 WHERE t.TimetableID = @TimetableID AND t.Status = 'Active'";
 
                 var parameters = new Dictionary<string, object> { { "@TimetableID", timetableID } };
 
@@ -236,10 +237,12 @@ namespace UnicomTICManagementSystem.Repositories
             var timetables = new List<Timetable>();
             try
             {
-                string query = @"SELECT t.*, s.SubjectName, s.CourseID
+                string query = @"SELECT t.*, s.SubjectName,r.RoomName, c.CourseName, s.CourseID
                                  FROM Timetables t
-                                 INNER JOIN Subjects s ON t.SubjectID = s.SubjectID
-                                 WHERE t.LecturerID = @LecturerID";
+                                 JOIN Subjects s ON t.SubjectID = s.SubjectID
+                                 JOIN Rooms r ON t.RoomID = r.RoomID
+                                 JOIN Courses c ON s.CourseID = c.CourseID
+                                 WHERE t.LecturerID = @LecturerID AND t.Status = 'Active'";
 
                 var parameters = new Dictionary<string, object> { { "@LecturerID", lecturerID } };
 
@@ -255,7 +258,10 @@ namespace UnicomTICManagementSystem.Repositories
                             LecturerID = Convert.ToInt32(reader["LecturerID"]),
                             TimeSlot = reader["TimeSlot"].ToString(),
                             ScheduledDate = DateTime.Parse(reader["ScheduledDate"].ToString()),
+                            
                             SubjectName = reader["SubjectName"].ToString(),
+                            RoomName = reader["RoomName"].ToString(),
+                            CourseName = reader["CourseName"].ToString(),
                             CourseID = Convert.ToInt32(reader["CourseID"])
                         });
                     }
@@ -267,6 +273,44 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return timetables;
         }
+        public async Task<List<Timetable>> GetTimetablesByCourseAsync(int courseID)
+        {
+            var list = new List<Timetable>();
+            string query = @"
+                SELECT 
+                    t.TimetableID, t.TimeSlot, t.ScheduledDate,
+                    s.SubjectName, r.RoomName, l.Name AS LecturerName
+                FROM Timetables t
+                JOIN Subjects s ON t.SubjectID = s.SubjectID
+                JOIN Rooms r ON t.RoomID = r.RoomID
+                JOIN Lecturers l ON t.LecturerID = l.LecturerID
+                WHERE s.CourseID = @courseID AND t.Status = 'Active'
+                ORDER BY t.ScheduledDate, t.TimeSlot";
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@courseID", courseID }
+            };
+
+            using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+            {
+                while (await reader.ReadAsync())
+                {
+                    list.Add(new Timetable
+                    {
+                        TimetableID = Convert.ToInt32(reader["TimetableID"]),
+                        SubjectName = reader["SubjectName"].ToString(),
+                        RoomName = reader["RoomName"].ToString(),
+                        LecturerName = reader["LecturerName"].ToString(),
+                        ScheduledDate = Convert.ToDateTime(reader["ScheduledDate"]),
+                        TimeSlot = reader["TimeSlot"].ToString()
+                    });
+                }
+            }
+
+            return list;
+        }
+
 
 
 

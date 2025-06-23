@@ -201,6 +201,8 @@ namespace UnicomTICManagementSystem.Views
                     dgvTimetables.Columns["CourseID"].Visible = false;
                 if (dgvTimetables.Columns["TimetableID"] != null)
                     dgvTimetables.Columns["TimetableID"].Visible = false;
+                if (dgvTimetables.Columns["CourseName"] != null)
+                    dgvTimetables.Columns["CourseName"].Visible = false;
             }
             catch (Exception ex)
             {

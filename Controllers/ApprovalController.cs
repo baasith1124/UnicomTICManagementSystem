@@ -31,11 +31,11 @@ namespace UnicomTICManagementSystem.Controllers
             }
         }
 
-        public async Task ApproveUserAsync(int userID)
+        public async Task ApproveUserAsync(int userID,string fullName,string email,string role)
         {
             try
             {
-                await _userService.ApproveUserAsync(userID);
+                await _userService.ApproveUserAsync(userID,fullName,email,role);
             }
             catch (Exception ex)
             {

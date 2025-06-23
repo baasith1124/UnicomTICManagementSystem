@@ -17,6 +17,7 @@ namespace UnicomTICManagementSystem.Interfaces
         Task<List<Mark>> GetMarksByStudentAsync(int studentID);
         Task<List<Mark>> GetAllMarksAsync();
         Task<List<Mark>> GetMarksByExamAsync(int examId);
+        Task<List<Mark>> GetMarksByStudentAndSubjectAsync(int studentID, int subjectID);
 
 
 

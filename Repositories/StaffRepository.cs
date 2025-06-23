@@ -68,14 +68,24 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Staff WHERE StaffID = @StaffID";
+                //Get associated UserID from Staff table
+                string getUserQuery = "SELECT UserID FROM Staff WHERE StaffID = @StaffID";
+                var getParams = new Dictionary<string, object> { { "@StaffID", staffID } };
+                object userIdObj = await DatabaseManager.ExecuteScalarAsync(getUserQuery, getParams);
 
-                var parameters = new Dictionary<string, object>
+                if (userIdObj != null)
                 {
-                    { "@StaffID", staffID }
-                };
+                    int userID = Convert.ToInt32(userIdObj);
 
-                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+                    //Delete from Staff table
+                    string deleteStaffQuery = "UPDATE Staff SET Status = 'Inactive' WHERE StaffID = @StaffID";
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteStaffQuery, getParams);
+
+                    //Delete from Users table
+                    string deleteUserQuery = "UPDATE Users SET Status = 'Inactive' WHERE UserID = @UserID";
+                    var deleteUserParams = new Dictionary<string, object> { { "@UserID", userID } };
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteUserQuery, deleteUserParams);
+                }
             }
             catch (Exception ex)
             {
@@ -97,7 +107,8 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Staff s
                     INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
                     INNER JOIN Positions p ON s.PositionID = p.PositionID
-                    INNER JOIN Users u ON s.UserID = u.UserID";
+                    INNER JOIN Users u ON s.UserID = u.UserID
+                    WHERE s.Status = 'Active' AND u.Status = 'Active'";
 
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
                 using (reader)
@@ -138,7 +149,7 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Staff s
                     INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
                     INNER JOIN Positions p ON s.PositionID = p.PositionID
-                    WHERE s.StaffID = @StaffID";
+                    WHERE s.Status = 'Active' AND s.StaffID = @StaffID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -183,7 +194,7 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Staff s
                     INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
                     INNER JOIN Positions p ON s.PositionID = p.PositionID
-                    WHERE s.Name LIKE @keyword";
+                    WHERE s.Status = 'Active' AND u.Status = 'Active' AND s.Name LIKE @keyword";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -226,7 +237,7 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Staff s
                     INNER JOIN Departments d ON s.DepartmentID = d.DepartmentID
                     INNER JOIN Positions p ON s.PositionID = p.PositionID
-                    WHERE s.UserID = @UserID";
+                    WHERE s.Status = 'Active' AND s.UserID = @UserID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -263,7 +274,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM Staff WHERE UserID = @UserID";
+                string query = "SELECT COUNT(1) FROM Staff WHERE Status = 'Active' AND UserID = @UserID";
                 var parameters = new Dictionary<string, object>
                 {
                     { "@UserID", userId }
@@ -284,7 +295,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT UserID FROM Staff WHERE StaffID = @staffID";
+                string query = "SELECT UserID FROM Staff WHERE Status = 'Active' AND StaffID = @staffID";
                 var parameters = new Dictionary<string, object>
                 {
                     { "@staffID", staffID }
@@ -302,6 +313,18 @@ namespace UnicomTICManagementSystem.Repositories
             }
             return -1;
         }
+        public async Task UpdateStaffNameByUserIdAsync(int userId, string newName)
+        {
+            string query = "UPDATE Staff SET Name = @Name WHERE UserID = @UserID";
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Name", newName },
+                { "@UserID", userId }
+            };
+
+            await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+        }
+
 
     }
 }

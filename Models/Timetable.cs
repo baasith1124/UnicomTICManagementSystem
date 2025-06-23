@@ -19,6 +19,7 @@ namespace UnicomTICManagementSystem.Models
         public string TimeSlot { get; set; }
 
         public int CourseID { get; set; }
+        public string CourseName { get; set; }
         public string TimetableDisplay
         {
             get

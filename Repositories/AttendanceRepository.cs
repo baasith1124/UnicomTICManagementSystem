@@ -18,14 +18,14 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            INSERT INTO Attendance (TimetableID, StudentID, Status, MarkedBy, MarkedDate)
-            VALUES (@TimetableID, @StudentID, @Status, @MarkedBy, @MarkedDate)";
+                    INSERT INTO Attendance (TimetableID, StudentID, AttendanceStatus, MarkedBy, MarkedDate)
+                    VALUES (@TimetableID, @StudentID, @AttendanceStatus, @MarkedBy, @MarkedDate)";
 
                 var parameters = new Dictionary<string, object>
                 {
                     {"@TimetableID", attendance.TimetableID},
                     {"@StudentID", attendance.StudentID},
-                    {"@Status", attendance.Status},
+                    {"@AttendanceStatus", attendance.Status},
                     {"@MarkedBy", attendance.MarkedBy},
                     {"@MarkedDate", attendance.MarkedDate.ToString("yyyy-MM-dd")}
                 };
@@ -44,13 +44,17 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-            UPDATE Attendance 
-            SET Status = @Status 
-            WHERE AttendanceID = @AttendanceID";
+                    UPDATE Attendance 
+                    SET AttendanceStatus = @AttendanceStatus,
+                         MarkedBy = @MarkedBy, 
+                         MarkedDate = @MarkedDate 
+                    WHERE AttendanceID = @AttendanceID";
 
                 var parameters = new Dictionary<string, object>
                 {
-                    { "@Status", attendance.Status },
+                    { "@AttendanceStatus", attendance.Status },
+                    { "@MarkedBy", attendance.MarkedBy },
+                    { "@MarkedDate", attendance.MarkedDate },
                     { "@AttendanceID", attendance.AttendanceID }
                 };
 
@@ -67,7 +71,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Attendance WHERE AttendanceID = @AttendanceID";
+                string query = "UPDATE Attendance SET Status = 'Inactive' WHERE AttendanceID = @AttendanceID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -90,7 +94,7 @@ namespace UnicomTICManagementSystem.Repositories
                 string query = @"
                     SELECT AttendanceID, TimetableID, StudentID, Status, MarkedBy, MarkedDate 
                     FROM Attendance
-                    WHERE AttendanceID = @AttendanceID";
+                    WHERE  Status = 'Active' AND AttendanceID = @AttendanceID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -128,11 +132,23 @@ namespace UnicomTICManagementSystem.Repositories
             try
             {
                 string query = @"
-                    SELECT a.AttendanceID, a.TimetableID, a.StudentID, s.Name AS StudentName, 
-                           a.Status, a.MarkedBy, a.MarkedDate
+                    SELECT 
+                        a.AttendanceID,
+                        a.TimetableID,
+                        a.StudentID,
+                        a.AttendanceID,
+                        s.Name AS StudentName,
+                        sub.SubjectName AS SubjectName,
+                        a.AttendanceStatus,
+                        u.FullName AS MarkedBy,
+                        a.MarkedDate
                     FROM Attendance a
                     INNER JOIN Students s ON a.StudentID = s.StudentID
-                    WHERE a.TimetableID = @TimetableID";
+                    INNER JOIN Timetables t ON a.TimetableID = t.TimetableID
+                    INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID
+                    INNER JOIN Users u ON a.MarkedBy = u.UserID
+                    WHERE a.TimetableID = @TimetableID AND a.Status = 'Active'
+                ";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -149,8 +165,9 @@ namespace UnicomTICManagementSystem.Repositories
                             TimetableID = Convert.ToInt32(reader["TimetableID"]),
                             StudentID = Convert.ToInt32(reader["StudentID"]),
                             StudentName = reader["StudentName"].ToString(),
-                            Status = reader["Status"].ToString(),
-                            MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                            SubjectName = reader["SubjectName"].ToString(),
+                            Status = reader["AttendanceStatus"].ToString(),
+                            MarkedByName = reader["MarkedBy"].ToString(),
                             MarkedDate = DateTime.Parse(reader["MarkedDate"].ToString())
                         });
                     }
@@ -176,7 +193,8 @@ namespace UnicomTICManagementSystem.Repositories
                     FROM Attendance a
                     INNER JOIN Students s ON a.StudentID = s.StudentID
                     INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
-                    INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID";
+                    INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID
+                    WHERE a.Status = 'Active'";
 
                 using (var reader = await DatabaseManager.ExecuteReaderAsync(query, null))
                 {
@@ -217,7 +235,7 @@ namespace UnicomTICManagementSystem.Repositories
                     INNER JOIN Students s ON a.StudentID = s.StudentID
                     INNER JOIN Timetable t ON a.TimetableID = t.TimetableID
                     INNER JOIN Subjects sub ON t.SubjectID = sub.SubjectID
-                    WHERE t.SubjectID = @SubjectID AND a.MarkedDate = @Date";
+                    WHERE  a. Status = 'Active' AND  t.SubjectID = @SubjectID AND a.MarkedDate = @Date";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -250,6 +268,40 @@ namespace UnicomTICManagementSystem.Repositories
 
             return attendanceList;
         }
+        public async Task<Attendance> GetAttendanceByStudentAndDateAsync(int timetableID, int studentID, DateTime date)
+        {
+            Attendance attendance = null;
+
+            string query = @"
+                SELECT * FROM Attendance 
+                WHERE StudentID = @studentID AND TimetableID = @timetableID AND date(MarkedDate) = date(@date)";
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@studentID", studentID },
+                { "@timetableID", timetableID },
+                { "@date", date.ToString("yyyy-MM-dd") }
+            };
+
+            using (var reader = await DatabaseManager.ExecuteReaderAsync(query, parameters))
+            {
+                if (await reader.ReadAsync())
+                {
+                    attendance = new Attendance
+                    {
+                        AttendanceID = Convert.ToInt32(reader["AttendanceID"]),
+                        StudentID = studentID,
+                        TimetableID = timetableID,
+                        Status = reader["Status"].ToString(),
+                        MarkedBy = Convert.ToInt32(reader["MarkedBy"]),
+                        MarkedDate = Convert.ToDateTime(reader["MarkedDate"])
+                    };
+                }
+            }
+
+            return attendance;
+        }
+
 
 
 

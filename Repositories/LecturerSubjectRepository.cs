@@ -39,7 +39,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM LecturerSubjects WHERE LecturerSubjectID = @ID";
+                string query = "UPDATE LecturerSubjects SET Status = 'Inactive' WHERE LecturerSubjectID = @ID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -65,7 +65,8 @@ namespace UnicomTICManagementSystem.Repositories
                            ls.SubjectID, s.SubjectName, ls.AssignedDate
                     FROM LecturerSubjects ls
                     INNER JOIN Lecturers l ON ls.LecturerID = l.LecturerID
-                    INNER JOIN Subjects s ON ls.SubjectID = s.SubjectID";
+                    INNER JOIN Subjects s ON ls.SubjectID = s.SubjectID
+                    WHERE ls.Status = 'Active'";
 
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
 

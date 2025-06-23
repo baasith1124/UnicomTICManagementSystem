@@ -20,7 +20,7 @@ namespace UnicomTICManagementSystem.Repositories
             {
                 string query = @"SELECT PositionID, DepartmentID, PositionName 
                                  FROM Positions 
-                                 WHERE DepartmentID = @DepartmentID";
+                                 WHERE  Status = 'Active' AND DepartmentID = @DepartmentID";
 
                 var parameters = new Dictionary<string, object>
                 {

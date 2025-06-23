@@ -122,29 +122,35 @@ namespace UnicomTICManagementSystem.Views
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            // Form validations
-            if (string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtName.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text))
-            {
-                MessageBox.Show("Please fill in all required fields.");
-                return;
-            }
-
-            if (txtPassword.Text.Length < 8)
-            {
-                MessageBox.Show("Password must be at least 8 characters.");
-                return;
-            }
-
-            // Build User object
             try
             {
+                if (string.IsNullOrWhiteSpace(txtUsername.Text) ||
+                    string.IsNullOrWhiteSpace(txtName.Text) ||
+                    string.IsNullOrWhiteSpace(txtEmail.Text))
+                {
+                    MessageBox.Show("Please fill in all required fields.");
+                    return;
+                }
+
+                string password = txtPassword.Text.Trim();
+                bool updatePassword = !string.IsNullOrWhiteSpace(password);
+
+                if (!isUpdateMode && password.Length < 8)
+                {
+                    MessageBox.Show("Password must be at least 8 characters.");
+                    return;
+                }
+
+                if (isUpdateMode && updatePassword && password.Length < 8)
+                {
+                    MessageBox.Show("Password must be at least 8 characters.");
+                    return;
+                }
+
+                // Build User
                 User user = new User
                 {
                     Username = txtUsername.Text.Trim(),
-                    Password = PasswordHasher.HashPassword(txtPassword.Text.Trim()),
                     FullName = txtName.Text.Trim(),
                     Role = "Student",
                     Email = txtEmail.Text.Trim(),
@@ -158,16 +164,33 @@ namespace UnicomTICManagementSystem.Views
 
                 if (!isUpdateMode)
                 {
-                    await _userController.AdminRegisterStudentAsync(user, courseID, enrollmentDate);
-                    MessageBox.Show("Student successfully added.");
+                    user.Password = PasswordHasher.HashPassword(password);
+                    await _userController.AdminRegisterStudentAsync(user, courseID, enrollmentDate, password);
                 }
                 else
                 {
-                    MessageBox.Show("Update logic will be handled separately.");
+                    user.UserID = (int)dgvStudents.CurrentRow.Cells["UserID"].Value;
+
+                    if (updatePassword)
+                    {
+                        user.Password = PasswordHasher.HashPassword(password);
+                    }
+                    else
+                    {
+                        var existingUser = await _userController.GetUserByIdAsync(user.UserID);
+                        user.Password = existingUser.Password;
+                    }
+
+                    await _userController.AdminUpdateStudentAsync(user, selectedStudentID, courseID, enrollmentDate);
+                    MessageBox.Show("Student updated successfully.");
                 }
 
                 await LoadStudentsAsync();
                 SwitchToGrid();
+            }
+            catch (ValidationException vex)
+            {
+                MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
@@ -190,7 +213,7 @@ namespace UnicomTICManagementSystem.Views
                 if (confirm == DialogResult.Yes)
                 {
                     await _studentController.DeleteStudentAsync(studentID);
-                    MessageBox.Show("Student deleted successfully.");
+                    
                     await LoadStudentsAsync();
                 }
             }
@@ -250,6 +273,7 @@ namespace UnicomTICManagementSystem.Views
         {
             txtUsername.Clear();
             txtPassword.Clear();
+            txtConfirmPassword.Clear();
             txtName.Clear();
             txtEmail.Clear();
             txtPhone.Clear();

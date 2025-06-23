@@ -45,7 +45,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM Lecturers WHERE UserID = @UserID";
+                string query = "SELECT COUNT(1) FROM Lecturers WHERE Status = 'Active' AND UserID = @UserID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -94,14 +94,24 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "DELETE FROM Lecturers WHERE LecturerID = @LecturerID";
+                // Get associated UserID
+                string getUserQuery = "SELECT UserID FROM Lecturers WHERE LecturerID = @LecturerID";
+                var getParams = new Dictionary<string, object> { { "@LecturerID", lecturerID } };
+                object userIdObj = await DatabaseManager.ExecuteScalarAsync(getUserQuery, getParams);
 
-                var parameters = new Dictionary<string, object>
+                if (userIdObj != null)
                 {
-                    { "@LecturerID", lecturerID }
-                };
+                    int userID = Convert.ToInt32(userIdObj);
 
-                await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+                    // Delete from Lecturers table
+                    string deleteLecturerQuery = "UPDATE  Lecturers SET Status = 'Inactive' WHERE LecturerID = @LecturerID";
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteLecturerQuery, getParams);
+
+                    // Delete from Users table
+                    string deleteUserQuery = "UPDATE  Users SET Status = 'Inactive' WHERE UserID = @UserID";
+                    var deleteUserParams = new Dictionary<string, object> { { "@UserID", userID } };
+                    await DatabaseManager.ExecuteNonQueryAsync(deleteUserQuery, deleteUserParams);
+                }
             }
             catch (Exception ex)
             {
@@ -121,7 +131,8 @@ namespace UnicomTICManagementSystem.Repositories
                            u.Email, u.Phone
                     FROM Lecturers l
                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                    INNER JOIN Users u ON l.UserID = u.UserID";
+                    INNER JOIN Users u ON l.UserID = u.UserID
+                    WHERE l.Status = 'Active'";
 
                 var reader = await DatabaseManager.ExecuteReaderAsync(query, null);
                 using (reader)
@@ -159,7 +170,7 @@ namespace UnicomTICManagementSystem.Repositories
                            l.DepartmentID, d.DepartmentName
                     FROM Lecturers l
                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                    WHERE l.Name LIKE @keyword";
+                    WHERE l.Status = 'Active' AND l.Name LIKE @keyword";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -199,7 +210,7 @@ namespace UnicomTICManagementSystem.Repositories
                            l.DepartmentID, d.DepartmentName
                     FROM Lecturers l
                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                    WHERE l.LecturerID = @LecturerID";
+                    WHERE l.Status = 'Active' AND l.LecturerID = @LecturerID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -238,7 +249,7 @@ namespace UnicomTICManagementSystem.Repositories
                            l.DepartmentID, d.DepartmentName
                     FROM Lecturers l
                     INNER JOIN Departments d ON l.DepartmentID = d.DepartmentID
-                    WHERE l.UserID = @UserID";
+                    WHERE l.Status = 'Active' AND l.UserID = @UserID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -272,7 +283,7 @@ namespace UnicomTICManagementSystem.Repositories
         {
             try
             {
-                string query = "SELECT LecturerID FROM Lecturers WHERE UserID = @userID";
+                string query = "SELECT LecturerID FROM Lecturers WHERE Status = 'Active' AND UserID = @userID";
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -291,6 +302,18 @@ namespace UnicomTICManagementSystem.Repositories
                 return -1;
             }
         }
+        public async Task UpdateLecturerNameByUserIdAsync(int userId, string newName)
+        {
+            string query = "UPDATE Lecturers SET Name = @Name WHERE UserID = @UserID";
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Name", newName },
+                { "@UserID", userId }
+            };
+
+            await DatabaseManager.ExecuteNonQueryAsync(query, parameters);
+        }
+
 
 
 

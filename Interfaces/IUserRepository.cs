@@ -18,5 +18,8 @@ namespace UnicomTICManagementSystem.Interfaces
 
         Task<List<User>> GetPendingApprovalsAsync();
         Task<List<User>> GetUsersAsync();
+
+        Task UpdateUserProfileAsync(User user);
+        Task UpdateUserAsync(User user);
     }
 }

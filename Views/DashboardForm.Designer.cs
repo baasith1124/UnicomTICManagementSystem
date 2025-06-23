@@ -28,8 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DashboardForm));
             this.btnApprove = new System.Windows.Forms.Button();
             this.panelSidebar = new System.Windows.Forms.Panel();
+            this.btnUserProfile = new System.Windows.Forms.Button();
+            this.btnAskAssistant = new System.Windows.Forms.Button();
             this.btnAttendances = new System.Windows.Forms.Button();
             this.btnExams = new System.Windows.Forms.Button();
             this.btnRooms = new System.Windows.Forms.Button();
@@ -66,6 +69,8 @@
             // 
             // panelSidebar
             // 
+            this.panelSidebar.Controls.Add(this.btnUserProfile);
+            this.panelSidebar.Controls.Add(this.btnAskAssistant);
             this.panelSidebar.Controls.Add(this.btnAttendances);
             this.panelSidebar.Controls.Add(this.btnExams);
             this.panelSidebar.Controls.Add(this.btnRooms);
@@ -86,9 +91,31 @@
             this.panelSidebar.Size = new System.Drawing.Size(212, 818);
             this.panelSidebar.TabIndex = 2;
             // 
+            // btnUserProfile
+            // 
+            this.btnUserProfile.Location = new System.Drawing.Point(12, 504);
+            this.btnUserProfile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnUserProfile.Name = "btnUserProfile";
+            this.btnUserProfile.Size = new System.Drawing.Size(181, 28);
+            this.btnUserProfile.TabIndex = 15;
+            this.btnUserProfile.Text = "Profile";
+            this.btnUserProfile.UseVisualStyleBackColor = true;
+            this.btnUserProfile.Click += new System.EventHandler(this.btnUserProfile_Click);
+            // 
+            // btnAskAssistant
+            // 
+            this.btnAskAssistant.Location = new System.Drawing.Point(12, 472);
+            this.btnAskAssistant.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnAskAssistant.Name = "btnAskAssistant";
+            this.btnAskAssistant.Size = new System.Drawing.Size(181, 28);
+            this.btnAskAssistant.TabIndex = 14;
+            this.btnAskAssistant.Text = "Ask Assistant";
+            this.btnAskAssistant.UseVisualStyleBackColor = true;
+            this.btnAskAssistant.Click += new System.EventHandler(this.btnAskAssistant_Click);
+            // 
             // btnAttendances
             // 
-            this.btnAttendances.Location = new System.Drawing.Point(10, 408);
+            this.btnAttendances.Location = new System.Drawing.Point(10, 443);
             this.btnAttendances.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAttendances.Name = "btnAttendances";
             this.btnAttendances.Size = new System.Drawing.Size(181, 25);
@@ -99,7 +126,7 @@
             // 
             // btnExams
             // 
-            this.btnExams.Location = new System.Drawing.Point(10, 348);
+            this.btnExams.Location = new System.Drawing.Point(10, 383);
             this.btnExams.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnExams.Name = "btnExams";
             this.btnExams.Size = new System.Drawing.Size(181, 25);
@@ -110,7 +137,7 @@
             // 
             // btnRooms
             // 
-            this.btnRooms.Location = new System.Drawing.Point(9, 284);
+            this.btnRooms.Location = new System.Drawing.Point(9, 319);
             this.btnRooms.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRooms.Name = "btnRooms";
             this.btnRooms.Size = new System.Drawing.Size(181, 27);
@@ -121,7 +148,7 @@
             // 
             // btnLecturerSubject
             // 
-            this.btnLecturerSubject.Location = new System.Drawing.Point(12, 253);
+            this.btnLecturerSubject.Location = new System.Drawing.Point(9, 288);
             this.btnLecturerSubject.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLecturerSubject.Name = "btnLecturerSubject";
             this.btnLecturerSubject.Size = new System.Drawing.Size(181, 27);
@@ -132,7 +159,7 @@
             // 
             // btnSubjects
             // 
-            this.btnSubjects.Location = new System.Drawing.Point(9, 222);
+            this.btnSubjects.Location = new System.Drawing.Point(9, 257);
             this.btnSubjects.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSubjects.Name = "btnSubjects";
             this.btnSubjects.Size = new System.Drawing.Size(181, 27);
@@ -143,7 +170,7 @@
             // 
             // btnDepartments
             // 
-            this.btnDepartments.Location = new System.Drawing.Point(9, 191);
+            this.btnDepartments.Location = new System.Drawing.Point(9, 226);
             this.btnDepartments.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDepartments.Name = "btnDepartments";
             this.btnDepartments.Size = new System.Drawing.Size(181, 27);
@@ -154,7 +181,7 @@
             // 
             // btnTimetable
             // 
-            this.btnTimetable.Location = new System.Drawing.Point(9, 315);
+            this.btnTimetable.Location = new System.Drawing.Point(9, 350);
             this.btnTimetable.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTimetable.Name = "btnTimetable";
             this.btnTimetable.Size = new System.Drawing.Size(181, 30);
@@ -165,7 +192,7 @@
             // 
             // btnStaff
             // 
-            this.btnStaff.Location = new System.Drawing.Point(9, 159);
+            this.btnStaff.Location = new System.Drawing.Point(9, 194);
             this.btnStaff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStaff.Name = "btnStaff";
             this.btnStaff.Size = new System.Drawing.Size(181, 28);
@@ -176,7 +203,7 @@
             // 
             // btnStudents
             // 
-            this.btnStudents.Location = new System.Drawing.Point(9, 93);
+            this.btnStudents.Location = new System.Drawing.Point(9, 128);
             this.btnStudents.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStudents.Name = "btnStudents";
             this.btnStudents.Size = new System.Drawing.Size(181, 31);
@@ -187,7 +214,7 @@
             // 
             // btnLecturers
             // 
-            this.btnLecturers.Location = new System.Drawing.Point(9, 128);
+            this.btnLecturers.Location = new System.Drawing.Point(9, 163);
             this.btnLecturers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLecturers.Name = "btnLecturers";
             this.btnLecturers.Size = new System.Drawing.Size(181, 27);
@@ -198,10 +225,10 @@
             // 
             // btnLogout
             // 
-            this.btnLogout.Location = new System.Drawing.Point(9, 519);
+            this.btnLogout.Location = new System.Drawing.Point(10, 608);
             this.btnLogout.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLogout.Name = "btnLogout";
-            this.btnLogout.Size = new System.Drawing.Size(181, 39);
+            this.btnLogout.Size = new System.Drawing.Size(181, 33);
             this.btnLogout.TabIndex = 2;
             this.btnLogout.Text = "Logout";
             this.btnLogout.UseVisualStyleBackColor = true;
@@ -209,7 +236,7 @@
             // 
             // btnMarks
             // 
-            this.btnMarks.Location = new System.Drawing.Point(9, 379);
+            this.btnMarks.Location = new System.Drawing.Point(9, 414);
             this.btnMarks.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnMarks.Name = "btnMarks";
             this.btnMarks.Size = new System.Drawing.Size(181, 25);
@@ -220,7 +247,7 @@
             // 
             // btnCourses
             // 
-            this.btnCourses.Location = new System.Drawing.Point(9, 58);
+            this.btnCourses.Location = new System.Drawing.Point(9, 93);
             this.btnCourses.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCourses.Name = "btnCourses";
             this.btnCourses.Size = new System.Drawing.Size(181, 31);
@@ -277,12 +304,15 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1608, 818);
+            this.ControlBox = false;
             this.Controls.Add(this.panelContent);
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.panelSidebar);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "DashboardForm";
-            this.Text = "AdminDashboardForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Unicom Tic Dashboard";
             this.panelSidebar.ResumeLayout(false);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
@@ -312,5 +342,7 @@
         private System.Windows.Forms.Button btnRooms;
         private System.Windows.Forms.Button btnExams;
         private System.Windows.Forms.Button btnAttendances;
+        private System.Windows.Forms.Button btnAskAssistant;
+        private System.Windows.Forms.Button btnUserProfile;
     }
 }

@@ -115,46 +115,26 @@ namespace UnicomTICManagementSystem.Views
         {
             try
             {
-                if (cmbSubjectFilter.SelectedValue == null)
+                if (cmbSubjectFilter.SelectedValue == null || !int.TryParse(cmbSubjectFilter.SelectedValue.ToString(), out int subjectID))
+                    return;
+
+                var marks = await _marksController.GetMarksByStudentAndSubjectAsync(studentID, subjectID);
+
+                if (marks.Count == 0)
                 {
                     dgvMarks.DataSource = null;
+                    MessageBox.Show("No marks found for the selected subject.");
                     return;
                 }
 
-                if (!int.TryParse(cmbSubjectFilter.SelectedValue.ToString(), out int subjectID))
+                dgvMarks.DataSource = marks.Select(m => new
                 {
-                    MessageBox.Show("Invalid subject selected.");
-                    return;
-                }
+                    m.SubjectName,
+                    m.ExamName,
+                    m.TotalMark,
+                    m.GradedDate
+                }).ToList();
 
-                var allMarks = await _marksController.GetMarksByStudentAsync(studentID);
-                if (allMarks == null)
-                {
-                    MessageBox.Show("No marks available for the selected student.", "No Data");
-                    dgvMarks.DataSource = null;
-                    return;
-                }
-
-                var filteredMarks = allMarks
-                    .Where(m => m.SubjectID == subjectID)
-                    .OrderByDescending(m => m.TotalMark)
-                    .Select(m => new
-                    {
-                        m.SubjectName,
-                        m.ExamName,
-                        m.TotalMark,
-                        m.GradedDate
-                    })
-                    .ToList();
-
-                if (filteredMarks.Count == 0)
-                {
-                    dgvMarks.DataSource = null;
-                    MessageBox.Show("No marks found for the selected subject.", "No Records");
-                    return;
-                }
-
-                dgvMarks.DataSource = filteredMarks;
                 dgvMarks.Columns["GradedDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
 
                 for (int i = 0; i < Math.Min(3, dgvMarks.Rows.Count); i++)

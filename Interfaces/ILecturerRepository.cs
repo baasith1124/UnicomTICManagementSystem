@@ -18,6 +18,8 @@ namespace UnicomTICManagementSystem.Interfaces
         Task<Lecturer> GetLecturerByUserIdAsync(int userID);
         Task<bool> LecturerExistsByUserIdAsync(int userId);
         Task<int> GetLecturerIDByUserIDAsync(int userID);
+        Task UpdateLecturerNameByUserIdAsync(int userId, string newName);
+
 
 
     }

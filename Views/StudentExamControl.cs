@@ -54,8 +54,8 @@ namespace UnicomTICManagementSystem.Views
         {
             this.Dock = DockStyle.Fill;
 
-            Label lblSubject = new Label { Text = "Subject:", Location = new Point(20, 20) };
-            cmbSubject = new ComboBox { Location = new Point(100, 20), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblSubject = new Label { Text = "Subject:", Location = new Point(20, 20), AutoSize = true };
+            cmbSubject = new ComboBox { Location = new Point(140, 20), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbSubject.SelectedIndexChanged += cmbSubject_SelectedIndexChanged;
 
             dgvExams = new DataGridView
@@ -79,8 +79,11 @@ namespace UnicomTICManagementSystem.Views
                 if (student == null)
                 {
                     MessageBox.Show("Student data not found.", "Error");
+                    
                     return;
                 }
+                //MessageBox.Show($"Student Course ID: {student.CourseID}");
+
 
                 var subjects = await _subjectController.GetSubjectsByCourseAsync(student.CourseID);
                 if (subjects == null || subjects.Count == 0)
@@ -115,6 +118,7 @@ namespace UnicomTICManagementSystem.Views
                 if (!int.TryParse(cmbSubject.SelectedValue.ToString(), out int subjectID))
                 {
                     MessageBox.Show("Invalid subject selected.");
+
                     return;
                 }
 
@@ -127,6 +131,12 @@ namespace UnicomTICManagementSystem.Views
                 else
                 {
                     dgvExams.DataSource = exams;
+
+                    if (dgvExams.Columns.Contains("ExamID"))
+                        dgvExams.Columns["ExamID"].Visible = false;
+
+                    if (dgvExams.Columns.Contains("SubjectID"))
+                        dgvExams.Columns["SubjectID"].Visible = false;
                 }
             }
             catch (Exception ex)

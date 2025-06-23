@@ -108,5 +108,10 @@ namespace UnicomTICManagementSystem.Controllers
                 return new List<Attendance>();
             }
         }
+        public async Task<Attendance> GetAttendanceAsync(int timetableID, int studentID, DateTime date)
+        {
+            return await _attendanceService.GetAttendanceByStudentAndDateAsync(timetableID, studentID, date);
+        }
+
     }
 }
