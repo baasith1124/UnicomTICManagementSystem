@@ -4,7 +4,54 @@
 A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern themed UI, async-enabled operations, and third-party integrations.
 `When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
 
-## For First Login  UserName - admin , Password - admin123
+## For First Run  
+- **UserName** - admin , **Password** - admin123`
+--**Will Throw this error** 
+- .resx files (like LoginForm.resx, DashboardForm.resx, etc.) are **blocked** by Windows since they came from the internet. Windows adds a "Mark of the Web" (MOTW) to downloaded files, which puts them in a restricted zone.
+
+**🔧 How to Fix the "Mark of the Web" Issue**
+✅ Option 1: Unblock the Files Manually (Best for Small Projects)
+Do this for each .resx file causing the issue:
+
+- Open File Explorer.
+
+- Navigate to the folder containing the project files.
+
+- Find the file (e.g., LoginForm.resx).
+
+- Right-click the file → Properties.
+
+- At the bottom of the General tab, if you see:
+
+- "This file came from another computer and might be blocked to help protect this computer."
+
+- Click Unblock checkbox.
+
+- Click Apply → OK.
+
+*Repeat this for other .resx files (DashboardForm.resx, RegistrationForm.resx, etc.).*
+
+**To Run This Project Need To RE Install Some Packages**
+✅ Step 1: Restore NuGet Packages
+
+- Open the solution (.sln) file in Visual Studio, then:
+
+  1. Go to the Tools menu → NuGet Package Manager → **Package Manager Console**
+
+  2. In the console, run:
+  ```
+  Update-Package -reinstall
+  ```
+✅ Step 2: Clean & Rebuild the Project
+  In Visual Studio:
+
+  Go to Build → Clean Solution
+
+  Then Build → Rebuild Solution
+
+✅ Step 5: Run the App
+  Press F5 to run the application.
+
 
 ---
 
