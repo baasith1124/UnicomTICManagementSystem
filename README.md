@@ -5,9 +5,10 @@ A robust, beginner-friendly C# WinForms-based academic management platform for i
 `When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
 
 ## For First Run  
-- **UserName** - admin , **Password** - admin123`
+- **UserName** - admin , **Password** - admin123
+
 **Will Throw this error** 
-- .resx files (like LoginForm.resx, DashboardForm.resx, etc.) are **blocked** by Windows since they came from the internet. Windows adds a "Mark of the Web" (MOTW) to downloaded files, which puts them in a restricted zone.
+  .resx files (like LoginForm.resx, DashboardForm.resx, etc.) are **blocked** by Windows since they came from the internet. Windows adds a "Mark of the Web" (MOTW) to downloaded files, which puts them in a restricted zone.
 
 **🔧 How to Fix the "Mark of the Web" Issue**
 - Unblock the Files Manually (Best for Small Projects)
