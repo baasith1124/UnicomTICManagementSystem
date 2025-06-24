@@ -3,7 +3,16 @@
 
 A robust, beginner-friendly C# WinForms-based academic management platform for institutions, built using MVC architecture and SQLite. This project supports role-based access for Admins, Lecturers, Staff, and Students with a modern themed UI, async-enabled operations, and third-party integrations.
 `When Run The Application Connect with wifi Project Need To Download Packages and For API Responce`
+- **Use Orignal Emails for Registration and Login To Receive Email**
 
+## 🔐 API Key Setup
+
+This project requires an OpenRouter GPT API key.
+
+- 1. Replace `"YOUR_API_KEY_HERE"` with the actual API key (provided privately in **Project_Report.pdf's Additinal Note Section** )
+- 2. Do **not** push `appsettings.json` to GitHub with actual key
+
+---
 ## To Run This Project Need To RE Install Some Packages
 
 ✅ Step 1: Restore NuGet Packages
